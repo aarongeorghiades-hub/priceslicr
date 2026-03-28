@@ -1,12 +1,8 @@
 export default function LaptopsPage() {
   return (
-    <main className="min-h-screen bg-brand-light px-6 py-12">
-      <h1 className="font-display text-4xl font-bold text-brand-dark mb-4">
-        Laptop comparison
-      </h1>
-      <p className="text-brand-muted">
-        Product data loading. Check back shortly.
-      </p>
+    <main className="min-h-screen px-12 py-16">
+      <h1 className="font-display text-4xl font-bold mb-4">Laptop comparison</h1>
+      <p className="text-[var(--muted)]">Product data loading. Check back shortly.</p>
     </main>
   )
 }

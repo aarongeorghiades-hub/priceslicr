@@ -7,13 +7,13 @@ export const metadata: Metadata = {
     template: '%s | PriceSlicr',
   },
   description:
-    'Compare laptop prices across every UK retailer — new, refurbished, and used. Slice through the headline price to find every available saving: cashback, trade-in, student discounts, price matching, and timing intelligence.',
+    'Compare laptop prices across every UK retailer — new, refurbished, and used. Slice through to cashback, trade-in, price matching, student rates, and sale timing.',
   keywords: [
     'laptop price comparison UK',
     'refurbished laptop UK',
     'Back Market UK',
     'cashback electronics UK',
-    'price match UK laptop',
+    'price match laptop UK',
     'best laptop deals UK',
   ],
   openGraph: {
@@ -21,22 +21,13 @@ export const metadata: Metadata = {
     locale: 'en_GB',
     siteName: 'PriceSlicr',
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  robots: { index: true, follow: true },
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-GB">
-      <body className="min-h-screen bg-brand-light">
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
