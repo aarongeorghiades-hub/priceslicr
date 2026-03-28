@@ -10,6 +10,12 @@ export type DiscountType =
   | 'armed_forces'
   | 'email'
   | 'credit_card'
+  | 'gift_card'
+  | 'card_linked'
+  | 'youth_discount'
+  | 'refurbished'
+  | 'trade_in'
+  | 'salary_sacrifice'
 export type ValueType = 'percentage' | 'fixed_amount' | 'service'
 export type SaleConfidence = 'confirmed' | 'expected' | 'historical_pattern'
 
