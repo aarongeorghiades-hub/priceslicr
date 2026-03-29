@@ -26,8 +26,16 @@ export async function generateMetadata({
   const product = await getProductBySlug(slug)
   if (!product) return {}
   return {
-    title: `${product.name} — Price Comparison`,
-    description: `Compare ${product.name} prices across every UK retailer. Find every available saving: cashback, trade-in, student discounts, price matching, and sale timing. Updated daily.`,
+    title: `${product.name} — Price Comparison UK`,
+    description: `Compare ${product.name} prices across every UK retailer — new, refurbished, and used. Find every available saving: cashback, trade-in, student discounts, price matching, and sale timing. Updated daily.`,
+    openGraph: {
+      title: `${product.name} — Price Comparison`,
+      description: `Find the lowest price on ${product.name} across every UK retailer.`,
+      url: `https://priceslicr.com/laptops/${slug}`,
+    },
+    alternates: {
+      canonical: `https://priceslicr.com/laptops/${slug}`,
+    },
   }
 }
 
@@ -48,21 +56,87 @@ export default async function ProductPage({
 
   const listings = await getListingsForProduct(product.id)
 
-  // Derive retailer IDs represented in listings
   const retailerIds = new Set(listings.map(l => l.retailer_id))
 
-  // Filter discount layers to those relevant to this product's retailers
-  // Include universal layers (retailer_id = null) and retailer-specific layers
   const relevantLayers = layers.filter(
     layer => layer.retailer_id === null || retailerIds.has(layer.retailer_id) || listings.length === 0
   )
 
-  // Cheapest new listing for savings estimate
   const cheapestNew = listings.find(l => l.condition === 'new')
   const cheapestRefurb = listings.find(l => l.condition !== 'new')
 
+  // Build JSON-LD Product schema
+  const productSchema: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    brand: {
+      '@type': 'Brand',
+      name: product.brand,
+    },
+    category: product.category,
+    url: `https://priceslicr.com/laptops/${slug}`,
+    description: `Compare ${product.name} prices across every UK retailer. New, refurbished, and used options with cashback, trade-in, and price match intelligence.`,
+  }
+
+  if (listings.length > 0) {
+    productSchema.offers = {
+      '@type': 'AggregateOffer',
+      priceCurrency: 'GBP',
+      lowPrice: listings[0]?.price_gbp,
+      highPrice: listings[listings.length - 1]?.price_gbp,
+      offerCount: listings.length,
+      availability: 'https://schema.org/InStock',
+      offers: listings.slice(0, 5).map(l => ({
+        '@type': 'Offer',
+        priceCurrency: 'GBP',
+        price: l.price_gbp,
+        itemCondition:
+          l.condition === 'new'
+            ? 'https://schema.org/NewCondition'
+            : l.condition === 'certified_refurbished'
+            ? 'https://schema.org/RefurbishedCondition'
+            : 'https://schema.org/UsedCondition',
+        availability: 'https://schema.org/InStock',
+        seller: {
+          '@type': 'Organization',
+          name: l.retailer?.name ?? 'UK Retailer',
+        },
+        url: l.url,
+      })),
+    }
+  }
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Laptops',
+        item: 'https://priceslicr.com/laptops',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: product.name,
+        item: `https://priceslicr.com/laptops/${slug}`,
+      },
+    ],
+  }
+
   return (
     <div className="dark-section min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       {/* Radar background */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute inset-0 bg-[image:linear-gradient(rgba(0,194,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(0,194,255,0.025)_1px,transparent_1px)] bg-[size:48px_48px]" />
