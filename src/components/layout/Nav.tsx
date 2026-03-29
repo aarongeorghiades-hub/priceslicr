@@ -20,6 +20,9 @@ export default function Nav() {
         <Link href="/trade-in" className="text-sm text-[var(--muted)] hover:text-[var(--ink)] transition-colors">
           Trade-in
         </Link>
+        <Link href="/sale-timing" className="text-sm text-[var(--muted)] hover:text-[var(--ink)] transition-colors">
+          Sale timing
+        </Link>
         <Link href="/how-it-works" className="text-sm text-[var(--muted)] hover:text-[var(--ink)] transition-colors">
           How it works
         </Link>
