@@ -6,5 +6,5 @@ export const metadata = {
 }
 
 export default function TVsPage() {
-  return <CategoryIndex category="tv" title="TVs" singular="TV" description="Compare TV prices across every UK retailer. OLED, QLED, Mini-LED — every saving layer from cashback to price matching." />
+  return <CategoryIndex category="tv" title="TVs" singular="TV" labelOverride="UK TVs COMPARISON" description="Compare TV prices across every UK retailer. OLED, QLED, Mini-LED — every saving layer from cashback to price matching." />
 }

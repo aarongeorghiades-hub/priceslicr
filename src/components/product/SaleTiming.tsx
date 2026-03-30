@@ -27,7 +27,7 @@ export default function SaleTiming({ events }: { events: SaleEvent[] }) {
     <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden">
       <div className="px-5 py-4 border-b border-[var(--border)]">
         <div className="font-display font-bold text-white text-sm">Sale timing intelligence</div>
-        <div className="text-xs text-[var(--muted)] mt-1">Upcoming events where laptop prices historically drop</div>
+        <div className="text-xs text-[var(--ink)] opacity-80 mt-1">Upcoming events where prices historically drop</div>
       </div>
 
       {events.map((event, i) => {

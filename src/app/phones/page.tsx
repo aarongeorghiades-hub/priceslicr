@@ -6,5 +6,5 @@ export const metadata = {
 }
 
 export default function PhonesPage() {
-  return <CategoryIndex category="phone" title="Phones" singular="phone" description="Compare outright phone prices across every UK retailer — new and refurbished. Every saving layer: cashback, trade-in, student rates, and price matching. Pairs with any SIM-only contract." />
+  return <CategoryIndex category="phone" title="Phones" singular="SIM-free phone" description="Compare outright phone prices across every UK retailer — new and refurbished. Every saving layer: cashback, trade-in, student rates, and price matching. Pairs with any SIM-only contract." />
 }

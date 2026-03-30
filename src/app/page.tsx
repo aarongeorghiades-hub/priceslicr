@@ -46,7 +46,7 @@ export default function HomePage() {
       <Nav />
 
       {/* Hero */}
-      <section className="relative z-10 max-w-6xl mx-auto px-12 py-20 grid grid-cols-2 gap-20 items-center min-h-[88vh] overflow-hidden">
+      <section className="relative z-10 max-w-6xl mx-auto px-12 py-20 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center min-h-[88vh] overflow-hidden">
         {/* Radial glow behind demo card */}
         <div
           className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none"
@@ -104,11 +104,11 @@ export default function HomePage() {
 
       {/* Countdown */}
       <div className="relative z-10 max-w-6xl mx-auto px-12 py-16">
-        <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-8">Sale timing intelligence</div>
+        <div className="text-xs uppercase tracking-widest text-[var(--ink)] opacity-80 mb-8">Sale timing intelligence</div>
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-7 grid grid-cols-[1fr_auto] gap-10 items-center">
           <div>
             <div className="font-display text-xl font-extrabold text-white mb-2">Black Friday 2026</div>
-            <div className="text-sm text-[var(--muted)] mb-4">Historically 20&ndash;60% off laptops. Deepest discounts of the year.</div>
+            <div className="text-sm text-[var(--muted)] mb-4">Historically 20&ndash;60% off electronics. Deepest discounts of the year.</div>
             <div className="inline-flex items-center gap-2 text-xs text-[var(--savings)] bg-[var(--savings-dim)] border border-[rgba(0,255,133,0.18)] px-3 py-1.5 rounded-full">
               &#x2B25; Confirmed: 27 November 2026
             </div>

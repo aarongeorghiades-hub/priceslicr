@@ -19,9 +19,10 @@ interface CategoryIndexProps {
   title: string
   singular?: string
   description: string
+  labelOverride?: string
 }
 
-export default async function CategoryIndex({ category, title, singular, description }: CategoryIndexProps) {
+export default async function CategoryIndex({ category, title, singular, description, labelOverride }: CategoryIndexProps) {
   const supabase = await createServerSupabaseClient()
   const { data: products } = await supabase
     .from('products')
@@ -47,18 +48,18 @@ export default async function CategoryIndex({ category, title, singular, descrip
 
       <div className="relative z-10 max-w-6xl mx-auto px-12 py-10">
         <div className="mb-10">
-          <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-3">UK {title} Comparison</div>
+          <div className="text-xs tracking-widest text-[var(--ink)] opacity-80 mb-3">{labelOverride ?? `UK ${title.toUpperCase()} COMPARISON`}</div>
           <h1 className="font-display text-5xl font-extrabold text-white leading-tight">
-            Every {(singular ?? title).toLowerCase()}.<br />
+            Every {singular ?? title.toLowerCase()}.<br />
             <span className="text-[var(--slice)]">Every saving.</span>
           </h1>
-          <p className="text-[var(--muted)] text-lg mt-4 max-w-xl">{description}</p>
+          <p className="text-[var(--ink)] opacity-80 text-lg mt-4 max-w-xl">{description}</p>
         </div>
 
         <div className="space-y-8">
           {Object.entries(grouped).map(([brand, brandProducts]) => (
             <div key={brand}>
-              <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-4 font-medium border-b border-[var(--border)] pb-3">
+              <div className="text-xs uppercase tracking-widest text-[var(--ink)] opacity-80 mb-4 font-medium border-b border-[var(--border)] pb-3">
                 {brand}
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -66,9 +67,9 @@ export default async function CategoryIndex({ category, title, singular, descrip
                   <Link
                     key={product.id}
                     href={`/${routePrefix}/${product.slug}`}
-                    className="group bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 hover:border-[var(--slice)] transition-colors slice-bar"
+                    className="group bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 hover:border-[var(--slice)] hover:-translate-y-1 transition-all duration-200 slice-bar"
                   >
-                    <div className="font-display font-bold text-white text-sm mb-2 group-hover:text-[var(--slice)] transition-colors">
+                    <div className="font-display font-semibold tracking-wide text-white text-sm mb-2 group-hover:text-[var(--slice)] transition-colors">
                       {product.name}
                     </div>
                     {product.specs && (

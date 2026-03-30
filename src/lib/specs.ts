@@ -1,6 +1,7 @@
 export const SPEC_LABELS: Record<string, (val: string | number) => string> = {
+  // Generic keys (phones, tablets, headphones, smartwatches)
   ram: (v) => `${v}GB RAM`,
-  storage: (v) => `${v}GB SSD`,
+  storage: (v) => `${v}GB`,
   screen: (v) => `${v}"`,
   os: (v) => String(v),
   processor: (v) => String(v),
@@ -18,6 +19,14 @@ export const SPEC_LABELS: Record<string, (val: string | number) => string> = {
   wireless: () => 'Wireless',
   spatial_audio: () => 'Spatial Audio',
   type: (v) => String(v),
+
+  // Laptop-specific keys (from Supabase: storage_gb, ram_gb, display_inches, etc.)
+  storage_gb: (v) => `${v}GB SSD`,
+  ram_gb: (v) => `${v}GB RAM`,
+  display_inches: (v) => `${v}"`,
+  weight_kg: (v) => `${v}kg`,
+  gpu_cores: (v) => `${v}-core GPU`,
+  ssd: (v) => `${v}GB SSD`,
 }
 
 // Returns null for values that should be hidden (booleans, empty strings, etc.)

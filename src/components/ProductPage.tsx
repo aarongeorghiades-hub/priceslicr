@@ -139,12 +139,12 @@ export default async function ProductPage({ slug }: { slug: string }) {
           <div className="flex items-start justify-between gap-8">
             <div>
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-xs uppercase tracking-widest text-[var(--muted)]">
+                <span className="text-xs uppercase tracking-widest text-[var(--ink)] opacity-80">
                   {product.brand}
                 </span>
                 <span className="text-[var(--border-2)]">&middot;</span>
-                <span className="text-xs text-[var(--muted)]">
-                  {product.category}
+                <span className="text-xs text-[var(--ink)] opacity-80">
+                  {categoryLabel}
                 </span>
               </div>
               <h1 className="font-display text-4xl font-extrabold text-white leading-tight mb-4">
@@ -201,7 +201,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
 
           {/* Price comparison table */}
           <section>
-            <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-4 font-medium">
+            <div className="text-xs uppercase tracking-widest text-[var(--ink)] opacity-80 mb-4 font-medium">
               Retailer prices
             </div>
             <PriceTable listings={listings} />
@@ -210,7 +210,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
           {/* Sale timing */}
           {saleEvents.length > 0 && (
             <section>
-              <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-4 font-medium">
+              <div className="text-xs uppercase tracking-widest text-[var(--ink)] opacity-80 mb-4 font-medium">
                 Sale timing
               </div>
               <SaleTiming events={saleEvents} />
@@ -220,15 +220,15 @@ export default async function ProductPage({ slug }: { slug: string }) {
           {/* Price match note */}
           <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5">
             <div className="font-display font-bold text-white text-sm mb-3">Price match intelligence</div>
-            <div className="space-y-2 text-[11px] text-[var(--muted)] leading-relaxed">
+            <div className="space-y-2 text-[11px] text-[var(--ink)] opacity-80 leading-relaxed">
               <div>
-                <span className="text-[var(--ink)]">John Lewis NKU policy</span> &mdash; JL will price match to Currys. Buy at JL price, claim Currys price, keep JL&apos;s 2-year guarantee at no extra cost.
+                <span className="text-white">John Lewis price match</span> &mdash; JL will price match to major UK retailers including Currys. Buy at JL, claim the lower price, keep JL&apos;s 2-year guarantee at no extra cost.
               </div>
               <div>
-                <span className="text-[var(--ink)]">Currys price match</span> &mdash; Matches any identical in-stock item from a list of approved retailers. Call or chat in-store.
+                <span className="text-white">Currys price match</span> &mdash; Matches any identical in-stock item from approved retailers. Request in-store, via chat, or by phone.
               </div>
               <div>
-                <span className="text-[var(--ink)]">Amazon &amp; eBay</span> &mdash; No formal price match policy. Monitor for price drops via camelcamelcamel or eBay saved searches.
+                <span className="text-white">Amazon &amp; eBay</span> &mdash; No formal price match policy. Monitor for price drops via camelcamelcamel (Amazon) or eBay saved searches.
               </div>
             </div>
           </div>
@@ -236,7 +236,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
 
         {/* Right column — Savings Stack */}
         <aside className="space-y-4 sticky top-24">
-          <div className="text-xs uppercase tracking-widest text-[var(--muted)] font-medium">
+          <div className="text-xs uppercase tracking-widest text-[var(--ink)] opacity-80 font-medium">
             Savings stack
           </div>
           <div className="text-[11px] text-[var(--muted)] -mt-2 mb-2 leading-relaxed">
