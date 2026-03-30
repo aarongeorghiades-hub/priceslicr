@@ -11,6 +11,7 @@ import {
   getAllDiscountLayers,
   getUpcomingSaleEvents,
 } from '@/lib/product'
+import { formatSpec } from '@/lib/specs'
 
 export async function generateStaticParams() {
   const slugs = await getAllProductSlugs()
@@ -168,7 +169,7 @@ export default async function ProductPage({
                       key={key}
                       className="text-xs text-[var(--muted)] bg-[rgba(255,255,255,0.04)] border border-[var(--border)] px-3 py-1 rounded-full"
                     >
-                      {String(val)}
+                      {formatSpec(key, val as string | number)}
                     </span>
                   ))}
                 </div>

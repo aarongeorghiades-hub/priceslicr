@@ -2,6 +2,7 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 import Nav from '@/components/layout/Nav'
 import Link from 'next/link'
 import type { Product } from '@/types'
+import { formatSpec } from '@/lib/specs'
 
 export const metadata = {
   title: 'Laptop Price Comparison UK',
@@ -59,9 +60,9 @@ export default async function LaptopsPage() {
                     </div>
                     {product.specs && (
                       <div className="flex flex-wrap gap-1">
-                        {Object.values(product.specs).slice(0, 3).map((val, i) => (
+                        {Object.entries(product.specs).slice(0, 3).map(([key, val], i) => (
                           <span key={i} className="text-[10px] text-[var(--muted)] bg-[rgba(255,255,255,0.03)] border border-[var(--border)] px-2 py-0.5 rounded">
-                            {String(val)}
+                            {formatSpec(key, val as string | number)}
                           </span>
                         ))}
                       </div>
