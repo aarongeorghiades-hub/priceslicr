@@ -56,7 +56,7 @@ export default function HomePage() {
           }}
         />
         <div>
-          <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-[var(--muted)] mb-6 animate-fade-up" style={{ animationDelay: '0.4s' }}>
+          <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-white/70 mb-6 animate-fade-up" style={{ animationDelay: '0.4s' }}>
             <span className="w-6 h-px bg-[var(--slice)]" />
             UK Electronics Price Intelligence
           </div>
@@ -64,7 +64,7 @@ export default function HomePage() {
             Every saving.<br />
             <span className="text-[var(--slice)]">Sliced open.</span>
           </h1>
-          <p className="text-[var(--muted)] text-lg leading-relaxed max-w-md mb-9 animate-fade-up" style={{ animationDelay: '0.65s' }}>
+          <p className="text-white/70 text-lg leading-relaxed max-w-md mb-9 animate-fade-up" style={{ animationDelay: '0.65s' }}>
             Compare every UK electronics retailer &mdash; new, refurbished, used. We cut through to cashback, trade-in, price matching, student rates, and timing. Automatically.
           </p>
           <div className="flex items-center gap-5 animate-fade-up" style={{ animationDelay: '0.8s' }}>
@@ -96,7 +96,7 @@ export default function HomePage() {
               <div className="font-mono text-4xl font-medium text-white tracking-tight">
                 {s.val}
               </div>
-              <div className="text-sm text-[var(--muted)] mt-2">{s.label}</div>
+              <div className="text-sm text-white/70 mt-2">{s.label}</div>
             </div>
           ))}
         </div>
@@ -108,7 +108,7 @@ export default function HomePage() {
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-7 grid grid-cols-[1fr_auto] gap-10 items-center">
           <div>
             <div className="font-display text-xl font-extrabold text-white mb-2">Black Friday 2026</div>
-            <div className="text-sm text-[var(--muted)] mb-4">Historically 20&ndash;60% off electronics. Deepest discounts of the year.</div>
+            <div className="text-sm text-white/70 mb-4">Historically 20&ndash;60% off electronics. Deepest discounts of the year.</div>
             <div className="inline-flex items-center gap-2 text-xs text-[var(--savings)] bg-[var(--savings-dim)] border border-[rgba(0,255,133,0.18)] px-3 py-1.5 rounded-full">
               &#x2B25; Confirmed: 27 November 2026
             </div>
@@ -124,7 +124,7 @@ export default function HomePage() {
                 <div className={`font-mono text-3xl font-medium leading-none ${u.green ? 'text-[var(--savings)] savings-glow' : 'text-white'}`}>
                   {u.val}
                 </div>
-                <div className="text-[10px] uppercase tracking-widest text-[var(--muted)] mt-2">{u.lbl}</div>
+                <div className="text-[10px] uppercase tracking-widest text-white/70 mt-2">{u.lbl}</div>
               </div>
             ))}
           </div>
@@ -135,7 +135,7 @@ export default function HomePage() {
         <div className="font-display text-base font-extrabold">
           <span className="text-white">Price</span><span className="text-[var(--slice)]">/Slicr</span>
         </div>
-        <div className="text-xs text-[var(--muted)]">&copy; 2026 PriceSlicr &middot; priceslicr.com &middot; Independent. No retailer funding.</div>
+        <div className="text-xs text-white/70">&copy; 2026 PriceSlicr &middot; priceslicr.com &middot; Independent. No retailer funding.</div>
       </footer>
     </div>
   )

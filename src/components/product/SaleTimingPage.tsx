@@ -34,7 +34,7 @@ const CONFIDENCE_META: Record<string, { label: string; color: string; bg: string
   },
   historical_pattern: {
     label: 'Historical',
-    color: 'text-[var(--muted)]',
+    color: 'text-white/70',
     bg: 'bg-[rgba(90,90,138,0.12)]',
     border: 'border-[rgba(90,90,138,0.2)]',
     desc: 'Recurring pattern from previous years, not yet confirmed.',
@@ -49,7 +49,7 @@ function BuyDecisionHelper({ events }: { events: SaleEvent[] }) {
     return (
       <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6">
         <div className="font-display font-bold text-white text-sm mb-2">Should I buy now?</div>
-        <div className="text-sm text-[var(--muted)]">No upcoming confirmed sale events. Prices are stable &mdash; now is a reasonable time to buy.</div>
+        <div className="text-sm text-white/70">No upcoming confirmed sale events. Prices are stable &mdash; now is a reasonable time to buy.</div>
       </div>
     )
   }
@@ -87,16 +87,16 @@ function BuyDecisionHelper({ events }: { events: SaleEvent[] }) {
 
   return (
     <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6">
-      <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-4 font-medium">
+      <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
         Should I buy now?
       </div>
       <div className={`font-display text-xl font-extrabold mb-3 ${recommendation.color}`}>
         {recommendation.verdict}
       </div>
-      <div className="text-sm text-[var(--muted)] leading-relaxed mb-4">
+      <div className="text-sm text-white/70 leading-relaxed mb-4">
         {recommendation.rationale}
       </div>
-      <div className="text-[11px] text-[var(--muted)] bg-[rgba(255,255,255,0.03)] border border-[var(--border)] rounded-xl px-4 py-3 leading-relaxed">
+      <div className="text-[11px] text-white/70 bg-[rgba(255,255,255,0.03)] border border-[var(--border)] rounded-xl px-4 py-3 leading-relaxed">
         <span className="text-[var(--ink)]">Tip:</span> Whatever you decide, stack your saving layers. Trade-in + portal cashback + price matching can recover 15&ndash;25% of the gap without waiting for a sale.
       </div>
     </div>
@@ -136,11 +136,11 @@ function LiveCountdown({ event }: { event: SaleEvent }) {
         <div className="font-display text-2xl font-extrabold text-white mb-2">
           {event.event_name}
         </div>
-        <div className="text-sm text-[var(--muted)] mb-3 leading-relaxed">
+        <div className="text-sm text-white/70 mb-3 leading-relaxed">
           {event.category_notes || 'Major UK laptop sale event.'}
         </div>
         <div className="flex items-center gap-4">
-          <div className="text-[11px] text-[var(--muted)]">
+          <div className="text-[11px] text-white/70">
             {formatDate(event.expected_start_date)}
             {event.expected_end_date !== event.expected_start_date && (
               <> &rarr; {formatDate(event.expected_end_date)}</>
@@ -162,7 +162,7 @@ function LiveCountdown({ event }: { event: SaleEvent }) {
             <div className={`font-mono text-3xl font-medium leading-none ${u.green ? 'text-[var(--savings)] savings-glow' : 'text-white'}`}>
               {u.val}
             </div>
-            <div className="text-[10px] uppercase tracking-widest text-[var(--muted)] mt-2">{u.lbl}</div>
+            <div className="text-[10px] uppercase tracking-widest text-white/70 mt-2">{u.lbl}</div>
           </div>
         ))}
       </div>
@@ -200,15 +200,15 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
                     <div>
                       <div className="font-display font-extrabold text-[var(--savings)] text-lg mb-1">{event.event_name}</div>
                       {event.category_notes && (
-                        <div className="text-sm text-[var(--muted)] mb-2">{event.category_notes}</div>
+                        <div className="text-sm text-white/70 mb-2">{event.category_notes}</div>
                       )}
-                      <div className="text-[11px] text-[var(--muted)]">
+                      <div className="text-[11px] text-white/70">
                         Ends {formatDate(event.expected_end_date)}
                       </div>
                     </div>
                     <div className="text-right shrink-0">
                       <div className="font-mono text-2xl font-medium text-[var(--savings)] savings-glow">{daysLeft}d left</div>
-                      <div className="text-[11px] text-[var(--muted)] mt-1">{event.historical_discount_min}&ndash;{event.historical_discount_max}% off</div>
+                      <div className="text-[11px] text-white/70 mt-1">{event.historical_discount_min}&ndash;{event.historical_discount_max}% off</div>
                     </div>
                   </div>
                 </div>
@@ -221,7 +221,7 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
       {/* Countdown to next event */}
       {nextEvent && (
         <div>
-          <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-4 font-medium">
+          <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
             Next sale event
           </div>
           <LiveCountdown event={nextEvent} />
@@ -233,11 +233,11 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
 
       {/* Full calendar */}
       <div>
-        <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-4 font-medium">
+        <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
           Full sale calendar
         </div>
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden">
-          <div className="px-5 py-4 border-b border-[var(--border)] grid grid-cols-[1fr_auto_auto_auto] gap-4 text-[10px] uppercase tracking-widest text-[var(--muted)] font-medium">
+          <div className="px-5 py-4 border-b border-[var(--border)] grid grid-cols-[1fr_auto_auto_auto] gap-4 text-[10px] uppercase tracking-widest text-white/70 font-medium">
             <span>Event</span>
             <span className="text-right">Date</span>
             <span className="text-right hidden md:block">Discount range</span>
@@ -268,7 +268,7 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
                     )}
                   </div>
                   {event.category_notes && (
-                    <div className="text-[11px] text-[var(--muted)] mt-0.5 leading-relaxed">
+                    <div className="text-[11px] text-white/70 mt-0.5 leading-relaxed">
                       {event.category_notes}
                     </div>
                   )}
@@ -289,17 +289,17 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
                     {formatDate(event.expected_start_date)}
                   </div>
                   {event.expected_end_date !== event.expected_start_date && (
-                    <div className="text-[10px] text-[var(--muted)]">
+                    <div className="text-[10px] text-white/70">
                       &rarr; {formatDate(event.expected_end_date)}
                     </div>
                   )}
                   {!isPast && !isActive && (
-                    <div className="text-[10px] text-[var(--muted)] mt-0.5">
+                    <div className="text-[10px] text-white/70 mt-0.5">
                       {days}d away
                     </div>
                   )}
                   {isPast && (
-                    <div className="text-[10px] text-[var(--muted)] mt-0.5">Ended</div>
+                    <div className="text-[10px] text-white/70 mt-0.5">Ended</div>
                   )}
                 </div>
 
@@ -307,7 +307,7 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
                   <div className="font-mono text-sm text-[var(--ink)]">
                     {event.historical_discount_min}&ndash;{event.historical_discount_max}%
                   </div>
-                  <div className="text-[10px] text-[var(--muted)]">off laptops</div>
+                  <div className="text-[10px] text-white/70">off laptops</div>
                 </div>
 
                 <div className="text-right shrink-0">
@@ -327,7 +327,7 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
               <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${meta.bg} ${meta.color} ${meta.border}`}>
                 {meta.label}
               </span>
-              <span className="text-[11px] text-[var(--muted)]">{meta.desc}</span>
+              <span className="text-[11px] text-white/70">{meta.desc}</span>
             </div>
           ))}
         </div>
@@ -338,7 +338,7 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
         <div className="font-display font-bold text-white text-sm mb-3">
           Can&apos;t wait? Stack these layers now
         </div>
-        <div className="grid grid-cols-2 gap-3 text-[11px] text-[var(--muted)] leading-relaxed">
+        <div className="grid grid-cols-2 gap-3 text-[11px] text-white/70 leading-relaxed">
           <div>
             <span className="text-[var(--ink)]">TopCashback / Quidco</span> &mdash; 3&ndash;6% back at Currys and John Lewis. Activate before you buy.
           </div>

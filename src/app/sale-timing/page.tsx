@@ -24,14 +24,14 @@ export default async function SaleTimingRoute() {
 
         {/* Header */}
         <div className="mb-10">
-          <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-3">
+          <div className="text-xs uppercase tracking-widest text-white/70 mb-3">
             Saving layer &middot; Sale timing
           </div>
           <h1 className="font-display text-5xl font-extrabold text-white leading-tight mb-4">
             Buy at the right<br />
             <span className="text-[var(--slice)]">moment.</span>
           </h1>
-          <p className="text-[var(--muted)] text-lg max-w-xl leading-relaxed">
+          <p className="text-white/70 text-lg max-w-xl leading-relaxed">
             UK laptop prices drop predictably at the same events every year. We track every confirmed and expected sale &mdash; with historical discount ranges &mdash; so you know whether to buy now or wait.
           </p>
         </div>

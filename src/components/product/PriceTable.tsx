@@ -13,7 +13,7 @@ const CONDITION_STYLES: Record<string, string> = {
   new: 'bg-[rgba(79,110,247,0.14)] text-[#8BA5FF] border-[rgba(79,110,247,0.22)]',
   certified_refurbished: 'bg-[var(--savings-dim)] text-[var(--savings)] border-[rgba(0,255,133,0.2)]',
   refurbished: 'bg-[var(--risk-dim)] text-[var(--risk)] border-[rgba(255,181,32,0.2)]',
-  used: 'bg-[rgba(90,90,138,0.15)] text-[var(--muted)] border-[rgba(90,90,138,0.25)]',
+  used: 'bg-[rgba(90,90,138,0.15)] text-white/70 border-[rgba(90,90,138,0.25)]',
 }
 
 function formatGBP(n: number) {
@@ -28,7 +28,7 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
           <span className="text-[var(--slice)] text-lg">&loz;</span>
         </div>
         <div className="font-display font-bold text-white mb-2">Live prices loading</div>
-        <div className="text-sm text-[var(--muted)] max-w-xs mx-auto">
+        <div className="text-sm text-white/70 max-w-xs mx-auto">
           We&apos;re pulling prices from 11 UK retailers. Check back shortly, or scroll down to see every saving layer available right now.
         </div>
       </div>
@@ -39,7 +39,7 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
     <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden">
       <div className="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between">
         <div className="font-display font-bold text-white text-sm">Retailer prices</div>
-        <div className="text-xs text-[var(--muted)]">{listings.length} listing{listings.length !== 1 ? 's' : ''} &middot; sorted by price</div>
+        <div className="text-xs text-white/70">{listings.length} listing{listings.length !== 1 ? 's' : ''} &middot; sorted by price</div>
       </div>
 
       {listings.map((listing, i) => {
@@ -59,19 +59,19 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
                   {CONDITION_LABELS[listing.condition] ?? listing.condition}
                 </span>
                 {listing.condition_grade && (
-                  <span className="text-[10px] text-[var(--muted)] bg-[var(--surface-2)] border border-[var(--border)] px-2 py-0.5 rounded">
+                  <span className="text-[10px] text-white/70 bg-[var(--surface-2)] border border-[var(--border)] px-2 py-0.5 rounded">
                     Grade {listing.condition_grade.charAt(0).toUpperCase() + listing.condition_grade.slice(1)}
                   </span>
                 )}
               </div>
               {retailer?.warranty_years && (
-                <div className="text-[11px] text-[var(--muted)]">{retailer.warranty_years}-year warranty</div>
+                <div className="text-[11px] text-white/70">{retailer.warranty_years}-year warranty</div>
               )}
             </div>
 
             <div className="text-right shrink-0">
               <div className="font-mono text-xl font-medium text-white">{formatGBP(listing.price_gbp)}</div>
-              <div className="text-[11px] text-[var(--muted)] mt-0.5">
+              <div className="text-[11px] text-white/70 mt-0.5">
                 {new Date(listing.scraped_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
               </div>
             </div>

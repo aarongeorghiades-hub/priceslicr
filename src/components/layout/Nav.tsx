@@ -26,7 +26,7 @@ export default function Nav() {
       <div className="flex items-center gap-8">
         {/* Products dropdown */}
         <div className="relative group">
-          <button className="text-sm font-bold text-[var(--muted)] hover:text-[var(--ink)] transition-colors flex items-center gap-1">
+          <button className="text-sm font-bold text-white/70 hover:text-[var(--ink)] transition-colors flex items-center gap-1">
             Products
             <span className="text-[10px] opacity-60">&#x25BE;</span>
           </button>
@@ -35,20 +35,20 @@ export default function Nav() {
               <Link
                 key={cat.href}
                 href={cat.href}
-                className="block px-4 py-2.5 text-sm text-[var(--muted)] hover:text-[var(--ink)] hover:bg-[rgba(255,255,255,0.04)] first:rounded-t-xl last:rounded-b-xl transition-colors"
+                className="block px-4 py-2.5 text-sm text-white/70 hover:text-[var(--ink)] hover:bg-[rgba(255,255,255,0.04)] first:rounded-t-xl last:rounded-b-xl transition-colors"
               >
                 {cat.label}
               </Link>
             ))}
           </div>
         </div>
-        <Link href="/trade-in" className="text-sm font-bold text-[var(--muted)] hover:text-[var(--ink)] transition-colors">
+        <Link href="/trade-in" className="text-sm font-bold text-white/70 hover:text-[var(--ink)] transition-colors">
           Trade-in
         </Link>
-        <Link href="/sale-timing" className="text-sm font-bold text-[var(--muted)] hover:text-[var(--ink)] transition-colors">
+        <Link href="/sale-timing" className="text-sm font-bold text-white/70 hover:text-[var(--ink)] transition-colors">
           Sale timing
         </Link>
-        <Link href="/how-it-works" className="text-sm font-bold text-[var(--muted)] hover:text-[var(--ink)] transition-colors">
+        <Link href="/how-it-works" className="text-sm font-bold text-white/70 hover:text-[var(--ink)] transition-colors">
           How it works
         </Link>
         <span className="text-xs font-bold text-[var(--slice)] bg-[var(--slice-dim)] border border-[rgba(0,194,255,0.22)] px-3 py-1 rounded-full">

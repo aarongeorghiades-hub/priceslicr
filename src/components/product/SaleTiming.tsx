@@ -11,7 +11,7 @@ function daysUntil(dateString: string): number {
 const CONFIDENCE_STYLES: Record<string, string> = {
   confirmed:          'bg-[var(--savings-dim)] text-[var(--savings)] border-[rgba(0,255,133,0.2)]',
   expected:           'bg-[var(--slice-dim)] text-[var(--slice)] border-[rgba(0,194,255,0.2)]',
-  historical_pattern: 'bg-[rgba(90,90,138,0.12)] text-[var(--muted)] border-[rgba(90,90,138,0.2)]',
+  historical_pattern: 'bg-[rgba(90,90,138,0.12)] text-white/50 border-[rgba(90,90,138,0.2)]',
 }
 
 const CONFIDENCE_LABELS: Record<string, string> = {
@@ -27,7 +27,7 @@ export default function SaleTiming({ events }: { events: SaleEvent[] }) {
     <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden">
       <div className="px-5 py-4 border-b border-[var(--border)]">
         <div className="font-display font-bold text-white text-sm">Sale timing intelligence</div>
-        <div className="text-xs text-[var(--ink)] opacity-80 mt-1">Upcoming events where prices historically drop</div>
+        <div className="text-xs text-white/70 mt-1">Upcoming events where prices historically drop</div>
       </div>
 
       {events.map((event, i) => {
@@ -56,9 +56,9 @@ export default function SaleTiming({ events }: { events: SaleEvent[] }) {
                   </span>
                 </div>
                 {event.category_notes && (
-                  <div className="text-[11px] text-[var(--muted)]">{event.category_notes}</div>
+                  <div className="text-[11px] text-white/70">{event.category_notes}</div>
                 )}
-                <div className="text-[11px] text-[var(--muted)] mt-1">
+                <div className="text-[11px] text-white/70 mt-1">
                   {new Date(event.expected_start_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                   {event.expected_end_date !== event.expected_start_date && (
                     <> &rarr; {new Date(event.expected_end_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</>
@@ -68,16 +68,16 @@ export default function SaleTiming({ events }: { events: SaleEvent[] }) {
 
               <div className="text-right shrink-0">
                 {isPast ? (
-                  <div className="text-[11px] text-[var(--muted)]">Ended</div>
+                  <div className="text-[11px] text-white/60">Ended</div>
                 ) : isActive ? (
                   <div className="font-mono text-sm text-[var(--savings)] font-medium">Active</div>
                 ) : (
                   <>
                     <div className="font-mono text-2xl font-medium text-white">{days}</div>
-                    <div className="text-[10px] text-[var(--muted)]">days away</div>
+                    <div className="text-[10px] text-white/70">days away</div>
                   </>
                 )}
-                <div className="text-[11px] text-[var(--muted)] mt-1">
+                <div className="text-[11px] text-white/70 mt-1">
                   {event.historical_discount_min}&ndash;{event.historical_discount_max}% off
                 </div>
               </div>

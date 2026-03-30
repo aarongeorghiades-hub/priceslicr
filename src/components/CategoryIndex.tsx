@@ -20,9 +20,29 @@ interface CategoryIndexProps {
   singular?: string
   description: string
   labelOverride?: string
+  headlineOverride?: React.ReactNode
 }
 
-export default async function CategoryIndex({ category, title, singular, description, labelOverride }: CategoryIndexProps) {
+function renderProductTitle(title: string) {
+  const tokens = title.split(' ')
+  return tokens.map((token, i) => {
+    const isModelCode = /\d/.test(token)
+    return (
+      <span
+        key={i}
+        style={{
+          fontFamily: isModelCode ? "'DM Mono', monospace" : 'inherit',
+          fontWeight: isModelCode ? 500 : 'inherit',
+          letterSpacing: isModelCode ? '0.04em' : 'inherit',
+        }}
+      >
+        {token}{i < tokens.length - 1 ? ' ' : ''}
+      </span>
+    )
+  })
+}
+
+export default async function CategoryIndex({ category, title, singular, description, labelOverride, headlineOverride }: CategoryIndexProps) {
   const supabase = await createServerSupabaseClient()
   const { data: products } = await supabase
     .from('products')
@@ -48,18 +68,20 @@ export default async function CategoryIndex({ category, title, singular, descrip
 
       <div className="relative z-10 max-w-6xl mx-auto px-12 py-10">
         <div className="mb-10">
-          <div className="text-xs tracking-widest text-[var(--ink)] opacity-80 mb-3">{labelOverride ?? `UK ${title.toUpperCase()} COMPARISON`}</div>
-          <h1 className="font-display text-5xl font-extrabold text-white leading-tight">
-            Every {singular ?? title.toLowerCase()}.<br />
-            <span className="text-[var(--slice)]">Every saving.</span>
-          </h1>
-          <p className="text-[var(--ink)] opacity-80 text-lg mt-4 max-w-xl">{description}</p>
+          <div className="text-xs tracking-widest text-white/70 mb-3">{labelOverride ?? `UK ${title.toUpperCase()} COMPARISON`}</div>
+          {headlineOverride ?? (
+            <h1 className="font-display text-5xl font-extrabold text-white leading-tight">
+              Every {singular ?? title.toLowerCase()}.<br />
+              <span className="text-[var(--slice)]">Every saving.</span>
+            </h1>
+          )}
+          <p className="text-white/80 text-lg mt-4 max-w-xl">{description}</p>
         </div>
 
         <div className="space-y-8">
           {Object.entries(grouped).map(([brand, brandProducts]) => (
             <div key={brand}>
-              <div className="text-xs uppercase tracking-widest text-[var(--ink)] opacity-80 mb-4 font-medium border-b border-[var(--border)] pb-3">
+              <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium border-b border-[var(--border)] pb-3">
                 {brand}
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -70,7 +92,7 @@ export default async function CategoryIndex({ category, title, singular, descrip
                     className="group bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 hover:border-[var(--slice)] hover:-translate-y-1 transition-all duration-200 slice-bar"
                   >
                     <div className="font-display font-semibold tracking-wide text-white text-sm mb-2 group-hover:text-[var(--slice)] transition-colors">
-                      {product.name}
+                      {renderProductTitle(product.name)}
                     </div>
                     {product.specs && (
                       <div className="flex flex-wrap gap-1">
@@ -79,7 +101,7 @@ export default async function CategoryIndex({ category, title, singular, descrip
                           .filter((s): s is { key: string; label: string } => s.label !== null)
                           .slice(0, 3)
                           .map(({ key, label }) => (
-                            <span key={key} className="text-[10px] text-[var(--muted)] bg-[rgba(255,255,255,0.03)] border border-[var(--border)] px-2 py-0.5 rounded">
+                            <span key={key} className="text-[10px] text-white/50 bg-[rgba(255,255,255,0.03)] border border-[var(--border)] px-2 py-0.5 rounded">
                               {label}
                             </span>
                           ))}

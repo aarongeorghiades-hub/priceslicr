@@ -103,24 +103,24 @@ export default function HowItWorksPage() {
 
         {/* Header */}
         <div className="mb-12">
-          <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-3">
+          <div className="text-xs uppercase tracking-widest text-white/70 mb-3">
             How it works
           </div>
           <h1 className="font-display text-5xl font-extrabold text-white leading-tight mb-4">
             Every saving.<br />
             <span className="text-[var(--slice)]">Automatically.</span>
           </h1>
-          <p className="text-[var(--muted)] text-lg max-w-2xl leading-relaxed">
+          <p className="text-white/70 text-lg max-w-2xl leading-relaxed">
             Most UK laptop buyers overpay by 15–40% because they only check the headline price. PriceSlicr surfaces every available saving layer — cashback, trade-in, price matching, student rates, and sale timing — so you can stack them.
           </p>
         </div>
 
         {/* How stacking works */}
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 mb-10">
-          <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-4 font-medium">
+          <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
             The stacking principle
           </div>
-          <p className="text-sm text-[var(--muted)] leading-relaxed mb-5">
+          <p className="text-sm text-white/70 leading-relaxed mb-5">
             Most saving layers are independent of each other. A portal cashback cookie doesn&apos;t know about your credit card reward. Your trade-in cash is separate from any discount. Stack them all and the savings compound.
           </p>
           <div className="flex items-center gap-2 flex-wrap">
@@ -139,7 +139,7 @@ export default function HowItWorksPage() {
                     ? 'bg-[var(--savings-dim)] text-[var(--savings)] border-[rgba(0,255,133,0.2)]'
                     : item.green
                     ? 'bg-[var(--slice-dim)] text-[var(--slice)] border-[rgba(0,194,255,0.2)]'
-                    : 'bg-[rgba(255,255,255,0.04)] text-[var(--muted)] border-[var(--border)]'
+                    : 'bg-[rgba(255,255,255,0.04)] text-white/70 border-[var(--border)]'
                 }`}
               >
                 {item.label}
@@ -150,7 +150,7 @@ export default function HowItWorksPage() {
 
         {/* Saving layers */}
         <div className="mb-10">
-          <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-6 font-medium">
+          <div className="text-xs uppercase tracking-widest text-white/70 mb-6 font-medium">
             The 7 saving layers
           </div>
           <div className="space-y-4">
@@ -170,7 +170,7 @@ export default function HowItWorksPage() {
                         ✓ Stackable
                       </span>
                     </div>
-                    <p className="text-sm text-[var(--muted)] leading-relaxed mb-3">
+                    <p className="text-sm text-white/70 leading-relaxed mb-3">
                       {layer.description}
                     </p>
                     <div className="text-[11px] text-[var(--slice)] bg-[var(--slice-dim)] border border-[rgba(0,194,255,0.15)] px-3 py-2 rounded-lg">
@@ -185,13 +185,13 @@ export default function HowItWorksPage() {
 
         {/* Stacking rules */}
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 mb-10">
-          <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-4 font-medium">
+          <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
             What stacks with what
           </div>
           <div className="space-y-3">
             {STACKING_RULES.map((rule, i) => (
               <div key={i} className="flex items-center justify-between gap-4">
-                <span className="text-sm text-[var(--muted)]">
+                <span className="text-sm text-white/70">
                   <span className="text-[var(--ink)]">{rule.a}</span>
                   {' + '}
                   <span className="text-[var(--ink)]">{rule.b}</span>
@@ -210,10 +210,10 @@ export default function HowItWorksPage() {
 
         {/* About PriceSlicr */}
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 mb-10">
-          <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-4 font-medium">
+          <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
             About PriceSlicr
           </div>
-          <div className="space-y-3 text-sm text-[var(--muted)] leading-relaxed">
+          <div className="space-y-3 text-sm text-white/70 leading-relaxed">
             <p>
               PriceSlicr is an independent UK price comparison tool. We earn a small commission when you click through to a retailer and make a purchase — this never affects our recommendations or the prices you see.
             </p>

@@ -207,7 +207,7 @@ function ScenarioCard({
             <div className="font-display font-extrabold text-white text-base leading-tight">
               {scenario.product}
             </div>
-            <div className="text-[11px] text-[var(--muted)] mt-0.5">
+            <div className="text-[11px] text-white/70 mt-0.5">
               {scenario.specs}
             </div>
           </div>
@@ -222,7 +222,7 @@ function ScenarioCard({
         <div className="flex items-start justify-between gap-4">
           {/* Original price */}
           <div>
-            <div className="text-[10px] uppercase tracking-widest text-[var(--muted)] mb-1">
+            <div className="text-[10px] uppercase tracking-widest text-white/70 mb-1">
               Original price
             </div>
             <div
@@ -293,7 +293,7 @@ function ScenarioCard({
               <div className="text-sm font-medium text-[var(--ink)] truncate">
                 {layer.name}
               </div>
-              <div className="text-[10px] text-[var(--muted)] truncate">
+              <div className="text-[10px] text-white/70 truncate">
                 {layer.detail}
               </div>
             </div>

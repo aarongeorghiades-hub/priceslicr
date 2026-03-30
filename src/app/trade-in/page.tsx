@@ -21,21 +21,21 @@ export default function TradeInPage() {
 
         {/* Header */}
         <div className="mb-10">
-          <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-3">
+          <div className="text-xs uppercase tracking-widest text-white/70 mb-3">
             Saving layer &middot; Trade-in
           </div>
           <h1 className="font-display text-5xl font-extrabold text-white leading-tight mb-4">
             What&apos;s your old<br />
             <span className="text-[var(--slice)]">device worth?</span>
           </h1>
-          <p className="text-[var(--muted)] text-lg max-w-xl leading-relaxed">
+          <p className="text-white/70 text-lg max-w-xl leading-relaxed">
             Compare trade-in values across every major UK platform. Find the best offer, then stack it with cashback, student discounts, and price matching to reach your lowest possible price.
           </p>
         </div>
 
         {/* How it stacks */}
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 mb-8">
-          <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-4 font-medium">
+          <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
             How trade-in fits your saving stack
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -53,7 +53,7 @@ export default function TradeInPage() {
                     ? 'bg-[var(--savings-dim)] text-[var(--savings)] border-[rgba(0,255,133,0.2)]'
                     : item.highlight === 'savings'
                     ? 'bg-[var(--slice-dim)] text-[var(--slice)] border-[rgba(0,194,255,0.2)]'
-                    : 'bg-[rgba(255,255,255,0.04)] text-[var(--muted)] border-[var(--border)]'
+                    : 'bg-[rgba(255,255,255,0.04)] text-white/70 border-[var(--border)]'
                 }`}
               >
                 {item.label}
@@ -67,7 +67,7 @@ export default function TradeInPage() {
         {/* Platform guide */}
         <div className="mt-8 bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6">
           <div className="font-display font-bold text-white text-sm mb-4">Which platform should I use?</div>
-          <div className="space-y-3 text-[11px] text-[var(--muted)] leading-relaxed">
+          <div className="space-y-3 text-[11px] text-white/70 leading-relaxed">
             <div>
               <span className="text-[var(--ink)]">MusicMagpie</span> &mdash; Best for convenience. Free postage, cash in 5 days, no haggling. Reliable rates. Good Awin affiliate commission.
             </div>

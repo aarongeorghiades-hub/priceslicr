@@ -47,7 +47,7 @@ const TYPE_COLOR: Record<string, { bg: string; text: string }> = {
   signup:          { bg: 'bg-[var(--slice-dim)]',   text: 'text-[var(--slice)]' },
   refurbished:     { bg: 'bg-[var(--risk-dim)]',    text: 'text-[var(--risk)]' },
   trade_in:        { bg: 'bg-[var(--savings-dim)]', text: 'text-[var(--savings)]' },
-  salary_sacrifice:{ bg: 'bg-[rgba(90,90,138,0.15)]', text: 'text-[var(--muted)]' },
+  salary_sacrifice:{ bg: 'bg-[rgba(90,90,138,0.15)]', text: 'text-white/70' },
 }
 
 function formatValue(layer: DiscountLayer): string {
@@ -95,7 +95,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
   if (layers.length === 0) {
     return (
       <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8 text-center">
-        <div className="text-sm text-[var(--muted)]">No saving layers found.</div>
+        <div className="text-sm text-white/70">No saving layers found.</div>
       </div>
     )
   }
@@ -105,7 +105,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
 
       {/* Stacking guide */}
       <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5">
-        <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-4 font-medium">Key stacking rules</div>
+        <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">Key stacking rules</div>
         <div className="space-y-2">
           {[
             { rule: 'Portal cashback + credit card', result: 'YES \u2014 can stack', ok: true },
@@ -116,7 +116,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
             { rule: 'Student + BLC discount', result: 'NO \u2014 one code per order', ok: false },
           ].map((item, i) => (
             <div key={i} className="flex items-center justify-between gap-4">
-              <span className="text-xs text-[var(--muted)]">{item.rule}</span>
+              <span className="text-xs text-white/70">{item.rule}</span>
               <span className={`text-[10px] font-semibold px-2 py-0.5 rounded shrink-0 ${
                 item.ok
                   ? 'bg-[var(--savings-dim)] text-[var(--savings)] border border-[rgba(0,255,133,0.2)]'
@@ -132,7 +132,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
       {/* Layers by type */}
       {sortedTypes.map(type => {
         const typeLayers = grouped[type]
-        const color = TYPE_COLOR[type] ?? { bg: 'bg-[rgba(90,90,138,0.15)]', text: 'text-[var(--muted)]' }
+        const color = TYPE_COLOR[type] ?? { bg: 'bg-[rgba(90,90,138,0.15)]', text: 'text-white/70' }
         const icon = TYPE_ICON[type] ?? '\u25C6'
         const label = TYPE_LABELS[type] ?? type
         const isExpanded = expandedType === type
@@ -156,11 +156,11 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
                     </span>
                   )}
                 </div>
-                <div className="text-[11px] text-[var(--muted)] mt-0.5">
+                <div className="text-[11px] text-white/70 mt-0.5">
                   {typeLayers.length} option{typeLayers.length !== 1 ? 's' : ''} &middot; best: {formatValue(typeLayers[0])}
                 </div>
               </div>
-              <span className={`text-[var(--muted)] text-xs transition-transform ${isExpanded ? 'rotate-180' : ''}`}>&darr;</span>
+              <span className={`text-white/70 text-xs transition-transform ${isExpanded ? 'rotate-180' : ''}`}>&darr;</span>
             </button>
 
             {isExpanded && (
@@ -176,7 +176,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
                         <div className="flex-1 min-w-0">
                           <div className="text-sm text-[var(--ink)] mb-1">{layer.description}</div>
                           {layer.conditions && (
-                            <div className="text-[11px] text-[var(--muted)] leading-relaxed">{layer.conditions}</div>
+                            <div className="text-[11px] text-white/70 leading-relaxed">{layer.conditions}</div>
                           )}
                           {layer.valid_until && (
                             <div className="text-[11px] text-[var(--risk)] mt-1">
@@ -189,7 +189,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
                             {layer.value_type === 'percentage' ? `${layer.value}%` : `\u00A3${layer.value}`}
                           </div>
                           {layer.min_spend && (
-                            <div className="text-[10px] text-[var(--muted)]">min \u00A3{layer.min_spend}</div>
+                            <div className="text-[10px] text-white/70">min \u00A3{layer.min_spend}</div>
                           )}
                         </div>
                       </div>
@@ -201,12 +201,12 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
                           </span>
                         )}
                         {layer.verification_required && layer.verification_platform && (
-                          <span className="text-[10px] text-[var(--muted)] bg-[rgba(90,90,138,0.12)] border border-[rgba(90,90,138,0.2)] px-2 py-0.5 rounded">
+                          <span className="text-[10px] text-white/70 bg-[rgba(90,90,138,0.12)] border border-[rgba(90,90,138,0.2)] px-2 py-0.5 rounded">
                             Verify: {layer.verification_platform}
                           </span>
                         )}
                         {layer.retailer && (
-                          <span className="text-[10px] text-[var(--muted)]">
+                          <span className="text-[10px] text-white/70">
                             @ {layer.retailer.name}
                           </span>
                         )}
