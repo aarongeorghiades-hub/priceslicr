@@ -3,18 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/layout/Nav'
-
-const PRICES = [1099, 1066.03, 1016.03, 977.53, 857.53]
-const LAYERS = [
-  { icon: '\u21A9', label: 'TopCashback', sub: '3% on electronics at John Lewis', amount: '\u2212 \u00A332.97', color: 'savings' },
-  { icon: '\u21C4', label: 'Price match to Currys', sub: 'NKU policy \u2014 \u00A31,049 at Currys', amount: '\u2212 \u00A350.00', color: 'slice' },
-  { icon: '\u2726', label: 'Amex intro cashback', sub: '5% first 3 months, capped \u00A3100', amount: '\u2212 \u00A338.50', color: 'purple' },
-  { icon: '\u21C6', label: 'Trade-in: iPhone 13 (Good)', sub: 'MusicMagpie \u2014 best offer', amount: '\u2212 \u00A3120.00', color: 'risk' },
-]
-
-function formatGBP(n: number) {
-  return '\u00A3' + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
+import HeroDemoCard from '@/components/HeroDemoCard'
 
 function animateNum(from: number, to: number, duration: number, cb: (v: number) => void) {
   const start = performance.now()
@@ -29,34 +18,9 @@ function animateNum(from: number, to: number, duration: number, cb: (v: number) 
 }
 
 export default function HomePage() {
-  const [price, setPrice] = useState(1099)
-  const [revealed, setRevealed] = useState<number[]>([])
-  const [trueCost, setTrueCost] = useState(false)
-  const [scanning, setScanning] = useState(false)
-  const [savingShown, setSavingShown] = useState(false)
   const [counters, setCounters] = useState([0, 0, 0, 0])
   const statsRef = useRef<HTMLDivElement>(null)
   const statsRun = useRef(false)
-
-  function runDemo() {
-    setPrice(1099)
-    setRevealed([])
-    setTrueCost(false)
-    setSavingShown(false)
-    setScanning(false)
-    setTimeout(() => setScanning(true), 100)
-    LAYERS.forEach((_, i) => {
-      setTimeout(() => {
-        setRevealed(prev => [...prev, i])
-        animateNum(PRICES[i], PRICES[i + 1], 600, setPrice)
-        if (i === LAYERS.length - 1) {
-          setTimeout(() => { setTrueCost(true); setSavingShown(true) }, 700)
-        }
-      }, 900 + i * 700)
-    })
-  }
-
-  useEffect(() => { setTimeout(runDemo, 1200) }, [])
 
   const [cd, setCd] = useState({ days: 0, hrs: '00', min: '00', sec: '00' })
   useEffect(() => {
@@ -90,13 +54,6 @@ export default function HomePage() {
     if (statsRef.current) obs.observe(statsRef.current)
     return () => obs.disconnect()
   }, [])
-
-  const iconColor = (color: string) => {
-    if (color === 'savings') return 'bg-[var(--savings-dim)] text-[var(--savings)]'
-    if (color === 'slice')   return 'bg-[var(--slice-dim)] text-[var(--slice)]'
-    if (color === 'risk')    return 'bg-[var(--risk-dim)] text-[var(--risk)]'
-    return 'bg-[rgba(120,100,255,0.12)] text-[#9A85FF]'
-  }
 
   return (
     <div className="dark-section min-h-screen">
@@ -140,80 +97,12 @@ export default function HomePage() {
             >
               Compare now &rarr;
             </Link>
-            <span className="text-xs text-[var(--muted-2)]">No ads. No cookie tricks. Independent.</span>
+            <span className="text-xs text-[var(--ink)]">No ads. No cookie tricks. Independent.</span>
           </div>
         </div>
 
         {/* Demo card */}
-        <div className="relative bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden">
-          {scanning && (
-            <div
-              className="absolute left-0 right-0 h-0.5 z-10 pointer-events-none"
-              style={{
-                background: 'linear-gradient(90deg,transparent,var(--slice),transparent)',
-                boxShadow: '0 0 10px var(--slice)',
-                animation: 'scanCard 0.7s ease forwards',
-              }}
-            />
-          )}
-          <div className="flex justify-between items-start p-5 border-b border-[var(--border)]">
-            <div>
-              <div className="font-display font-bold text-white text-sm">MacBook Air 13&quot; M3</div>
-              <div className="text-xs text-[var(--muted)] mt-1">8GB &middot; 256GB &middot; John Lewis</div>
-            </div>
-            <span className="text-[10px] font-semibold px-2 py-1 rounded bg-[rgba(79,110,247,0.14)] text-[#8BA5FF] border border-[rgba(79,110,247,0.22)]">New</span>
-          </div>
-
-          <div className="flex items-end justify-between px-5 py-5 border-b border-[var(--border)]">
-            <div>
-              <div className="text-[10px] uppercase tracking-widest text-[var(--muted)] mb-1">
-                {trueCost ? 'True cost' : 'Headline price'}
-              </div>
-              <div
-                className={`font-mono text-4xl font-medium tracking-tight transition-colors duration-300 ${trueCost ? 'text-[var(--savings)] savings-glow' : 'text-white'}`}
-              >
-                {formatGBP(price)}
-              </div>
-            </div>
-            {savingShown && (
-              <div className="text-right">
-                <div className="font-mono text-xs text-[var(--savings)]">You save</div>
-                <div className="font-mono text-lg text-[var(--savings)] font-medium">&pound;241.47</div>
-              </div>
-            )}
-          </div>
-
-          {LAYERS.map((layer, i) => (
-            <div
-              key={i}
-              className={`flex items-center gap-3 px-5 py-3 border-b border-[var(--border)] transition-all duration-300 ${revealed.includes(i) ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'}`}
-            >
-              <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs shrink-0 ${iconColor(layer.color)}`}>
-                {layer.icon}
-              </div>
-              <div className="flex-1">
-                <div className="text-sm text-[var(--ink)]">{layer.label}</div>
-                <div className="text-[11px] text-[var(--muted)]">{layer.sub}</div>
-              </div>
-              <div className="font-mono text-sm text-[var(--savings)] font-medium">{layer.amount}</div>
-            </div>
-          ))}
-
-          <div className={`flex justify-between items-center px-5 py-4 bg-[var(--savings-dim)] border-t border-[rgba(0,255,133,0.15)] transition-all duration-400 ${trueCost ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'}`}>
-            <div>
-              <div className="font-display font-bold text-sm text-[var(--savings)]">True cost</div>
-              <div className="text-[11px] text-[rgba(0,255,133,0.6)]">You save &pound;241.47 &middot; 22% off</div>
-            </div>
-            <div className="font-mono text-2xl font-medium text-[var(--savings)] savings-glow">&pound;857.53</div>
-          </div>
-
-          <button
-            onClick={runDemo}
-            className="block w-full py-2.5 text-xs text-[var(--muted)] hover:text-[var(--slice)] hover:bg-[var(--slice-dim)] border-t border-[var(--border)] transition-all tracking-wide"
-          >
-            &#x21bb; Replay
-          </button>
-        </div>
+        <HeroDemoCard />
       </section>
 
       {/* Stat counters */}
