@@ -1,0 +1,10 @@
+import CategoryIndex from '@/components/CategoryIndex'
+
+export const metadata = {
+  title: 'Phone Price Comparison UK',
+  description: 'Compare outright phone prices across every UK retailer — new and refurbished. Every saving layer: cashback, trade-in, student rates, and price matching.',
+}
+
+export default function PhonesPage() {
+  return <CategoryIndex category="phone" title="Phones" description="Compare outright phone prices across every UK retailer — new and refurbished. Every saving layer: cashback, trade-in, student rates, and price matching. Pairs with any SIM-only contract." />
+}

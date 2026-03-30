@@ -77,7 +77,7 @@ export default function HomePage() {
   }, [])
 
   useEffect(() => {
-    const targets = [11, 20, 7, 180]
+    const targets = [11, 102, 7, 180]
     const obs = new IntersectionObserver(entries => {
       if (!entries[0].isIntersecting || statsRun.current) return
       statsRun.current = true
@@ -130,7 +130,7 @@ export default function HomePage() {
             <span className="text-[var(--slice)]">Sliced open.</span>
           </h1>
           <p className="text-[var(--muted)] text-lg leading-relaxed max-w-md mb-9 animate-fade-up" style={{ animationDelay: '0.65s' }}>
-            Compare every UK laptop retailer &mdash; new, refurbished, used. We cut through to cashback, trade-in, price matching, student rates, and timing. Automatically.
+            Compare every UK electronics retailer &mdash; new, refurbished, used. We cut through to cashback, trade-in, price matching, student rates, and timing. Automatically.
           </p>
           <div className="flex items-center gap-5 animate-fade-up" style={{ animationDelay: '0.8s' }}>
             <Link
@@ -138,7 +138,7 @@ export default function HomePage() {
               className="px-8 py-4 bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm rounded-lg transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_40px_rgba(0,194,255,0.45)]"
               style={{ boxShadow: '0 0 28px rgba(0,194,255,0.28)' }}
             >
-              Compare laptops &rarr;
+              Compare now &rarr;
             </Link>
             <span className="text-xs text-[var(--muted-2)]">No ads. No cookie tricks. Independent.</span>
           </div>
@@ -221,7 +221,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-12 py-10 grid grid-cols-4">
           {[
             { val: counters[0], label: 'Retailers covered', suffix: '', prefix: '' },
-            { val: counters[1], label: 'Laptop models',     suffix: '', prefix: '' },
+            { val: counters[1], label: 'Products tracked',   suffix: '', prefix: '' },
             { val: counters[2], label: 'Saving layers',      suffix: '', prefix: '' },
             { val: counters[3], label: 'Avg saving surfaced', suffix: '+', prefix: '\u00A3' },
           ].map((s, i) => (

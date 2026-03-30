@@ -3,7 +3,7 @@ import ProductPage from '@/components/ProductPage'
 import { getProductBySlug, getProductSlugsForCategory } from '@/lib/product'
 
 export async function generateStaticParams() {
-  const slugs = await getProductSlugsForCategory('laptop')
+  const slugs = await getProductSlugsForCategory('smartwatch')
   return slugs.map(slug => ({ slug }))
 }
 
@@ -21,15 +21,15 @@ export async function generateMetadata({
     openGraph: {
       title: `${product.name} — Price Comparison`,
       description: `Find the lowest price on ${product.name} across every UK retailer.`,
-      url: `https://priceslicr.com/laptops/${slug}`,
+      url: `https://priceslicr.com/smartwatches/${slug}`,
     },
     alternates: {
-      canonical: `https://priceslicr.com/laptops/${slug}`,
+      canonical: `https://priceslicr.com/smartwatches/${slug}`,
     },
   }
 }
 
-export default async function LaptopProductPage({
+export default async function SmartwatchProductPage({
   params,
 }: {
   params: Promise<{ slug: string }>

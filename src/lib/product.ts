@@ -21,6 +21,15 @@ export async function getAllProductSlugs(): Promise<string[]> {
   return (data ?? []).map((r: { slug: string }) => r.slug)
 }
 
+// Uses the plain client — safe for generateStaticParams (no cookies)
+export async function getProductSlugsForCategory(category: string): Promise<string[]> {
+  const { data } = await supabase
+    .from('products')
+    .select('slug')
+    .eq('category', category)
+  return (data ?? []).map((r: { slug: string }) => r.slug)
+}
+
 export async function getListingsForProduct(productId: string): Promise<Listing[]> {
   const client = await createServerSupabaseClient()
   const { data } = await client
