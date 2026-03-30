@@ -76,7 +76,15 @@ export default function HomePage() {
       <Nav />
 
       {/* Hero */}
-      <section className="relative z-10 max-w-6xl mx-auto px-12 py-20 grid grid-cols-2 gap-20 items-center min-h-[88vh]">
+      <section className="relative z-10 max-w-6xl mx-auto px-12 py-20 grid grid-cols-2 gap-20 items-center min-h-[88vh] overflow-hidden">
+        {/* Radial glow behind demo card */}
+        <div
+          className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse at center, rgba(0,194,255,0.08) 0%, rgba(0,255,133,0.04) 40%, transparent 70%)',
+            filter: 'blur(40px)',
+          }}
+        />
         <div>
           <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-[var(--muted)] mb-6 animate-fade-up" style={{ animationDelay: '0.4s' }}>
             <span className="w-6 h-px bg-[var(--slice)]" />

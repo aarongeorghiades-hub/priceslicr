@@ -130,7 +130,7 @@ export default function HowItWorksPage() {
               { label: '− Portal cashback', green: true },
               { label: '− Credit card cashback', green: true },
               { label: '− Student discount', green: true },
-              { label: '= True cost', result: true },
+              { label: '= Sliced to', result: true },
             ].map((item, i) => (
               <span
                 key={i}

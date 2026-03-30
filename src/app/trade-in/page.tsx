@@ -44,7 +44,7 @@ export default function TradeInPage() {
               { label: '\u2212 Trade-in value', highlight: 'savings' },
               { label: '\u2212 Portal cashback', highlight: 'savings' },
               { label: '\u2212 Student discount', highlight: 'savings' },
-              { label: '= True cost', highlight: 'result' },
+              { label: '= Sliced to', highlight: 'result' },
             ].map((item, i) => (
               <span
                 key={i}

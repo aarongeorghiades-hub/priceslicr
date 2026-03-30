@@ -238,11 +238,11 @@ function ScenarioCard({
             </div>
           </div>
 
-          {/* True cost */}
+          {/* Sliced to */}
           {visibleLayers > 0 && (
             <div className="text-right">
               <div className="text-[10px] uppercase tracking-widest text-[var(--savings)] mb-1">
-                True cost
+                Sliced to
               </div>
               <div className="relative">
                 {slashing && (
@@ -307,13 +307,13 @@ function ScenarioCard({
         ))}
       </div>
 
-      {/* Final true cost row */}
+      {/* Final sliced to row */}
       {allLayersVisible && (
         <div className="px-6 py-4 bg-[rgba(0,255,133,0.06)] border-t border-[rgba(0,255,133,0.15)]">
           <div className="flex items-center justify-between">
             <div>
               <div className="font-display font-extrabold text-[var(--savings)] text-sm">
-                True cost
+                Sliced to
               </div>
               <div className="text-[10px] text-[var(--savings)] opacity-70 mt-0.5">
                 You save {formatGBP(totalSaving)} &middot; {savingPct}% off
