@@ -6,5 +6,5 @@ export const metadata = {
 }
 
 export default function LaptopsPage() {
-  return <CategoryIndex category="laptop" title="Laptops" description="20 hero products. 11 retailers. Every saving layer — cashback, trade-in, price matching, student rates — surfaced automatically." />
+  return <CategoryIndex category="laptop" title="Laptops" singular="laptop" description="20 hero products. 11 retailers. Every saving layer — cashback, trade-in, price matching, student rates — surfaced automatically." />
 }

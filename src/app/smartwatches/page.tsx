@@ -6,5 +6,5 @@ export const metadata = {
 }
 
 export default function SmartwatchesPage() {
-  return <CategoryIndex category="smartwatch" title="Smartwatches" description="Compare smartwatch prices across every UK retailer. Apple Watch, Samsung, Garmin — every saving layer surfaced." />
+  return <CategoryIndex category="smartwatch" title="Smartwatches" singular="smartwatch" description="Compare smartwatch prices across every UK retailer. Apple Watch, Samsung, Garmin — every saving layer surfaced." />
 }

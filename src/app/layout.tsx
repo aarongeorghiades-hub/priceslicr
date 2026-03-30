@@ -3,11 +3,11 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: {
-    default: 'PriceSlicr — UK Laptop Price Comparison',
+    default: 'PriceSlicr — UK Electronics Price Comparison',
     template: '%s | PriceSlicr',
   },
   description:
-    'Compare laptop prices across every UK retailer — new, refurbished, and used. Slice through to cashback, trade-in, price matching, student rates, and sale timing.',
+    'Compare UK electronics prices — laptops, phones, tablets, TVs and more. Find every saving: cashback, trade-in, price matching, student discounts, and sale timing. Updated daily.',
   keywords: [
     'laptop price comparison UK',
     'refurbished laptop UK',

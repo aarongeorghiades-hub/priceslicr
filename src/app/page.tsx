@@ -1,26 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/layout/Nav'
 import HeroDemoCard from '@/components/HeroDemoCard'
 
-function animateNum(from: number, to: number, duration: number, cb: (v: number) => void) {
-  const start = performance.now()
-  const diff = from - to
-  function step(now: number) {
-    const t = Math.min((now - start) / duration, 1)
-    const ease = 1 - Math.pow(1 - t, 3)
-    cb(Math.round((from - diff * ease) * 100) / 100)
-    if (t < 1) requestAnimationFrame(step)
-  }
-  requestAnimationFrame(step)
-}
-
 export default function HomePage() {
-  const [counters, setCounters] = useState([0, 0, 0, 0])
-  const statsRef = useRef<HTMLDivElement>(null)
-  const statsRun = useRef(false)
 
   const [cd, setCd] = useState({ days: 0, hrs: '00', min: '00', sec: '00' })
   useEffect(() => {
@@ -38,21 +23,6 @@ export default function HomePage() {
     tick()
     const id = setInterval(tick, 1000)
     return () => clearInterval(id)
-  }, [])
-
-  useEffect(() => {
-    const targets = [11, 102, 7, 180]
-    const obs = new IntersectionObserver(entries => {
-      if (!entries[0].isIntersecting || statsRun.current) return
-      statsRun.current = true
-      targets.forEach((target, i) => {
-        animateNum(0, target, 1200, v => {
-          setCounters(prev => { const n = [...prev]; n[i] = Math.round(v); return n })
-        })
-      })
-    }, { threshold: 0.5 })
-    if (statsRef.current) obs.observe(statsRef.current)
-    return () => obs.disconnect()
   }, [])
 
   return (
@@ -114,19 +84,17 @@ export default function HomePage() {
       </section>
 
       {/* Stat counters */}
-      <div ref={statsRef} className="relative z-10 border-t border-[var(--border)] bg-[var(--surface)]">
+      <div className="relative z-10 border-t border-[var(--border)] bg-[var(--surface)]">
         <div className="max-w-6xl mx-auto px-12 py-10 grid grid-cols-4">
           {[
-            { val: counters[0], label: 'Retailers covered', suffix: '', prefix: '' },
-            { val: counters[1], label: 'Products tracked',   suffix: '', prefix: '' },
-            { val: counters[2], label: 'Saving layers',      suffix: '', prefix: '' },
-            { val: counters[3], label: 'Avg saving surfaced', suffix: '+', prefix: '\u00A3' },
+            { val: '11',   label: 'Retailers covered' },
+            { val: '100+', label: 'Products tracked' },
+            { val: '30+',  label: 'Saving layers' },
+            { val: '£200+', label: 'Avg saving surfaced' },
           ].map((s, i) => (
             <div key={i} className="text-center border-r border-[var(--border)] last:border-0 px-6">
               <div className="font-mono text-4xl font-medium text-white tracking-tight">
-                {s.prefix && <span className="text-[var(--savings)] text-2xl">{s.prefix}</span>}
                 {s.val}
-                {s.suffix && <span className="text-[var(--muted)] text-xl">{s.suffix}</span>}
               </div>
               <div className="text-sm text-[var(--muted)] mt-2">{s.label}</div>
             </div>

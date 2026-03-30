@@ -17,10 +17,11 @@ const CATEGORY_ROUTES: Record<string, string> = {
 interface CategoryIndexProps {
   category: string
   title: string
+  singular?: string
   description: string
 }
 
-export default async function CategoryIndex({ category, title, description }: CategoryIndexProps) {
+export default async function CategoryIndex({ category, title, singular, description }: CategoryIndexProps) {
   const supabase = await createServerSupabaseClient()
   const { data: products } = await supabase
     .from('products')
@@ -48,7 +49,7 @@ export default async function CategoryIndex({ category, title, description }: Ca
         <div className="mb-10">
           <div className="text-xs uppercase tracking-widest text-[var(--muted)] mb-3">UK {title} Comparison</div>
           <h1 className="font-display text-5xl font-extrabold text-white leading-tight">
-            Every {title.toLowerCase()}.<br />
+            Every {(singular ?? title).toLowerCase()}.<br />
             <span className="text-[var(--slice)]">Every saving.</span>
           </h1>
           <p className="text-[var(--muted)] text-lg mt-4 max-w-xl">{description}</p>
@@ -72,11 +73,15 @@ export default async function CategoryIndex({ category, title, description }: Ca
                     </div>
                     {product.specs && (
                       <div className="flex flex-wrap gap-1">
-                        {Object.entries(product.specs).slice(0, 3).map(([key, val], i) => (
-                          <span key={i} className="text-[10px] text-[var(--muted)] bg-[rgba(255,255,255,0.03)] border border-[var(--border)] px-2 py-0.5 rounded">
-                            {formatSpec(key, val as string | number)}
-                          </span>
-                        ))}
+                        {Object.entries(product.specs)
+                          .map(([key, val]) => ({ key, label: formatSpec(key, val) }))
+                          .filter((s): s is { key: string; label: string } => s.label !== null)
+                          .slice(0, 3)
+                          .map(({ key, label }) => (
+                            <span key={key} className="text-[10px] text-[var(--muted)] bg-[rgba(255,255,255,0.03)] border border-[var(--border)] px-2 py-0.5 rounded">
+                              {label}
+                            </span>
+                          ))}
                       </div>
                     )}
                     <div className="text-[11px] text-[var(--slice)] mt-3 opacity-0 group-hover:opacity-100 transition-opacity">

@@ -6,5 +6,5 @@ export const metadata = {
 }
 
 export default function MonitorsPage() {
-  return <CategoryIndex category="monitor" title="Monitors" description="Compare monitor prices across every UK retailer. 4K, ultrawide, OLED gaming — every saving layer surfaced." />
+  return <CategoryIndex category="monitor" title="Monitors" singular="monitor" description="Compare monitor prices across every UK retailer. 4K, ultrawide, OLED gaming — every saving layer surfaced." />
 }

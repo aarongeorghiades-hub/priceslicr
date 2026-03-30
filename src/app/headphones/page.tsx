@@ -6,5 +6,5 @@ export const metadata = {
 }
 
 export default function HeadphonesPage() {
-  return <CategoryIndex category="headphones" title="Headphones" description="Compare headphone prices across every UK retailer. ANC, wireless, premium audio — every saving layer surfaced." />
+  return <CategoryIndex category="headphones" title="Headphones" singular="headphone" description="Compare headphone prices across every UK retailer. ANC, wireless, premium audio — every saving layer surfaced." />
 }

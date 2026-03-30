@@ -152,14 +152,17 @@ export default async function ProductPage({ slug }: { slug: string }) {
               </h1>
               {product.specs && Object.keys(product.specs).length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {Object.entries(product.specs).map(([key, val]) => (
-                    <span
-                      key={key}
-                      className="text-xs text-[var(--muted)] bg-[rgba(255,255,255,0.04)] border border-[var(--border)] px-3 py-1 rounded-full"
-                    >
-                      {formatSpec(key, val as string | number)}
-                    </span>
-                  ))}
+                  {Object.entries(product.specs)
+                    .map(([key, val]) => ({ key, label: formatSpec(key, val) }))
+                    .filter((s): s is { key: string; label: string } => s.label !== null)
+                    .map(({ key, label }) => (
+                      <span
+                        key={key}
+                        className="text-xs text-[var(--muted)] bg-[rgba(255,255,255,0.04)] border border-[var(--border)] px-3 py-1 rounded-full"
+                      >
+                        {label}
+                      </span>
+                    ))}
                 </div>
               )}
             </div>
