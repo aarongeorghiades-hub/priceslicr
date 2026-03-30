@@ -8,9 +8,11 @@ const TYPE_LABELS: Record<string, string> = {
   gift_card:       'Gift card cashback',
   card_linked:     'Card-linked cashback',
   credit_card:     'Credit card',
+  card_cashback:   'Card cashback',
   student:         'Student discount',
   youth_discount:  'Youth discount',
   nhs:             'NHS / public sector',
+  key_worker:      'Key worker discount',
   bnpl:            'Buy now pay later',
   signup:          'New customer offer',
   refurbished:     'Refurbished deal',
@@ -25,9 +27,11 @@ const TYPE_ICON: Record<string, string> = {
   gift_card:       '\uD83C\uDF81',
   card_linked:     '\u2B21',
   credit_card:     '\u25C8',
+  card_cashback:   '\u25C8',
   student:         '\u2726',
   youth_discount:  '\u2726',
   nhs:             '\u2726',
+  key_worker:      '\u2726',
   bnpl:            '\u29D6',
   signup:          '\u2709',
   refurbished:     '\u27F3',
@@ -40,9 +44,11 @@ const TYPE_COLOR: Record<string, { bg: string; text: string }> = {
   gift_card:       { bg: 'bg-[var(--savings-dim)]', text: 'text-[var(--savings)]' },
   card_linked:     { bg: 'bg-[var(--slice-dim)]',   text: 'text-[var(--slice)]' },
   credit_card:     { bg: 'bg-[var(--slice-dim)]',   text: 'text-[var(--slice)]' },
+  card_cashback:   { bg: 'bg-[var(--slice-dim)]',   text: 'text-[var(--slice)]' },
   student:         { bg: 'bg-[rgba(154,133,255,0.12)]', text: 'text-[#9A85FF]' },
   youth_discount:  { bg: 'bg-[rgba(154,133,255,0.12)]', text: 'text-[#9A85FF]' },
   nhs:             { bg: 'bg-[rgba(154,133,255,0.12)]', text: 'text-[#9A85FF]' },
+  key_worker:      { bg: 'bg-[rgba(154,133,255,0.12)]', text: 'text-[#9A85FF]' },
   bnpl:            { bg: 'bg-[var(--risk-dim)]',    text: 'text-[var(--risk)]' },
   signup:          { bg: 'bg-[var(--slice-dim)]',   text: 'text-[var(--slice)]' },
   refurbished:     { bg: 'bg-[var(--risk-dim)]',    text: 'text-[var(--risk)]' },
@@ -83,8 +89,8 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
   }, {})
 
   const typeOrder = [
-    'cashback', 'gift_card', 'card_linked', 'credit_card',
-    'student', 'youth_discount', 'nhs', 'trade_in', 'signup',
+    'cashback', 'gift_card', 'card_cashback', 'card_linked', 'credit_card',
+    'student', 'youth_discount', 'nhs', 'key_worker', 'trade_in', 'signup',
     'refurbished', 'bnpl', 'salary_sacrifice', 'armed_forces', 'email',
   ]
 
@@ -109,11 +115,11 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
         <div className="space-y-2">
           {[
             { rule: 'Portal cashback + credit card', result: 'YES \u2014 can stack', ok: true },
-            { rule: 'Gift card cashback + credit card', result: 'YES \u2014 gift card paid by card', ok: true },
-            { rule: 'Portal cashback + gift card cashback', result: 'NO \u2014 different transactions', ok: false },
+            { rule: 'Gift card cashback + portal cashback', result: 'NO \u2014 different transactions', ok: false },
+            { rule: 'Gift card cashback + card cashback', result: 'YES \u2014 card earns on gift card purchase', ok: true },
             { rule: 'Card-linked cashback + portal cashback', result: 'YES \u2014 separate tracking', ok: true },
             { rule: 'Trade-in + everything else', result: 'YES \u2014 always stacks', ok: true },
-            { rule: 'Student + BLC discount', result: 'NO \u2014 one code per order', ok: false },
+            { rule: 'Key worker + student discount', result: 'NO \u2014 one code per order', ok: false },
           ].map((item, i) => (
             <div key={i} className="flex items-center justify-between gap-4">
               <span className="text-xs text-white/70">{item.rule}</span>

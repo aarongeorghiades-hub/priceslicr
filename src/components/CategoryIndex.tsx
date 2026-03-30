@@ -23,25 +23,6 @@ interface CategoryIndexProps {
   headlineOverride?: React.ReactNode
 }
 
-function renderProductTitle(title: string) {
-  const tokens = title.split(' ')
-  return tokens.map((token, i) => {
-    const isModelCode = /\d/.test(token)
-    return (
-      <span
-        key={i}
-        style={{
-          fontFamily: isModelCode ? "'DM Mono', monospace" : 'inherit',
-          fontWeight: isModelCode ? 500 : 'inherit',
-          letterSpacing: isModelCode ? '0.04em' : 'inherit',
-        }}
-      >
-        {token}{i < tokens.length - 1 ? ' ' : ''}
-      </span>
-    )
-  })
-}
-
 export default async function CategoryIndex({ category, title, singular, description, labelOverride, headlineOverride }: CategoryIndexProps) {
   const supabase = await createServerSupabaseClient()
   const { data: products } = await supabase
@@ -92,7 +73,7 @@ export default async function CategoryIndex({ category, title, singular, descrip
                     className="group bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 hover:border-[var(--slice)] hover:-translate-y-1 transition-all duration-200 slice-bar"
                   >
                     <div className="font-display font-semibold tracking-wide text-white text-sm mb-2 group-hover:text-[var(--slice)] transition-colors">
-                      {renderProductTitle(product.name)}
+                      {product.name}
                     </div>
                     {product.specs && (
                       <div className="flex flex-wrap gap-1">

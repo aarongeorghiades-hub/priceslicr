@@ -65,7 +65,7 @@ export default function HomePage() {
             <span className="text-[var(--slice)]">Sliced open.</span>
           </h1>
           <p className="text-white/70 text-lg leading-relaxed max-w-md mb-9 animate-fade-up" style={{ animationDelay: '0.65s' }}>
-            Compare every UK electronics retailer &mdash; new, refurbished, used. We cut through to cashback, trade-in, price matching, student rates, and timing. Automatically.
+            We compare every UK retailer — new, refurbished, and used — then layer on cashback portals, gift-card tricks, trade-in quotes, student rates, and sale-timing data so you see the real lowest price, not just the sticker.
           </p>
           <div className="flex items-center gap-5 animate-fade-up" style={{ animationDelay: '0.8s' }}>
             <Link

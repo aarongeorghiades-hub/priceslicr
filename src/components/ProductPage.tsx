@@ -31,25 +31,6 @@ const CATEGORY_LABELS: Record<string, string> = {
   smartwatch: 'Smartwatches',
 }
 
-function renderProductTitle(title: string) {
-  const tokens = title.split(' ')
-  return tokens.map((token, i) => {
-    const isModelCode = /\d/.test(token)
-    return (
-      <span
-        key={i}
-        style={{
-          fontFamily: isModelCode ? "'DM Mono', monospace" : 'inherit',
-          fontWeight: isModelCode ? 500 : 'inherit',
-          letterSpacing: isModelCode ? '0.04em' : 'inherit',
-        }}
-      >
-        {token}{i < tokens.length - 1 ? ' ' : ''}
-      </span>
-    )
-  })
-}
-
 export default async function ProductPage({ slug }: { slug: string }) {
   const [product, layers, saleEvents] = await Promise.all([
     getProductBySlug(slug),
@@ -167,7 +148,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
                 </span>
               </div>
               <h1 className="font-display text-4xl font-extrabold text-white leading-tight mb-4">
-                {renderProductTitle(product.name)}
+                {product.name}
               </h1>
               {product.specs && Object.keys(product.specs).length > 0 && (
                 <div className="flex flex-wrap gap-2">
