@@ -30,7 +30,7 @@ function buildSteps(layer: DiscountLayer, step: SliceStep): string[] {
 
   if (step.type === 'cashback') {
     steps.push(`Go to ${layer.cashback_portal_url ? 'the cashback portal' : 'TopCashback or Quidco'}`)
-    steps.push(`Search for "${layer.retailer?.name ?? 'the retailer'}" and click "Get Cashback"`)
+    steps.push('Search for the retailer where you plan to buy and click "Get Cashback"')
     steps.push('In the new tab that opens, add your item to the basket and complete checkout without closing the tab')
   } else if (step.type === 'gift_card') {
     steps.push('Open the HyperJar app on your phone')
@@ -99,7 +99,11 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
   useEffect(() => {
     if (state !== 'closed') {
       document.body.style.overflow = 'hidden'
-      return () => { document.body.style.overflow = '' }
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
     }
   }, [state])
 
@@ -166,9 +170,8 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
       {/* ── Modal ── */}
       {state !== 'closed' && (
         <div
-          className="fixed inset-0 z-[9999] overflow-y-auto"
+          className="fixed inset-0 z-[9999] bg-[#07070F] overflow-y-auto"
           style={{
-            background: '#07070F',
             opacity: entering ? 0 : 1,
             transform: entering ? 'scale(0.97)' : 'scale(1)',
             transition: 'opacity 200ms ease, transform 200ms ease',
@@ -183,14 +186,11 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
           />
 
           {/* Progress bar (slice states only) */}
-          {currentSliceIndex !== null && (
-            <div className="fixed top-0 left-0 right-0 h-[3px] z-[10000]" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          {state !== 'intro' && state !== 'complete' && currentSliceIndex !== null && (
+            <div className="fixed top-0 left-0 right-0 h-[3px] z-[10000] bg-[rgba(255,255,255,0.06)]">
               <div
-                className="h-full bg-[var(--slice)]"
-                style={{
-                  width: `${progressFraction * 100}%`,
-                  transition: 'width 400ms ease',
-                }}
+                className="h-full bg-[var(--slice)] transition-all duration-500 ease-out"
+                style={{ width: `${((currentSliceIndex + 1) / stepLayers.length) * 100}%` }}
               />
             </div>
           )}
@@ -335,6 +335,18 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                           </div>
                         ))}
                       </div>
+                      {step.type === 'cashback' && layer.cashback_portal_url && (
+                        <a
+                          href={layer.cashback_portal_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-xl bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm hover:brightness-110 transition-all hover:shadow-[0_0_16px_rgba(0,194,255,0.4)]"
+                        >
+                          Open {layer.description?.includes('TopCashback') ? 'TopCashback' :
+                                layer.description?.includes('Quidco') ? 'Quidco' :
+                                'Cashback Portal'} &rarr;
+                        </a>
+                      )}
                     </div>
 
                     {/* WHY NOW */}
@@ -476,17 +488,24 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
               <div className="w-full space-y-2 mb-8">
                 {stepLayers
                   .filter(({ layer }) => layer.cashback_portal_url)
-                  .map(({ step, layer }, i) => (
-                    <a
-                      key={i}
-                      href={layer.cashback_portal_url!}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block w-full px-5 py-3 border border-[var(--slice)] text-[var(--slice)] font-display font-bold text-sm rounded-xl text-center hover:bg-[var(--slice-dim)] transition-colors"
-                    >
-                      Open {step.label} &rarr;
-                    </a>
-                  ))}
+                  .map(({ step, layer }, i) => {
+                    const portalName = step.type === 'cashback'
+                      ? (layer.description?.includes('TopCashback') ? 'TopCashback' :
+                         layer.description?.includes('Quidco') ? 'Quidco' :
+                         'Cashback Portal')
+                      : step.label
+                    return (
+                      <a
+                        key={i}
+                        href={layer.cashback_portal_url!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block w-full px-5 py-3 border border-[var(--slice)] text-[var(--slice)] font-display font-bold text-sm rounded-xl text-center hover:bg-[var(--slice-dim)] transition-colors"
+                      >
+                        Open {portalName} &rarr;
+                      </a>
+                    )
+                  })}
               </div>
 
               {/* Bottom buttons */}
