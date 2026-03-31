@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid key' }, { status: 403 })
   }
 
-  const response = NextResponse.redirect(new URL('/', request.url))
+  const response = NextResponse.redirect('https://www.priceslicr.com')
   response.cookies.set('preview', 'true', {
     httpOnly: true,
     secure: true,
