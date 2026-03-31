@@ -3,6 +3,7 @@ import Nav from '@/components/layout/Nav'
 import PriceTable from '@/components/product/PriceTable'
 import SavingsStack from '@/components/product/SavingsStack'
 import SaleTiming from '@/components/product/SaleTiming'
+import SliceGuide from '@/components/product/SliceGuide'
 import {
   getProductBySlug,
   getListingsForProduct,
@@ -236,6 +237,11 @@ export default async function ProductPage({ slug }: { slug: string }) {
 
         {/* Right column — Savings Stack */}
         <aside className="space-y-4 sticky top-24">
+          <SliceGuide
+            layers={relevantLayers}
+            productName={product.name}
+            bestPrice={cheapestNew?.price_gbp ?? null}
+          />
           <div className="text-xs uppercase tracking-widest text-white/80 font-medium">
             Savings stack
           </div>
