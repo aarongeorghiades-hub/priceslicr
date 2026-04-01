@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import type { DiscountLayer } from '@/types'
 import { orderLayersForSliceGuide, type SliceStep } from '@/lib/sliceOrder'
 
@@ -168,7 +169,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
       </button>
 
       {/* ── Modal ── */}
-      {state !== 'closed' && (
+      {state !== 'closed' && typeof document !== 'undefined' && createPortal(
         <div
           className="fixed inset-0 z-[99999] bg-[#07070F] overflow-y-auto"
           style={{
@@ -552,7 +553,8 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
               </div>
             </div>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )
