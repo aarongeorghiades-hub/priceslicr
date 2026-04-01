@@ -170,7 +170,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
       {/* ── Modal ── */}
       {state !== 'closed' && (
         <div
-          className="fixed inset-0 z-[9999] bg-[#07070F] overflow-y-auto"
+          className="fixed inset-0 z-[99999] bg-[#07070F] overflow-y-auto"
           style={{
             opacity: entering ? 0 : 1,
             transform: entering ? 'scale(0.97)' : 'scale(1)',
@@ -187,7 +187,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
 
           {/* Progress bar (slice states only) */}
           {state !== 'intro' && state !== 'complete' && currentSliceIndex !== null && (
-            <div className="fixed top-0 left-0 right-0 h-[3px] z-[10000] bg-[rgba(255,255,255,0.06)]">
+            <div className="fixed top-0 left-0 right-0 h-[3px] z-[100000] bg-[rgba(255,255,255,0.06)]">
               <div
                 className="h-full bg-[var(--slice)] transition-all duration-500 ease-out"
                 style={{ width: `${((currentSliceIndex + 1) / stepLayers.length) * 100}%` }}
