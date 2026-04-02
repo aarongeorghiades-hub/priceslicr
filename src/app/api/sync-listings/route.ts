@@ -34,10 +34,22 @@ export async function GET(request: NextRequest) {
     let totalFailed = 0
     const errors: string[] = []
 
+    function buildEbayQuery(productName: string): string {
+      const words = productName.split(' ')
+      const modelCode = words.find(w => /[a-zA-Z]/.test(w) && /[0-9]/.test(w) && w.length > 3)
+      if (modelCode) {
+        const brand = words[0]
+        return `${brand} ${modelCode}`
+      }
+      return words.slice(0, 4).join(' ')
+    }
+
     // Process each product
     for (const product of products) {
       try {
-        const listings = await searchEbayUK(product.name, accessToken, 5)
+        const query = buildEbayQuery(product.name)
+        console.log(`Searching eBay for: "${query}" (product: ${product.name})`)
+        const listings = await searchEbayUK(query, accessToken, 5)
 
         if (listings.length === 0) {
           console.log(`No listings found for: ${product.name}`)
