@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
 
     let totalInserted = 0
     let totalFailed = 0
+    const errors: string[] = []
 
     // Process each product
     for (const product of products) {
@@ -68,6 +69,7 @@ export async function GET(request: NextRequest) {
 
         if (upsertError) {
           console.error(`Failed to upsert listings for ${product.name}:`, upsertError)
+          errors.push(`${product.name} upsert: ${JSON.stringify(upsertError)}`)
           totalFailed++
         } else {
           totalInserted += rows.length
@@ -78,6 +80,7 @@ export async function GET(request: NextRequest) {
 
       } catch (err) {
         console.error(`Error processing ${product.name}:`, err)
+        errors.push(`${product.name}: ${String(err)}`)
         totalFailed++
       }
     }
@@ -87,6 +90,7 @@ export async function GET(request: NextRequest) {
       products: products.length,
       listingsInserted: totalInserted,
       failed: totalFailed,
+      errors: errors.slice(0, 10),
     })
 
   } catch (err) {
