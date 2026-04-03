@@ -28,11 +28,16 @@ export async function getEbayAccessToken(): Promise<string> {
 export async function searchEbayUK(
   query: string,
   accessToken: string,
-  limit = 10
+  limit = 10,
+  minPrice?: number
 ): Promise<EbayListing[]> {
+  const filter = minPrice
+    ? `buyingOptions:{FIXED_PRICE},deliveryCountry:GB,price:[${minPrice}..}`
+    : 'buyingOptions:{FIXED_PRICE},deliveryCountry:GB'
+
   const params = new URLSearchParams({
     q: query,
-    filter: 'buyingOptions:{FIXED_PRICE},deliveryCountry:GB',
+    filter,
     limit: String(limit),
     sort: 'price',
   })

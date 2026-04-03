@@ -78,7 +78,8 @@ export async function GET(request: NextRequest) {
       try {
         const query = buildEbayQuery(product.name)
         console.log(`Searching eBay for: "${query}" (product: ${product.name})`)
-        const listings = await searchEbayUK(query, accessToken, 5)
+        const minPrice = getMinPrice(product.category)
+        const listings = await searchEbayUK(query, accessToken, 5, minPrice)
 
         if (listings.length === 0) {
           console.log(`No listings found for: ${product.name}`)
@@ -94,7 +95,6 @@ export async function GET(request: NextRequest) {
         }
 
         // Filter out implausibly low prices (accessories, parts, warranties)
-        const minPrice = getMinPrice(product.category)
         const validListings = Object.values(byCondition).filter(l => l.price >= minPrice)
 
         if (validListings.length === 0) {
