@@ -35,13 +35,29 @@ export async function GET(request: NextRequest) {
     const errors: string[] = []
 
     function buildEbayQuery(productName: string): string {
-      const words = productName.split(' ')
+      // Remove storage/RAM specs that confuse eBay search
+      const cleaned = productName
+        .replace(/\b\d+GB\b/gi, '')
+        .replace(/\b\d+TB\b/gi, '')
+        .replace(/\b\d+-inch\b/gi, '')
+        .replace(/\b\d+"\b/gi, '')
+        .trim()
+
+      const words = cleaned.split(' ').filter(w => w.length > 1)
+
+      // Find model code — alphanumeric word with both letters and digits, length > 3
       const modelCode = words.find(w => /[a-zA-Z]/.test(w) && /[0-9]/.test(w) && w.length > 3)
+
       if (modelCode) {
         const brand = words[0]
-        return `${brand} ${modelCode}`
+        // Include the word before the model code too (e.g. "Galaxy S25")
+        const modelIdx = words.indexOf(modelCode)
+        const prevWord = modelIdx > 1 ? words[modelIdx - 1] : ''
+        return prevWord ? `${brand} ${prevWord} ${modelCode}` : `${brand} ${modelCode}`
       }
-      return words.slice(0, 4).join(' ')
+
+      // Fallback: first 3 meaningful words
+      return words.slice(0, 3).join(' ')
     }
 
     // Process each product
