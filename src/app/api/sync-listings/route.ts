@@ -60,6 +60,19 @@ export async function GET(request: NextRequest) {
       return words.slice(0, 3).join(' ')
     }
 
+    function getMinPrice(category: string): number {
+      const floors: Record<string, number> = {
+        tv: 100,
+        laptop: 150,
+        phone: 50,
+        tablet: 80,
+        monitor: 80,
+        headphones: 20,
+        smartwatch: 50,
+      }
+      return floors[category] ?? 20
+    }
+
     // Process each product
     for (const product of products) {
       try {
@@ -80,8 +93,17 @@ export async function GET(request: NextRequest) {
           }
         }
 
+        // Filter out implausibly low prices (accessories, parts, warranties)
+        const minPrice = getMinPrice(product.category)
+        const validListings = Object.values(byCondition).filter(l => l.price >= minPrice)
+
+        if (validListings.length === 0) {
+          console.log(`No valid-priced listings for: ${product.name} (min: £${minPrice})`)
+          continue
+        }
+
         // Upsert to listings table
-        const rows = Object.values(byCondition).map(listing => ({
+        const rows = validListings.map(listing => ({
           product_id: product.id,
           retailer_id: retailerId,
           price_gbp: listing.price,
