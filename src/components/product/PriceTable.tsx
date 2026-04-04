@@ -39,7 +39,11 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
     <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden">
       <div className="px-5 py-4 border-b border-[var(--border)] flex items-center justify-between">
         <div className="font-display font-bold text-white text-sm">Retailer prices</div>
-        <div className="text-xs text-white/70">{listings.length} listing{listings.length !== 1 ? 's' : ''} &middot; sorted by price</div>
+        <div className="text-xs text-white/70">{(() => {
+          const pricedCount = listings.filter(l => l.price_gbp > 0).length
+          const searchCount = listings.filter(l => l.price_gbp === 0).length
+          return <>{pricedCount} price{pricedCount !== 1 ? 's' : ''}{searchCount > 0 ? ` \u00B7 ${searchCount} retailer${searchCount !== 1 ? 's' : ''} to check` : ' \u00B7 sorted by price'}</>
+        })()}</div>
       </div>
 
       {(() => {
@@ -81,7 +85,7 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
                   {isSearchLink ? (
                     <div className="text-xs text-white/50">Check site for current price</div>
                   ) : (
-                    retailer?.warranty_years ? (
+                    retailer?.warranty_years && listing.condition !== 'used' ? (
                       <div className="text-[11px] text-white/70">{retailer.warranty_years}-year warranty</div>
                     ) : null
                   )}

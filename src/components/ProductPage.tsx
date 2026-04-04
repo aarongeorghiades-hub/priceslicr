@@ -172,9 +172,16 @@ export default async function ProductPage({ slug }: { slug: string }) {
             {/* Price summary */}
             <div className="shrink-0 text-right">
               {(() => {
-                const heroListing = cheapestNew ?? cheapestRefurb ?? cheapestUsed
-                const heroLabel = cheapestNew ? 'From (new)' : cheapestRefurb ? 'From (refurb)' : cheapestUsed ? 'From (used)' : null
-                const heroColor = cheapestNew ? 'text-[var(--savings)]' : cheapestRefurb ? 'text-[var(--risk)]' : 'text-white/80'
+                const heroListing = [cheapestNew, cheapestRefurb, cheapestUsed]
+                  .filter(Boolean)
+                  .sort((a, b) => (a?.price_gbp ?? 0) - (b?.price_gbp ?? 0))[0] ?? null
+                const heroLabel = heroListing?.condition === 'new' ? 'From (new)'
+                  : heroListing?.condition === 'refurbished' ? 'From (refurb)'
+                  : heroListing?.condition === 'used' ? 'From (used)'
+                  : null
+                const heroColor = heroListing?.condition === 'new' ? 'text-[var(--savings)]'
+                  : heroListing?.condition === 'refurbished' ? 'text-[var(--risk)]'
+                  : 'text-white/80'
                 return heroListing && heroLabel ? (
                   <div>
                     <div className="text-[10px] uppercase tracking-widest text-white/60 mb-1">{heroLabel}</div>
