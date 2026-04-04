@@ -94,6 +94,12 @@ export async function GET(request: NextRequest) {
           }
         }
 
+        // Drop used listing if it costs more than refurbished (likely wrong match)
+        if (byCondition['used'] && byCondition['refurbished'] &&
+            byCondition['used'].price >= byCondition['refurbished'].price) {
+          delete byCondition['used']
+        }
+
         // Filter out implausibly low prices (accessories, parts, warranties)
         const validListings = Object.values(byCondition).filter(l => l.price >= minPrice)
 

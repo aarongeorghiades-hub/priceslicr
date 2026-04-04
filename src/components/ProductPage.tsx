@@ -50,7 +50,8 @@ export default async function ProductPage({ slug }: { slug: string }) {
   )
 
   const cheapestNew = listings.find(l => l.condition === 'new')
-  const cheapestRefurb = listings.find(l => l.condition !== 'new')
+  const cheapestRefurb = listings.find(l => l.condition === 'refurbished')
+  const cheapestUsed = listings.find(l => l.condition === 'used')
 
   const routePrefix = CATEGORY_ROUTES[product.category] ?? product.category + 's'
   const categoryLabel = CATEGORY_LABELS[product.category] ?? product.category
@@ -179,10 +180,18 @@ export default async function ProductPage({ slug }: { slug: string }) {
                 </div>
               )}
               {cheapestRefurb && (
-                <div>
+                <div className={cheapestNew ? '' : 'mb-2'}>
                   <div className="text-[10px] uppercase tracking-widest text-white/60 mb-1">From (refurb)</div>
-                  <div className="font-mono text-xl font-medium text-[var(--risk)]">
+                  <div className={`font-mono font-medium text-[var(--risk)] ${cheapestNew ? 'text-xl' : 'text-3xl'}`}>
                     &pound;{cheapestRefurb.price_gbp.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
+                  </div>
+                </div>
+              )}
+              {cheapestUsed && (
+                <div>
+                  <div className="text-[10px] uppercase tracking-widest text-white/60 mb-1">From (used)</div>
+                  <div className={`font-mono font-medium text-white/70 ${!cheapestNew && !cheapestRefurb ? 'text-3xl' : 'text-xl'}`}>
+                    &pound;{cheapestUsed.price_gbp.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
                   </div>
                 </div>
               )}
@@ -240,7 +249,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
           <SliceGuide
             layers={relevantLayers}
             productName={product.name}
-            bestPrice={cheapestNew?.price_gbp ?? null}
+            bestPrice={cheapestNew?.price_gbp ?? cheapestRefurb?.price_gbp ?? listings[0]?.price_gbp ?? null}
           />
           <div className="text-xs uppercase tracking-widest text-white/80 font-medium">
             Savings stack
