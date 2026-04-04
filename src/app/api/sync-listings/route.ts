@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
         const query = buildEbayQuery(product.name)
         console.log(`Searching eBay for: "${query}" (product: ${product.name})`)
         const minPrice = getMinPrice(product.category)
-        const listings = await searchEbayUK(query, accessToken, 5, minPrice)
+        const listings = await searchEbayUK(query, accessToken)
 
         if (listings.length === 0) {
           console.log(`No listings found for: ${product.name}`)
