@@ -141,10 +141,14 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Second pass: insert retailer search links for products with no "new" listing
+    const searchLinksInserted = await insertRetailerSearchLinks(products)
+
     return NextResponse.json({
       success: true,
       products: products.length,
       listingsInserted: totalInserted,
+      searchLinksInserted,
       failed: totalFailed,
       errors: errors.slice(0, 10),
     })
@@ -153,6 +157,60 @@ export async function GET(request: NextRequest) {
     console.error('Sync error:', err)
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
+}
+
+// Insert "new" search-link listings for products that have no new-condition listing
+async function insertRetailerSearchLinks(
+  products: { id: string; name: string; category: string }[]
+): Promise<number> {
+  const retailers = [
+    { name: 'Amazon UK', searchUrl: (q: string) => `https://www.amazon.co.uk/s?k=${encodeURIComponent(q)}` },
+    { name: 'Currys', searchUrl: (q: string) => `https://www.currys.co.uk/search?q=${encodeURIComponent(q)}` },
+    { name: 'John Lewis', searchUrl: (q: string) => `https://www.johnlewis.com/search?search-term=${encodeURIComponent(q)}` },
+  ]
+
+  const { data: retailerRows } = await supabase
+    .from('retailers')
+    .select('id, name')
+    .in('name', retailers.map(r => r.name))
+
+  if (!retailerRows) return 0
+
+  const retailerMap = Object.fromEntries(retailerRows.map((r: any) => [r.name, r.id]))
+  let count = 0
+
+  for (const product of products) {
+    const { data: existing } = await supabase
+      .from('listings')
+      .select('id')
+      .eq('product_id', product.id)
+      .eq('condition', 'new')
+      .limit(1)
+
+    if (existing && existing.length > 0) continue
+
+    const rows = retailers
+      .filter(r => retailerMap[r.name])
+      .map(r => ({
+        product_id: product.id,
+        retailer_id: retailerMap[r.name],
+        condition: 'new' as const,
+        price_gbp: 0,
+        url: r.searchUrl(product.name),
+        in_stock: true,
+        scraped_at: new Date().toISOString(),
+      }))
+
+    if (rows.length > 0) {
+      const { error } = await supabase.from('listings').upsert(rows, {
+        onConflict: 'product_id,retailer_id,condition',
+        ignoreDuplicates: true,
+      })
+      if (!error) count += rows.length
+    }
+  }
+
+  return count
 }
 
 // Get the eBay UK retailer ID from the retailers table

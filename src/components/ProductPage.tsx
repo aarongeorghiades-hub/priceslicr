@@ -49,9 +49,9 @@ export default async function ProductPage({ slug }: { slug: string }) {
     layer => layer.retailer_id === null || retailerIds.has(layer.retailer_id) || listings.length === 0
   )
 
-  const cheapestNew = listings.find(l => l.condition === 'new')
-  const cheapestRefurb = listings.find(l => l.condition === 'refurbished')
-  const cheapestUsed = listings.find(l => l.condition === 'used')
+  const cheapestNew = listings.find(l => l.condition === 'new' && l.price_gbp > 0)
+  const cheapestRefurb = listings.find(l => l.condition === 'refurbished' && l.price_gbp > 0)
+  const cheapestUsed = listings.find(l => l.condition === 'used' && l.price_gbp > 0)
 
   const routePrefix = CATEGORY_ROUTES[product.category] ?? product.category + 's'
   const categoryLabel = CATEGORY_LABELS[product.category] ?? product.category

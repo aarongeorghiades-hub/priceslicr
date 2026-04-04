@@ -70,13 +70,26 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
             </div>
 
             <div className="text-right shrink-0">
-              <div className="font-mono text-xl font-medium text-white">{formatGBP(listing.price_gbp)}</div>
-              <div className="text-[11px] text-white/70 mt-0.5">
-                {new Date(listing.scraped_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-              </div>
+              {listing.price_gbp === 0 ? (
+                <a
+                  href={listing.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-base font-medium text-[var(--slice)] hover:underline"
+                >
+                  Check price &rarr;
+                </a>
+              ) : (
+                <>
+                  <div className="font-mono text-xl font-medium text-white">{formatGBP(listing.price_gbp)}</div>
+                  <div className="text-[11px] text-white/70 mt-0.5">
+                    {new Date(listing.scraped_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                  </div>
+                </>
+              )}
             </div>
 
-            {listing.affiliate_link && (
+            {listing.affiliate_link && listing.price_gbp > 0 && (
               <a
                 href={listing.affiliate_link}
                 target="_blank"
