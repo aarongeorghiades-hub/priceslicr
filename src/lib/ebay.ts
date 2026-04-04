@@ -34,7 +34,7 @@ export async function searchEbayUK(
     q: query,
     filter: 'buyingOptions:{FIXED_PRICE},deliveryCountry:GB',
     limit: String(limit),
-    sort: 'bestMatch',
+    sort: 'price_dsc',
   })
 
   const response = await fetch(
