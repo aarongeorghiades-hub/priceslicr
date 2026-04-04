@@ -164,7 +164,6 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
         className="w-full px-6 py-4 bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(0,194,255,0.4)] flex items-center justify-center gap-2"
         style={{ boxShadow: '0 0 28px rgba(0,194,255,0.28)' }}
       >
-        <span className="text-lg leading-none">/</span>
         Start Slicing &rarr;
       </button>
 

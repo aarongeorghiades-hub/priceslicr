@@ -171,30 +171,19 @@ export default async function ProductPage({ slug }: { slug: string }) {
 
             {/* Price summary */}
             <div className="shrink-0 text-right">
-              {cheapestNew && (
-                <div className="mb-2">
-                  <div className="text-[10px] uppercase tracking-widest text-white/60 mb-1">From (new)</div>
-                  <div className="font-mono text-3xl font-medium text-white">
-                    &pound;{cheapestNew.price_gbp.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
+              {(() => {
+                const heroListing = cheapestNew ?? cheapestRefurb ?? cheapestUsed
+                const heroLabel = cheapestNew ? 'From (new)' : cheapestRefurb ? 'From (refurb)' : cheapestUsed ? 'From (used)' : null
+                const heroColor = cheapestNew ? 'text-[var(--savings)]' : cheapestRefurb ? 'text-[var(--risk)]' : 'text-white/80'
+                return heroListing && heroLabel ? (
+                  <div>
+                    <div className="text-[10px] uppercase tracking-widest text-white/60 mb-1">{heroLabel}</div>
+                    <div className={`font-mono text-4xl font-medium ${heroColor}`}>
+                      &pound;{heroListing.price_gbp.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
+                    </div>
                   </div>
-                </div>
-              )}
-              {cheapestRefurb && (
-                <div className={cheapestNew ? '' : 'mb-2'}>
-                  <div className="text-[10px] uppercase tracking-widest text-white/60 mb-1">From (refurb)</div>
-                  <div className={`font-mono font-medium text-[var(--risk)] ${cheapestNew ? 'text-xl' : 'text-3xl'}`}>
-                    &pound;{cheapestRefurb.price_gbp.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
-                  </div>
-                </div>
-              )}
-              {cheapestUsed && (
-                <div>
-                  <div className="text-[10px] uppercase tracking-widest text-white/60 mb-1">From (used)</div>
-                  <div className={`font-mono font-medium text-white/70 ${!cheapestNew && !cheapestRefurb ? 'text-3xl' : 'text-xl'}`}>
-                    &pound;{cheapestUsed.price_gbp.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
-                  </div>
-                </div>
-              )}
+                ) : null
+              })()}
               {listings.length === 0 && (
                 <div className="text-sm text-white/70">Prices loading</div>
               )}
