@@ -34,6 +34,9 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     site: '@priceslicr',
   },
+  verification: {
+    google: 'RIPaCaOfnFV1hLeGHUt73BHflfaxRB5vzn8wwU3Theg',
+  },
   robots: { index: true, follow: true },
   metadataBase: new URL('https://priceslicr.com'),
   alternates: {
