@@ -69,13 +69,13 @@ function BuyDecisionHelper({ events }: { events: SaleEvent[] }) {
     recommendation = {
       verdict: 'Wait if you can',
       color: 'text-[var(--slice)]',
-      rationale: `${next.event_name} is ${days} days away. An average saving of ~${avgDiscount}% justifies a short wait if your laptop can hold out.`,
+      rationale: `${next.event_name} is ${days} days away. An average saving of ~${avgDiscount}% justifies a short wait if you can hold out.`,
     }
   } else if (days <= 60) {
     recommendation = {
       verdict: 'Your call \u2014 modest wait',
       color: 'text-[var(--risk)]',
-      rationale: `${next.event_name} is ${days} days away. If you need a laptop now, buy now and stack cashback + trade-in to close most of the gap. If you can wait 2 months, you may save ${next.historical_discount_min}\u2013${next.historical_discount_max}% more.`,
+      rationale: `${next.event_name} is ${days} days away. If you need to buy now, buy now and stack cashback + trade-in to close most of the gap. If you can wait 2 months, you may save ${next.historical_discount_min}\u2013${next.historical_discount_max}% more.`,
     }
   } else {
     recommendation = {
@@ -137,7 +137,7 @@ function LiveCountdown({ event }: { event: SaleEvent }) {
           {event.event_name}
         </div>
         <div className="text-sm text-white/70 mb-3 leading-relaxed">
-          {event.category_notes || 'Major UK laptop sale event.'}
+          {event.category_notes || 'Major UK tech sale event.'}
         </div>
         <div className="flex items-center gap-4">
           <div className="text-[11px] text-white/70">
@@ -307,7 +307,7 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
                   <div className="font-mono text-sm text-[var(--ink)]">
                     {event.historical_discount_min}&ndash;{event.historical_discount_max}%
                   </div>
-                  <div className="text-[10px] text-white/70">off laptops</div>
+                  <div className="text-[10px] text-white/70">off tech</div>
                 </div>
 
                 <div className="text-right shrink-0">

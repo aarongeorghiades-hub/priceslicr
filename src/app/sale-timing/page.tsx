@@ -4,8 +4,8 @@ import SaleTimingPage from '@/components/product/SaleTimingPage'
 import { getUpcomingSaleEvents } from '@/lib/product'
 
 export const metadata: Metadata = {
-  title: 'Sale Timing Intelligence — When to Buy a Laptop UK',
-  description: 'Know exactly when UK laptop prices drop. Track Black Friday, Prime Day, Back to School and more — with historical discount ranges and countdown timers.',
+  title: 'When to Buy Tech UK | Sale Timing Guide',
+  description: 'Know exactly when UK electronics prices drop. Track Black Friday, Prime Day, Back to School and more — with historical discount ranges and countdown timers.',
 }
 
 export default async function SaleTimingRoute() {
@@ -32,7 +32,7 @@ export default async function SaleTimingRoute() {
             <span className="text-[var(--slice)]">moment.</span>
           </h1>
           <p className="text-white/70 text-lg max-w-xl leading-relaxed">
-            UK laptop prices drop predictably at the same events every year. We track every confirmed and expected sale &mdash; with historical discount ranges &mdash; so you know whether to buy now or wait.
+            UK electronics prices drop predictably at the same events every year. We track every confirmed and expected sale &mdash; with historical discount ranges &mdash; so you know whether to buy now or wait.
           </p>
         </div>
 
