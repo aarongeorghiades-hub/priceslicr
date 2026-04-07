@@ -3,8 +3,8 @@ import Nav from '@/components/layout/Nav'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'How It Works — PriceSlicr',
-  description: 'PriceSlicr finds every available saving on UK laptops — cashback, trade-in, price matching, student rates, and sale timing — automatically surfaced in one place.',
+  title: 'How PriceSlicr Works | UK Tech Price Comparison',
+  description: 'PriceSlicr finds every available saving on UK electronics — cashback, trade-in, price matching, student rates, and sale timing — automatically surfaced in one place.',
 }
 
 const SAVING_LAYERS = [
@@ -221,25 +221,24 @@ export default function HowItWorksPage() {
               We never link cashback portal visits through our own affiliate tracking. Doing so would overwrite the portal&apos;s cookie and destroy your cashback. When we link to TopCashback or Quidco, we link directly to their retailer page.
             </p>
             <p>
-              Currently covering 20 hero laptop products across 11 UK retailers. Prices update daily. More products coming soon.
+              Currently covering 102 products across 7 categories &mdash; laptops, phones, tablets, TVs, monitors, headphones, and smartwatches &mdash; from 11 UK retailers. Prices update every 6 hours.
             </p>
           </div>
         </div>
 
         {/* CTA */}
-        <div className="flex gap-4">
-          <Link
-            href="/laptops"
-            className="px-6 py-3 bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm rounded-xl hover:opacity-90 transition-opacity"
-          >
-            Compare laptops →
-          </Link>
-          <Link
-            href="/trade-in"
-            className="px-6 py-3 bg-[rgba(255,255,255,0.06)] text-[var(--ink)] font-display font-bold text-sm rounded-xl border border-[var(--border)] hover:border-[var(--slice)] transition-colors"
-          >
-            Check trade-in value
-          </Link>
+        <div className="mt-12 border-t border-white/10 pt-10">
+          <div className="text-xs uppercase tracking-widest text-white/50 mb-6">Browse by category</div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            <a href="/laptops" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Laptops &rarr;</a>
+            <a href="/phones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Phones &rarr;</a>
+            <a href="/tablets" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Tablets &rarr;</a>
+            <a href="/tvs" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">TVs &rarr;</a>
+            <a href="/monitors" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Monitors &rarr;</a>
+            <a href="/headphones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Headphones &rarr;</a>
+            <a href="/smartwatches" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Smartwatches &rarr;</a>
+            <a href="/trade-in" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--slice)] transition-colors text-center">Trade-in &rarr;</a>
+          </div>
         </div>
 
       </div>
