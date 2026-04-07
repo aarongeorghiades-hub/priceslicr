@@ -85,6 +85,20 @@ export default function TradeInPage() {
             </div>
           </div>
         </div>
+
+        <div className="mt-12 border-t border-white/10 pt-10">
+          <div className="text-xs uppercase tracking-widest text-white/50 mb-6">Compare prices by category</div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <a href="/laptops" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Laptops &rarr;</a>
+            <a href="/phones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Phones &rarr;</a>
+            <a href="/tablets" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Tablets &rarr;</a>
+            <a href="/tvs" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">TVs &rarr;</a>
+            <a href="/monitors" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Monitors &rarr;</a>
+            <a href="/headphones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Headphones &rarr;</a>
+            <a href="/smartwatches" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Smartwatches &rarr;</a>
+            <a href="/how-it-works" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--slice)] transition-colors text-center">How it works &rarr;</a>
+          </div>
+        </div>
       </div>
     </div>
   )
