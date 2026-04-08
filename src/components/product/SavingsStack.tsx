@@ -114,12 +114,12 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
         <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">Key stacking rules</div>
         <div className="space-y-2">
           {[
-            { rule: 'Portal cashback + credit card', result: 'YES \u2014 can stack', ok: true },
-            { rule: 'Gift card cashback + portal cashback', result: 'NO \u2014 different transactions', ok: false },
-            { rule: 'Gift card cashback + card cashback', result: 'YES \u2014 card earns on gift card purchase', ok: true },
-            { rule: 'Card-linked cashback + portal cashback', result: 'YES \u2014 separate tracking', ok: true },
+            { rule: 'Cashback portal + credit card', result: 'YES \u2014 can stack', ok: true },
+            { rule: 'Gift card discount + cashback portal', result: 'NO \u2014 use one or the other per purchase', ok: false },
+            { rule: 'Gift card discount + card rewards', result: 'YES \u2014 your card still earns on gift card purchases', ok: true },
+            { rule: 'Card-linked offer + cashback portal', result: 'YES \u2014 they track separately', ok: true },
             { rule: 'Trade-in + everything else', result: 'YES \u2014 always stacks', ok: true },
-            { rule: 'Key worker + student discount', result: 'NO \u2014 one code per order', ok: false },
+            { rule: 'Key worker discount + student discount', result: 'NO \u2014 retailers only accept one discount code', ok: false },
           ].map((item, i) => (
             <div key={i} className="flex items-center justify-between gap-4">
               <span className="text-xs text-white/70">{item.rule}</span>
