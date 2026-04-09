@@ -15,3 +15,6 @@ jobs:
       - name: Trigger CEX sync
         run: |
           curl -s --max-time 180 "https://www.priceslicr.com/api/sync-cex?secret=priceslicr-sync-2026"
+      - name: Trigger Back Market sync
+        run: |
+          curl -s --max-time 300 "https://www.priceslicr.com/api/sync-backmarket?secret=priceslicr-sync-2026"
