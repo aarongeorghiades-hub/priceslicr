@@ -159,13 +159,15 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
   return (
     <>
       {/* ── Trigger Button ── */}
-      <button
-        onClick={openGuide}
-        className="w-full px-6 py-4 bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(0,194,255,0.4)] flex items-center justify-center gap-2"
-        style={{ boxShadow: '0 0 28px rgba(0,194,255,0.28)' }}
-      >
-        Start Slicing &rarr;
-      </button>
+      {bestPrice !== null && (
+        <button
+          onClick={openGuide}
+          className="w-full px-6 py-4 bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(0,194,255,0.4)] flex items-center justify-center gap-2"
+          style={{ boxShadow: '0 0 28px rgba(0,194,255,0.28)' }}
+        >
+          Start Slicing &rarr;
+        </button>
+      )}
 
       {/* ── Modal ── */}
       {state !== 'closed' && typeof document !== 'undefined' && createPortal(
@@ -201,7 +203,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
               <span className="text-white">Price</span>
               <span className="text-[var(--slice)]">/Slicr</span>
             </div>
-            <span className="text-[10px] tracking-[0.3em] text-[var(--slice)] uppercase font-medium">
+            <span className="text-[10px] tracking-[0.3em] text-[var(--slice)] uppercase font-medium text-center flex-1">
               Slice Guide
             </span>
             <button
@@ -415,7 +417,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                       {/* Saved so far pill */}
                       <div className="bg-[var(--savings-dim)] border border-[rgba(0,255,133,0.15)] px-3 py-2 rounded-full text-center">
                         <span className="text-[var(--savings)] font-mono text-sm">
-                          Saved so far: &pound;{savedSoFar}
+                          Potential saving: &pound;{savedSoFar}
                         </span>
                       </div>
                     </div>
@@ -426,7 +428,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                 <div className="fixed bottom-6 left-6 md:hidden z-[10002]">
                   <div className="bg-[var(--savings-dim)] border border-[rgba(0,255,133,0.15)] px-3 py-1 rounded-full">
                     <span className="text-[var(--savings)] font-mono text-sm">
-                      Saved so far: &pound;{savedSoFar}
+                      Potential saving: &pound;{savedSoFar}
                     </span>
                   </div>
                 </div>

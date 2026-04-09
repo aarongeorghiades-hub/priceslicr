@@ -6,7 +6,7 @@ const CATEGORIES = [
   { label: 'Tablets', href: '/tablets' },
   { label: 'TVs', href: '/tvs' },
   { label: 'Monitors', href: '/monitors' },
-  { label: 'Headphones', href: '/headphones' },
+  { label: 'Headphones & Earphones', href: '/headphones' },
   { label: 'Smartwatches', href: '/smartwatches' },
 ]
 
