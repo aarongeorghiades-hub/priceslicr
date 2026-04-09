@@ -1,4 +1,4 @@
-name: Sync eBay Listings
+name: Sync Listings
 
 on:
   schedule:
@@ -9,6 +9,9 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger sync
+      - name: Trigger eBay sync
         run: |
           curl -s --max-time 180 "https://www.priceslicr.com/api/sync-listings?secret=priceslicr-sync-2026"
+      - name: Trigger CEX sync
+        run: |
+          curl -s --max-time 180 "https://www.priceslicr.com/api/sync-cex?secret=priceslicr-sync-2026"
