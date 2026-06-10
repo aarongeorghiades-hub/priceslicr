@@ -28,114 +28,95 @@ export default function HomePage() {
   return (
     <div className="dark-section min-h-screen">
 
-      {/* Radar background */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[image:linear-gradient(rgba(0,194,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(0,194,255,0.025)_1px,transparent_1px)] bg-[size:48px_48px]" />
-        {[0, 1, 2].map(i => (
-          <div
-            key={i}
-            className="absolute left-0 right-0 h-px"
-            style={{
-              background: 'linear-gradient(90deg,transparent,rgba(0,194,255,0.15) 20%,rgba(0,194,255,0.25) 50%,rgba(0,194,255,0.15) 80%,transparent)',
-              animation: `radarSweep 8s linear ${i * -2.67}s infinite`,
-            }}
-          />
-        ))}
-      </div>
-
       <Nav />
 
       {/* Hero */}
-      <section className="relative z-10 max-w-6xl mx-auto px-12 py-20 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center min-h-[88vh] overflow-hidden">
-        {/* Radial glow behind demo card */}
-        <div
-          className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse at center, rgba(0,194,255,0.08) 0%, rgba(0,255,133,0.04) 40%, transparent 70%)',
-            filter: 'blur(40px)',
-          }}
-        />
+      <section className="relative z-10 max-w-[1200px] mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-20 items-center min-h-[85vh] py-20">
         <div>
-          <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-white/70 mb-6 animate-fade-up" style={{ animationDelay: '0.4s' }}>
-            <span className="w-6 h-px bg-[var(--slice)]" />
-            UK Electronics Price Intelligence
-          </div>
-          <h1 className="font-display text-6xl font-extrabold leading-[1.05] tracking-[-2px] text-white mb-5 animate-fade-up" style={{ animationDelay: '0.5s' }}>
-            Every saving.<br />
-            <span className="text-[var(--slice)]">Sliced open.</span>
+          <div className="eyebrow mb-7">UK Price Comparison — New · Refurb · Used</div>
+          <h1 className="heading-hero text-[var(--ink)] mb-6">
+            Never overpay<br />for tech again.
           </h1>
-          <p className="text-white/70 text-lg leading-relaxed max-w-md mb-9 animate-fade-up" style={{ animationDelay: '0.65s' }}>
-            Every major UK retailer. Every saving layer &mdash; cashback, new customer offers, gift cards, trade-in, price matching, student rates, timing. We cut through them all so you don&apos;t have to.
+          <p className="text-[var(--ink-dim)] text-lg leading-relaxed max-w-md mb-10">
+            We compare every major UK retailer and stack every saving — cashback,
+            trade-in, price match, timing — to find your real lowest price.
           </p>
-          <div className="flex items-center gap-5 animate-fade-up" style={{ animationDelay: '0.8s' }}>
-            <Link
-              href="/laptops"
-              className="px-8 py-4 bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm rounded-lg transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_40px_rgba(0,194,255,0.45)]"
-              style={{ boxShadow: '0 0 28px rgba(0,194,255,0.28)' }}
-            >
-              Compare now &rarr;
+          <div className="flex flex-col sm:flex-row sm:items-center gap-5">
+            <Link href="/laptops" className="btn-primary inline-flex items-center justify-center px-8 py-4 text-sm">
+              Compare prices &rarr;
             </Link>
-            <span className="text-xs text-[var(--ink)]">No ads. No cookie tricks. Independent.</span>
+            <span className="eyebrow normal-case tracking-normal text-[var(--ink-faint)]">
+              No ads. No cookie tricks. Independent.
+            </span>
           </div>
         </div>
 
-        {/* Demo card */}
-        <HeroDemoCard />
+        {/* Demo card — the visual anchor */}
+        <div className="flex md:justify-end">
+          <HeroDemoCard />
+        </div>
       </section>
 
       {/* Stat counters */}
-      <div className="relative z-10 border-t border-[var(--border)] bg-[var(--surface)]">
-        <div className="max-w-6xl mx-auto px-12 py-10 grid grid-cols-4">
+      <section className="relative z-10 border-t border-[var(--border)]">
+        <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-16 grid grid-cols-2 md:grid-cols-4 gap-y-10">
           {[
-            { val: '11',   label: 'Retailers covered' },
-            { val: '100+', label: 'Products tracked' },
-            { val: '30+',  label: 'Saving layers' },
+            { val: '11',    label: 'Retailers covered' },
+            { val: '100+',  label: 'Products tracked' },
+            { val: '30+',   label: 'Saving layers' },
             { val: '£200+', label: 'Avg saving surfaced' },
           ].map((s, i) => (
-            <div key={i} className="text-center border-r border-[var(--border)] last:border-0 px-6">
-              <div className="font-mono text-4xl font-medium text-white tracking-tight">
-                {s.val}
-              </div>
-              <div className="text-sm text-white/70 mt-2">{s.label}</div>
+            <div key={i} className="text-center px-6 md:border-r border-[var(--border)] last:border-0">
+              <div className="price-num text-4xl md:text-5xl text-[var(--ink)]">{s.val}</div>
+              <div className="eyebrow mt-3">{s.label}</div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Countdown */}
-      <div className="relative z-10 max-w-6xl mx-auto px-12 py-16">
-        <div className="text-xs uppercase tracking-widest text-[var(--ink)] opacity-80 mb-8">Sale timing intelligence</div>
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-7 grid grid-cols-[1fr_auto] gap-10 items-center">
+      <section className="relative z-10 max-w-[1200px] mx-auto px-6 md:px-12 py-24 md:py-32">
+        <div className="eyebrow mb-5">Sale timing intelligence</div>
+        <h2 className="heading-section text-[var(--ink)] mb-10 max-w-2xl">
+          Buy at the right moment, not just the right price.
+        </h2>
+        <div className="card p-7 md:p-9 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-10 items-center">
           <div>
-            <div className="font-display text-xl font-extrabold text-white mb-2">Black Friday 2026</div>
-            <div className="text-sm text-white/70 mb-4">Historically 20&ndash;60% off electronics. Deepest discounts of the year.</div>
-            <div className="inline-flex items-center gap-2 text-xs text-[var(--savings)] bg-[var(--savings-dim)] border border-[rgba(0,255,133,0.18)] px-3 py-1.5 rounded-full">
+            <div className="heading-card text-[var(--ink)] mb-2.5">Black Friday 2026</div>
+            <div className="text-[var(--ink-dim)] leading-relaxed mb-5 max-w-md">
+              Historically 20&ndash;60% off electronics. The deepest discounts of the year.
+            </div>
+            <div className="inline-flex items-center gap-2 eyebrow text-[var(--slice)] bg-[var(--slice-dim)] border border-[var(--border-2)] px-3 py-1.5 rounded-[var(--radius-pill)]">
               &#x2B25; Confirmed: 27 November 2026
             </div>
           </div>
           <div className="flex gap-3">
             {[
-              { val: String(cd.days), lbl: 'Days',  green: true },
-              { val: cd.hrs,          lbl: 'Hrs',   green: false },
-              { val: cd.min,          lbl: 'Min',   green: false },
-              { val: cd.sec,          lbl: 'Sec',   green: false },
+              { val: String(cd.days), lbl: 'Days', accent: true },
+              { val: cd.hrs,          lbl: 'Hrs',  accent: false },
+              { val: cd.min,          lbl: 'Min',  accent: false },
+              { val: cd.sec,          lbl: 'Sec',  accent: false },
             ].map((u, i) => (
-              <div key={i} className="text-center bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-5 py-4 min-w-[68px]">
-                <div className={`font-mono text-3xl font-medium leading-none ${u.green ? 'text-[var(--savings)] savings-glow' : 'text-white'}`}>
+              <div key={i} className="text-center bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 md:px-5 py-4 min-w-[64px]">
+                <div className={`price-num text-3xl leading-none ${u.accent ? 'text-[var(--slice)] savings-glow' : 'text-[var(--ink)]'}`}>
                   {u.val}
                 </div>
-                <div className="text-[10px] uppercase tracking-widest text-white/70 mt-2">{u.lbl}</div>
+                <div className="eyebrow mt-2.5 text-[10px]">{u.lbl}</div>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      <footer className="relative z-10 border-t border-[var(--border)] px-12 py-7 flex justify-between items-center max-w-6xl mx-auto">
-        <div className="font-display text-base font-extrabold">
-          <span className="text-white">Price</span><span className="text-[var(--slice)]">/Slicr</span>
+      <footer className="relative z-10 border-t border-[var(--border)]">
+        <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-9 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+          <div className="font-display text-base font-bold">
+            <span className="text-[var(--ink)]">Price</span><span className="text-[var(--slice)]">/Slicr</span>
+          </div>
+          <div className="eyebrow normal-case tracking-normal text-[var(--ink-faint)]">
+            &copy; 2026 PriceSlicr &middot; priceslicr.com &middot; Independent. No retailer funding.
+          </div>
         </div>
-        <div className="text-xs text-white/70">&copy; 2026 PriceSlicr &middot; priceslicr.com &middot; Independent. No retailer funding.</div>
       </footer>
     </div>
   )

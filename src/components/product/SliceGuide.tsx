@@ -162,8 +162,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
       {bestPrice !== null && (
         <button
           onClick={openGuide}
-          className="w-full px-6 py-4 bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(0,194,255,0.4)] flex items-center justify-center gap-2"
-          style={{ boxShadow: '0 0 28px rgba(0,194,255,0.28)' }}
+          className="btn-secondary w-full px-6 py-4 text-sm flex items-center justify-center gap-2"
         >
           Start Slicing &rarr;
         </button>
@@ -172,7 +171,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
       {/* ── Modal ── */}
       {state !== 'closed' && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-[99999] bg-[#07070F] overflow-y-auto"
+          className="fixed inset-0 z-[99999] bg-[var(--void)] overflow-y-auto"
           style={{
             opacity: entering ? 0 : 1,
             transform: entering ? 'scale(0.97)' : 'scale(1)',
@@ -183,7 +182,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
           <div
             className="fixed top-0 right-0 w-[800px] h-[600px] pointer-events-none"
             style={{
-              background: 'radial-gradient(ellipse at 80% 0%, rgba(0,194,255,0.08) 0%, transparent 60%)',
+              background: 'radial-gradient(ellipse at 80% 0%, rgba(224,32,32,0.08) 0%, transparent 60%)',
             }}
           />
 
@@ -253,7 +252,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
               </div>
 
               {/* Total saving card */}
-              <div className="w-full bg-[var(--savings-dim)] border border-[rgba(0,255,133,0.2)] rounded-xl px-6 py-5 mb-6">
+              <div className="w-full bg-[var(--savings-dim)] border border-[rgba(255,68,68,0.2)] rounded-xl px-6 py-5 mb-6">
                 <div className="text-[10px] tracking-[0.2em] text-[var(--savings)] uppercase font-medium mb-2">
                   Total potential saving
                 </div>
@@ -270,7 +269,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
               {/* Begin button */}
               <button
                 onClick={() => setState('slice-0')}
-                className="px-10 py-4 bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm rounded-xl transition-all hover:brightness-110 hover:shadow-[0_0_24px_rgba(0,194,255,0.4)] w-full md:w-auto"
+                className="px-10 py-4 bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm rounded-xl transition-all hover:brightness-110 hover:shadow-[0_0_24px_rgba(224,32,32,0.4)] w-full md:w-auto"
               >
                 Begin Slicing &rarr;
               </button>
@@ -289,7 +288,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                 {/* Watermark number */}
                 <div
                   className="absolute top-0 right-8 text-[180px] font-bold leading-none select-none pointer-events-none font-mono"
-                  style={{ color: 'rgba(0,194,255,0.04)' }}
+                  style={{ color: 'rgba(224,32,32,0.04)' }}
                 >
                   {String(currentSliceIndex + 1).padStart(2, '0')}
                 </div>
@@ -315,7 +314,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                       <div className="text-[9px] tracking-[0.3em] uppercase font-medium text-[var(--slice)] mb-3">
                         What you need
                       </div>
-                      <div className="border-l-2 border-[var(--slice)] pl-4 py-3 rounded-r-lg" style={{ background: 'rgba(0,194,255,0.04)' }}>
+                      <div className="border-l-2 border-[var(--slice)] pl-4 py-3 rounded-r-lg" style={{ background: 'rgba(224,32,32,0.04)' }}>
                         <p className="text-sm text-white/80 leading-relaxed">
                           {step.prerequisites}
                         </p>
@@ -342,7 +341,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                           href={layer.cashback_portal_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-xl bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm hover:brightness-110 transition-all hover:shadow-[0_0_16px_rgba(0,194,255,0.4)]"
+                          className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-xl bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm hover:brightness-110 transition-all hover:shadow-[0_0_16px_rgba(224,32,32,0.4)]"
                         >
                           Open {layer.description?.includes('TopCashback') ? 'TopCashback' :
                                 layer.description?.includes('Quidco') ? 'Quidco' :
@@ -381,7 +380,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                             handleDone(currentSliceIndex)
                           }
                         }}
-                        className="flex-1 px-8 py-4 bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm rounded-xl transition-all hover:brightness-110 hover:shadow-[0_0_24px_rgba(0,194,255,0.4)]"
+                        className="flex-1 px-8 py-4 bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm rounded-xl transition-all hover:brightness-110 hover:shadow-[0_0_24px_rgba(224,32,32,0.4)]"
                       >
                         {isLast ? 'Complete \u2014 see your savings summary \u2192' : `Done \u2014 Slice ${currentSliceIndex + 2} \u2192`}
                       </button>
@@ -415,7 +414,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                       </div>
 
                       {/* Saved so far pill */}
-                      <div className="bg-[var(--savings-dim)] border border-[rgba(0,255,133,0.15)] px-3 py-2 rounded-full text-center">
+                      <div className="bg-[var(--savings-dim)] border border-[rgba(255,68,68,0.15)] px-3 py-2 rounded-full text-center">
                         <span className="text-[var(--savings)] font-mono text-sm">
                           Potential saving: &pound;{savedSoFar}
                         </span>
@@ -426,7 +425,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
 
                 {/* Running total pill — mobile */}
                 <div className="fixed bottom-6 left-6 md:hidden z-[10002]">
-                  <div className="bg-[var(--savings-dim)] border border-[rgba(0,255,133,0.15)] px-3 py-1 rounded-full">
+                  <div className="bg-[var(--savings-dim)] border border-[rgba(255,68,68,0.15)] px-3 py-1 rounded-full">
                     <span className="text-[var(--savings)] font-mono text-sm">
                       Potential saving: &pound;{savedSoFar}
                     </span>
@@ -450,7 +449,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
               {bestPrice && slicedPrice !== null && (
                 <div className="flex flex-col items-center gap-3 mb-8">
                   <div className="relative">
-                    <span className="font-mono text-3xl text-white/40 line-through" style={{ textDecorationColor: '#FFB520' }}>
+                    <span className="font-mono text-3xl text-white/40 line-through" style={{ textDecorationColor: 'var(--muted)' }}>
                       &pound;{bestPrice.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
@@ -458,7 +457,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                   <div className="font-mono text-5xl font-medium text-[var(--savings)] savings-glow">
                     &pound;{slicedPrice.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
                   </div>
-                  <div className="bg-[var(--savings-dim)] text-[var(--savings)] border border-[rgba(0,255,133,0.2)] px-4 py-1 rounded-full font-mono text-sm">
+                  <div className="bg-[var(--savings-dim)] text-[var(--savings)] border border-[rgba(255,68,68,0.2)] px-4 py-1 rounded-full font-mono text-sm">
                     Save {Math.round((totalSaving / bestPrice) * 100)}%
                   </div>
                 </div>
@@ -530,7 +529,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
 
           {/* ── Soft Warning Overlay ── */}
           {showWarning && currentSliceIndex !== null && (
-            <div className="fixed inset-0 z-[10003] flex items-center justify-center bg-[rgba(7,7,15,0.7)] backdrop-blur-sm">
+            <div className="fixed inset-0 z-[10003] flex items-center justify-center bg-[rgba(10,7,7,0.7)] backdrop-blur-sm">
               <div className="bg-[var(--surface)] border border-[var(--risk)] rounded-2xl p-6 max-w-sm mx-4">
                 <div className="text-3xl text-center mb-4">&#x26A0;</div>
                 <h4 className="font-display font-bold text-white text-center mb-3">Are you sure?</h4>

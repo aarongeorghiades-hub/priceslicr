@@ -128,28 +128,17 @@ export default async function ProductPage({ slug }: { slug: string }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      {/* Radar background */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[image:linear-gradient(rgba(0,194,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(0,194,255,0.025)_1px,transparent_1px)] bg-[size:48px_48px]" />
-      </div>
-
       <Nav />
 
       {/* Product header */}
-      <div className="relative z-10 border-b border-[var(--border)] bg-[var(--surface)]">
-        <div className="max-w-6xl mx-auto px-12 py-10">
-          <div className="flex items-start justify-between gap-8">
+      <div className="relative z-10 border-b border-[var(--border)]">
+        <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-12 md:py-16">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
             <div>
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-xs uppercase tracking-widest text-white/70">
-                  {product.brand}
-                </span>
-                <span className="text-[var(--border-2)]">&middot;</span>
-                <span className="text-xs text-white/70">
-                  {categoryLabel}
-                </span>
+              <div className="eyebrow mb-4">
+                {product.brand} &middot; {categoryLabel}
               </div>
-              <h1 className="font-display text-4xl font-extrabold text-white leading-tight mb-4">
+              <h1 className="heading-section text-[var(--ink)] mb-5">
                 {product.name}
               </h1>
               {product.specs && Object.keys(product.specs).length > 0 && (
@@ -160,7 +149,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
                     .map(({ key, label }) => (
                       <span
                         key={key}
-                        className="text-xs text-white/50 bg-[rgba(255,255,255,0.04)] border border-[var(--border)] px-3 py-1 rounded-full"
+                        className="text-xs text-[var(--ink-dim)] bg-[var(--surface-2)] border border-[var(--border)] px-3 py-1 rounded-[var(--radius-pill)]"
                       >
                         {label}
                       </span>
@@ -169,8 +158,8 @@ export default async function ProductPage({ slug }: { slug: string }) {
               )}
             </div>
 
-            {/* Price summary */}
-            <div className="shrink-0 text-right">
+            {/* Price summary — the single glow element on this page */}
+            <div className="shrink-0">
               {(() => {
                 const heroListing = [cheapestNew, cheapestRefurb, cheapestUsed]
                   .filter(Boolean)
@@ -179,20 +168,28 @@ export default async function ProductPage({ slug }: { slug: string }) {
                   : heroListing?.condition === 'refurbished' ? 'From (refurb)'
                   : heroListing?.condition === 'used' ? 'From (used)'
                   : null
-                const heroColor = heroListing?.condition === 'new' ? 'text-[var(--savings)]'
-                  : heroListing?.condition === 'refurbished' ? 'text-[var(--risk)]'
-                  : 'text-white/80'
+                const conditionPill = heroListing?.condition === 'new' ? 'New'
+                  : heroListing?.condition === 'refurbished' ? 'Refurbished'
+                  : heroListing?.condition === 'used' ? 'Used'
+                  : null
                 return heroListing && heroLabel ? (
-                  <div>
-                    <div className="text-[10px] uppercase tracking-widest text-white/60 mb-1">{heroLabel}</div>
-                    <div className={`font-mono text-4xl font-medium ${heroColor}`}>
+                  <div className="card glow-slice px-7 py-5 text-right min-w-[200px]">
+                    <div className="flex items-center justify-end gap-2 mb-2">
+                      <span className="eyebrow">From</span>
+                      {conditionPill && (
+                        <span className="eyebrow text-[var(--ink-dim)] bg-[var(--surface-2)] border border-[var(--border)] rounded-md px-2 py-0.5">
+                          {conditionPill}
+                        </span>
+                      )}
+                    </div>
+                    <div className="price-num text-[2.5rem] leading-none text-[var(--slice)] savings-glow">
                       &pound;{heroListing.price_gbp.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
                     </div>
                   </div>
                 ) : null
               })()}
               {listings.length === 0 && (
-                <div className="text-sm text-white/70">Prices loading</div>
+                <div className="eyebrow normal-case tracking-normal text-[var(--ink-dim)]">Prices loading</div>
               )}
             </div>
           </div>
@@ -200,58 +197,54 @@ export default async function ProductPage({ slug }: { slug: string }) {
       </div>
 
       {/* Main content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-12 py-10 grid grid-cols-[1fr_380px] gap-8 items-start">
+      <div className="relative z-10 max-w-[1200px] mx-auto px-6 md:px-12 py-12 md:py-16 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 lg:gap-10 items-start">
 
         {/* Left column */}
-        <div className="space-y-6">
+        <div className="space-y-10">
 
           {/* Price comparison table */}
           <section>
-            <div className="text-xs uppercase tracking-widest text-white/80 mb-4 font-medium">
-              Retailer prices
-            </div>
+            <div className="eyebrow mb-4">Retailer prices</div>
             <PriceTable listings={listings} />
           </section>
 
           {/* Sale timing */}
           {saleEvents.length > 0 && (
             <section>
-              <div className="text-xs uppercase tracking-widest text-white/80 mb-4 font-medium">
-                Sale timing
-              </div>
+              <div className="eyebrow mb-4">Sale timing</div>
               <SaleTiming events={saleEvents} />
             </section>
           )}
 
           {/* Price match note */}
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5">
-            <div className="font-display font-bold text-white text-sm mb-3">Price match intelligence</div>
-            <div className="space-y-2 text-[11px] text-white/80 leading-relaxed">
+          <div className="card p-7">
+            <div className="heading-card text-[var(--ink)] mb-4">Price match intelligence</div>
+            <div className="space-y-3 text-[13px] text-[var(--ink-dim)] leading-relaxed">
               <div>
-                <span className="text-white">John Lewis price match</span> &mdash; JL will price match to major UK retailers including Currys. Buy at JL, claim the lower price, keep JL&apos;s 2-year guarantee at no extra cost.
+                <span className="text-[var(--ink)] font-medium">John Lewis price match</span> &mdash; JL will price match to major UK retailers including Currys. Buy at JL, claim the lower price, keep JL&apos;s 2-year guarantee at no extra cost.
               </div>
               <div>
-                <span className="text-white">Currys price match</span> &mdash; Matches any identical in-stock item from approved retailers. Request in-store, via chat, or by phone.
+                <span className="text-[var(--ink)] font-medium">Currys price match</span> &mdash; Matches any identical in-stock item from approved retailers. Request in-store, via chat, or by phone.
               </div>
               <div>
-                <span className="text-white">Amazon &amp; eBay</span> &mdash; No formal price match policy. Monitor for price drops via camelcamelcamel (Amazon) or eBay saved searches.
+                <span className="text-[var(--ink)] font-medium">Amazon &amp; eBay</span> &mdash; No formal price match policy. Monitor for price drops via camelcamelcamel (Amazon) or eBay saved searches.
               </div>
             </div>
           </div>
         </div>
 
         {/* Right column — Savings Stack */}
-        <aside className="space-y-4 sticky top-24">
+        <aside className="space-y-5 lg:sticky lg:top-24">
           <SliceGuide
             layers={relevantLayers}
             productName={product.name}
             bestPrice={cheapestNew?.price_gbp ?? cheapestRefurb?.price_gbp ?? listings[0]?.price_gbp ?? null}
           />
-          <div className="text-xs uppercase tracking-widest text-white/80 font-medium">
-            Savings stack
-          </div>
-          <div className="text-[11px] text-white/70 -mt-2 mb-2 leading-relaxed">
-            Every saving layer available on this product &mdash; stack multiple to reach your lowest price.
+          <div>
+            <div className="eyebrow mb-2">Savings stack</div>
+            <div className="text-[13px] text-[var(--ink-dim)] leading-relaxed">
+              Every saving layer available on this product &mdash; stack multiple to reach your lowest price.
+            </div>
           </div>
           <SavingsStack layers={relevantLayers} />
         </aside>
