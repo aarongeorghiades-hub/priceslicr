@@ -210,25 +210,47 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ── White mist halos (Part A) — apply to a transparent WRAPPER around a card.
-   isolation:isolate traps the -1 ::before behind the card child but above the page. */
+   isolation:isolate traps the -1 ::before behind the card child but above the page.
+   Two techniques combine for guaranteed visibility:
+   (1) a large soft halo extending well beyond the card edges, and
+   (2) a faint white outer glow on the card itself, which can never be occluded. */
 .mist {
   position: relative;
   isolation: isolate;
 }
+
+/* Technique 1: large soft halo extending well beyond the card edges */
 .mist::before {
   content: '';
   position: absolute;
-  inset: -12% -8%;
-  background: radial-gradient(ellipse at 50% 40%, rgba(245,234,234,0.07) 0%, rgba(245,234,234,0.03) 45%, transparent 72%);
-  filter: blur(36px);
+  inset: -22% -16%;
+  background: radial-gradient(ellipse at 50% 42%,
+    rgba(245,234,234,0.16) 0%,
+    rgba(245,234,234,0.07) 38%,
+    rgba(245,234,234,0.025) 60%,
+    transparent 78%);
+  filter: blur(48px);
   z-index: -1;
   pointer-events: none;
 }
-.mist-high::before {
-  background: radial-gradient(ellipse at 50% 20%, rgba(245,234,234,0.07) 0%, rgba(245,234,234,0.03) 45%, transparent 72%);
+.mist-high::before { inset: -26% -14%; background: radial-gradient(ellipse at 50% 18%, rgba(245,234,234,0.16) 0%, rgba(245,234,234,0.06) 40%, transparent 76%); }
+.mist-wide::before { inset: -16% -24%; background: radial-gradient(ellipse at 50% 50%, rgba(245,234,234,0.15) 0%, rgba(245,234,234,0.06) 42%, transparent 78%); }
+
+/* Technique 2: white outer glow on the card inside any .mist wrapper — never occluded. */
+.mist > .card,
+.mist.card {
+  box-shadow:
+    0 0 90px 8px rgba(245,234,234,0.055),
+    var(--shadow-card);
 }
-.mist-wide::before {
-  inset: -8% -16%;
+/* Where the red glow is present (HeroDemoCard), it must keep winning — combine all three.
+   Placed after the rule above so it wins on equal specificity. */
+.mist > .glow-slice,
+.mist.glow-slice {
+  box-shadow:
+    var(--glow-slice),
+    0 0 90px 8px rgba(245,234,234,0.055),
+    var(--shadow-card);
 }
 
 /* ── Scroll reveal (Part B). SSR/no-JS renders neither class → fully visible. */

@@ -97,7 +97,7 @@ function BuyDecisionHelper({ events }: { events: SaleEvent[] }) {
         {recommendation.rationale}
       </div>
       <div className="text-[11px] text-white/70 bg-[rgba(255,255,255,0.03)] border border-[var(--border)] rounded-xl px-4 py-3 leading-relaxed">
-        <span className="text-[var(--ink)]">Tip:</span> Whatever you decide, stack your saving layers. Trade-in + portal cashback + price matching can recover 15&ndash;25% of the gap without waiting for a sale.
+        <span className="font-medium text-[var(--ink)] mr-1">Tip:</span>Whatever you decide, stack your saving layers. Trade-in + portal cashback + price matching can recover 15&ndash;25% of the gap without waiting for a sale.
       </div>
     </div>
   )
