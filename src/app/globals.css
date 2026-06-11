@@ -84,13 +84,35 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Warm ambient bleed from the top of the viewport — warmth, not a light show */
+/* Warm ambient depth: fixed red glows travelling behind the panels, plus film grain. */
 .dark-section {
   position: relative;
-  background:
-    radial-gradient(120% 60% at 50% -12%, rgba(224,32,32,0.04) 0%, rgba(224,32,32,0.012) 34%, transparent 64%),
-    var(--void);
+  background: var(--void);
   color: var(--ink);
+}
+/* Ambient glow layer — fixed to the viewport so light stays put as content scrolls. */
+.dark-section::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 50% 40% at 0% 75%, rgba(224,32,32,0.05), transparent 70%),
+    radial-gradient(ellipse 45% 35% at 100% 35%, rgba(224,32,32,0.04), transparent 70%),
+    radial-gradient(120% 55% at 50% 0%, rgba(224,32,32,0.05), rgba(224,32,32,0.012) 34%, transparent 60%);
+}
+/* Film grain — above the glows, below the content. */
+.dark-section::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.03;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
 }
 
 * { box-sizing: border-box; }
@@ -161,25 +183,66 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ── Surface / depth helpers ────────────────────── */
 
+/* Top-lit gradient border via the padding-box / border-box double-background technique. */
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   border-radius: var(--radius-card);
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(180deg, rgba(245,234,234,0.14), rgba(245,234,234,0.03) 40%, rgba(42,21,21,0.9)) border-box;
   box-shadow: var(--shadow-card);
 }
 
 .card-interactive {
-  transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+  transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease;
 }
 .card-interactive:hover {
-  border-color: var(--border-2);
-  box-shadow: var(--shadow-card-hover);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(180deg, rgba(245,234,234,0.22), rgba(245,234,234,0.04) 45%, rgba(53,26,26,0.95)) border-box;
 }
 
-/* The single permitted glow per viewport */
+/* The single permitted glow per viewport (box-shadow composes with the gradient border) */
 .glow-slice {
   box-shadow: var(--glow-slice), var(--shadow-card);
+}
+
+/* ── White mist halos (Part A) — apply to a transparent WRAPPER around a card.
+   isolation:isolate traps the -1 ::before behind the card child but above the page. */
+.mist {
+  position: relative;
+  isolation: isolate;
+}
+.mist::before {
+  content: '';
+  position: absolute;
+  inset: -12% -8%;
+  background: radial-gradient(ellipse at 50% 40%, rgba(245,234,234,0.07) 0%, rgba(245,234,234,0.03) 45%, transparent 72%);
+  filter: blur(36px);
+  z-index: -1;
+  pointer-events: none;
+}
+.mist-high::before {
+  background: radial-gradient(ellipse at 50% 20%, rgba(245,234,234,0.07) 0%, rgba(245,234,234,0.03) 45%, transparent 72%);
+}
+.mist-wide::before {
+  inset: -8% -16%;
+}
+
+/* ── Scroll reveal (Part B). SSR/no-JS renders neither class → fully visible. */
+.reveal-hidden {
+  opacity: 0;
+  transform: translateY(28px);
+}
+.reveal-shown {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 600ms ease-out, transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-hidden, .reveal-shown { opacity: 1; transform: none; transition: none; }
 }
 
 /* ── Buttons ────────────────────────────────────── */

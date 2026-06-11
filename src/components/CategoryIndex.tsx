@@ -3,6 +3,7 @@ import Nav from '@/components/layout/Nav'
 import Link from 'next/link'
 import type { Product } from '@/types'
 import { formatSpec } from '@/lib/specs'
+import Reveal from '@/components/Reveal'
 
 const CATEGORY_ROUTES: Record<string, string> = {
   laptop: 'laptops',
@@ -41,28 +42,24 @@ export default async function CategoryIndex({ category, title, singular, descrip
 
   return (
     <div className="dark-section min-h-screen">
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[image:linear-gradient(rgba(0,194,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(0,194,255,0.025)_1px,transparent_1px)] bg-[size:48px_48px]" />
-      </div>
-
       <Nav />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-12 py-10">
-        <div className="mb-10">
-          <div className="text-xs tracking-widest text-white/70 mb-3">{labelOverride ?? `UK ${title.toUpperCase()} COMPARISON`}</div>
+      <div className="relative z-10 max-w-[1200px] mx-auto px-6 md:px-12 py-12 md:py-16">
+        <div className="mb-12">
+          <div className="eyebrow mb-4">{labelOverride ?? `UK ${title.toUpperCase()} COMPARISON`}</div>
           {headlineOverride ?? (
-            <h1 className="font-display text-5xl font-extrabold text-white leading-tight">
+            <h1 className="heading-section text-[var(--ink)]">
               Every {singular ?? title.toLowerCase()}.<br />
-              <span className="text-[var(--slice)]">Every saving.</span>
+              <span className="text-[var(--slice-text)]">Every saving.</span>
             </h1>
           )}
-          <p className="text-white/80 text-lg mt-4 max-w-xl">{description}</p>
+          <p className="text-[var(--ink-dim)] text-lg mt-5 max-w-xl leading-relaxed">{description}</p>
         </div>
 
-        <div className="space-y-8">
-          {Object.entries(grouped).map(([brand, brandProducts]) => (
-            <div key={brand}>
-              <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium border-b border-[var(--border)] pb-3">
+        <div className="space-y-10">
+          {Object.entries(grouped).map(([brand, brandProducts], gi) => (
+            <Reveal key={brand} delay={Math.min(gi * 70, 350)}>
+              <div className="label text-[var(--ink-faint)] mb-4 border-b border-[var(--border)] pb-3">
                 {brand}
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -70,9 +67,9 @@ export default async function CategoryIndex({ category, title, singular, descrip
                   <Link
                     key={product.id}
                     href={`/${routePrefix}/${product.slug}`}
-                    className="group bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 hover:border-[var(--slice)] hover:-translate-y-1 transition-all duration-200 slice-bar"
+                    className="group card card-interactive p-4 slice-bar"
                   >
-                    <div className="font-display font-semibold tracking-wide text-white text-sm mb-2 group-hover:text-[var(--slice)] transition-colors">
+                    <div className="font-display font-semibold tracking-wide text-[var(--ink)] text-sm mb-2 group-hover:text-[var(--slice-text)] transition-colors">
                       {product.name}
                     </div>
                     {product.specs && (
@@ -82,19 +79,19 @@ export default async function CategoryIndex({ category, title, singular, descrip
                           .filter((s): s is { key: string; label: string } => s.label !== null)
                           .slice(0, 3)
                           .map(({ key, label }) => (
-                            <span key={key} className="text-[10px] text-white/50 bg-[rgba(255,255,255,0.03)] border border-[var(--border)] px-2 py-0.5 rounded">
+                            <span key={key} className="text-[10px] text-[var(--ink-dim)] bg-[rgba(255,255,255,0.03)] border border-[var(--border)] px-2 py-0.5 rounded">
                               {label}
                             </span>
                           ))}
                       </div>
                     )}
-                    <div className="text-[11px] text-[var(--slice)] mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="text-[11px] text-[var(--slice-text)] mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       Compare prices &rarr;
                     </div>
                   </Link>
                 ))}
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

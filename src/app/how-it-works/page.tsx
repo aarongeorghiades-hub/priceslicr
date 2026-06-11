@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Nav from '@/components/layout/Nav'
-import Link from 'next/link'
+import Reveal from '@/components/Reveal'
 
 export const metadata: Metadata = {
   title: 'How PriceSlicr Works | UK Tech Price Comparison',
@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 const SAVING_LAYERS = [
   {
     icon: '↩',
-    color: 'text-[var(--savings)]',
-    bg: 'bg-[var(--savings-dim)]',
-    border: 'border-[rgba(0,255,133,0.2)]',
+    color: 'text-[var(--slice-text)]',
+    bg: 'bg-[var(--slice-dim)]',
+    border: 'border-[rgba(224,32,32,0.2)]',
     title: 'Cashback portals',
     description: 'TopCashback and Quidco pay you a percentage of your purchase back in cash. 3–6% at Currys and John Lewis. Activate before you click through — the cookie must be set first.',
     example: 'MacBook Air £1,099 → save £33 via TopCashback at Currys',
@@ -20,9 +20,9 @@ const SAVING_LAYERS = [
   },
   {
     icon: '⇆',
-    color: 'text-[var(--savings)]',
-    bg: 'bg-[var(--savings-dim)]',
-    border: 'border-[rgba(0,255,133,0.2)]',
+    color: 'text-[var(--slice-text)]',
+    bg: 'bg-[var(--slice-dim)]',
+    border: 'border-[rgba(224,32,32,0.2)]',
     title: 'Trade-in',
     description: 'Sell your old device to MusicMagpie, Back Market, or CEX before buying. Cash goes toward your new laptop. Always stacks with every other saving layer.',
     example: 'Old MacBook Air (Good condition) → £440 cash from MusicMagpie',
@@ -30,9 +30,9 @@ const SAVING_LAYERS = [
   },
   {
     icon: '◈',
-    color: 'text-[var(--slice)]',
+    color: 'text-[var(--slice-text)]',
     bg: 'bg-[var(--slice-dim)]',
-    border: 'border-[rgba(0,194,255,0.2)]',
+    border: 'border-[rgba(224,32,32,0.2)]',
     title: 'Credit card cashback',
     description: 'Amex intro cashback (5% for 5 months, capped £125) stacks with portal cashback. Lloyds Ultra gives 1% uncapped on all Visa purchases — best for retailers that don\'t take Amex.',
     example: 'Amex intro: £1,099 MacBook → save £55 in cashback',
@@ -40,9 +40,9 @@ const SAVING_LAYERS = [
   },
   {
     icon: '🎁',
-    color: 'text-[var(--savings)]',
-    bg: 'bg-[var(--savings-dim)]',
-    border: 'border-[rgba(0,255,133,0.2)]',
+    color: 'text-[var(--slice-text)]',
+    bg: 'bg-[var(--slice-dim)]',
+    border: 'border-[rgba(224,32,32,0.2)]',
     title: 'Gift card cashback',
     description: 'HyperJar gives ~5% on Currys gift cards. JamDoughnut gives 2–5% on Currys and is the only cashback route on Apple. Buy the gift card, then use it to pay — instant, no cookie dependency.',
     example: 'Currys £1,099 via HyperJar gift card → save £55 instantly',
@@ -50,9 +50,9 @@ const SAVING_LAYERS = [
   },
   {
     icon: '✦',
-    color: 'text-[#9A85FF]',
-    bg: 'bg-[rgba(154,133,255,0.12)]',
-    border: 'border-[rgba(154,133,255,0.2)]',
+    color: 'text-[var(--slice-text)]',
+    bg: 'bg-[rgba(224,32,32,0.12)]',
+    border: 'border-[rgba(224,32,32,0.2)]',
     title: 'Student & youth discounts',
     description: 'Apple Education pricing (up to 10% off Macs), UNiDAYS codes at Dell and HP, Samsung Youth Store (age 16–26, photo ID only — no enrolment needed). Back Market offers £20 student discount via SheerID.',
     example: 'Samsung Youth Store: 10–30% off Galaxy Book with just photo ID',
@@ -60,9 +60,9 @@ const SAVING_LAYERS = [
   },
   {
     icon: '≡',
-    color: 'text-[var(--slice)]',
+    color: 'text-[var(--slice-text)]',
     bg: 'bg-[var(--slice-dim)]',
-    border: 'border-[rgba(0,194,255,0.2)]',
+    border: 'border-[rgba(224,32,32,0.2)]',
     title: 'Price matching',
     description: 'John Lewis will match Currys prices (NKU policy) — buy at JL, claim the Currys price, keep the JL 2-year guarantee for free. Currys matches approved retailers in-store.',
     example: 'MacBook at JL: £1,099 → price matched to Currys £1,049, keep 2-year warranty',
@@ -92,32 +92,27 @@ const STACKING_RULES = [
 export default function HowItWorksPage() {
   return (
     <div className="dark-section min-h-screen">
-      {/* Grid background */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[image:linear-gradient(rgba(0,194,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(0,194,255,0.025)_1px,transparent_1px)] bg-[size:48px_48px]" />
-      </div>
-
       <Nav />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-12 py-10">
+      <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12 py-12 md:py-16">
 
         {/* Header */}
-        <div className="mb-12">
-          <div className="text-xs uppercase tracking-widest text-white/70 mb-3">
+        <div className="mb-14">
+          <div className="eyebrow mb-4">
             How it works
           </div>
-          <h1 className="font-display text-5xl font-extrabold text-white leading-tight mb-4">
+          <h1 className="heading-section text-[var(--ink)] mb-5">
             Every saving.<br />
-            <span className="text-[var(--slice)]">Automatically.</span>
+            <span className="text-[var(--slice-text)]">Automatically.</span>
           </h1>
-          <p className="text-white/70 text-lg max-w-2xl leading-relaxed">
+          <p className="text-[var(--ink-dim)] text-lg max-w-2xl leading-relaxed">
             Most UK laptop buyers overpay by 15–40% because they only check the headline price. PriceSlicr surfaces every available saving layer — cashback, trade-in, price matching, student rates, and sale timing — so you can stack them.
           </p>
         </div>
 
         {/* How stacking works */}
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 mb-10">
-          <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
+        <Reveal className="mist mb-10"><div className="card p-6">
+          <div className="label text-[var(--ink-faint)] mb-4">
             The stacking principle
           </div>
           <p className="text-sm text-white/70 leading-relaxed mb-5">
@@ -136,9 +131,9 @@ export default function HowItWorksPage() {
                 key={i}
                 className={`text-xs px-3 py-1.5 rounded-lg font-medium border ${
                   item.result
-                    ? 'bg-[var(--savings-dim)] text-[var(--savings)] border-[rgba(0,255,133,0.2)]'
+                    ? 'bg-[var(--slice-dim)] text-[var(--slice-text)] border-[rgba(224,32,32,0.2)]'
                     : item.green
-                    ? 'bg-[var(--slice-dim)] text-[var(--slice)] border-[rgba(0,194,255,0.2)]'
+                    ? 'bg-[var(--slice-dim)] text-[var(--slice-text)] border-[rgba(224,32,32,0.2)]'
                     : 'bg-[rgba(255,255,255,0.04)] text-white/70 border-[var(--border)]'
                 }`}
               >
@@ -146,18 +141,19 @@ export default function HowItWorksPage() {
               </span>
             ))}
           </div>
-        </div>
+        </div></Reveal>
 
         {/* Saving layers */}
-        <div className="mb-10">
-          <div className="text-xs uppercase tracking-widest text-white/70 mb-6 font-medium">
+        <Reveal className="mb-10">
+          <div className="label text-[var(--ink-faint)] mb-6">
             The 7 saving layers
           </div>
           <div className="space-y-4">
             {SAVING_LAYERS.map((layer, i) => (
-              <div
+              <Reveal
                 key={i}
-                className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6"
+                delay={Math.min(i * 70, 350)}
+                className="card p-6"
               >
                 <div className="flex items-start gap-4">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 ${layer.bg} ${layer.color} border ${layer.border}`}>
@@ -166,26 +162,26 @@ export default function HowItWorksPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <span className="font-display font-bold text-white text-sm">{layer.title}</span>
-                      <span className="text-[10px] text-[var(--savings)] bg-[var(--savings-dim)] border border-[rgba(0,255,133,0.15)] px-2 py-0.5 rounded">
+                      <span className="text-[10px] text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.15)] px-2 py-0.5 rounded">
                         ✓ Stackable
                       </span>
                     </div>
                     <p className="text-sm text-white/70 leading-relaxed mb-3">
                       {layer.description}
                     </p>
-                    <div className="text-[11px] text-[var(--slice)] bg-[var(--slice-dim)] border border-[rgba(0,194,255,0.15)] px-3 py-2 rounded-lg">
+                    <div className="text-[11px] text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.15)] px-3 py-2 rounded-lg">
                       Example: {layer.example}
                     </div>
                   </div>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
-        </div>
+        </Reveal>
 
         {/* Stacking rules */}
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 mb-10">
-          <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
+        <Reveal className="mist mist-high mb-10"><div className="card p-6">
+          <div className="label text-[var(--ink-faint)] mb-4">
             What stacks with what
           </div>
           <div className="space-y-3">
@@ -198,7 +194,7 @@ export default function HowItWorksPage() {
                 </span>
                 <span className={`text-[10px] font-semibold px-3 py-1 rounded shrink-0 border ${
                   rule.ok
-                    ? 'bg-[var(--savings-dim)] text-[var(--savings)] border-[rgba(0,255,133,0.2)]'
+                    ? 'bg-[var(--slice-dim)] text-[var(--slice-text)] border-[rgba(224,32,32,0.2)]'
                     : 'bg-[var(--risk-dim)] text-[var(--risk)] border-[rgba(255,181,32,0.2)]'
                 }`}>
                   {rule.result}
@@ -206,11 +202,11 @@ export default function HowItWorksPage() {
               </div>
             ))}
           </div>
-        </div>
+        </div></Reveal>
 
         {/* About PriceSlicr */}
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 mb-10">
-          <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
+        <Reveal className="mist mist-wide mb-10"><div className="card p-6">
+          <div className="label text-[var(--ink-faint)] mb-4">
             About PriceSlicr
           </div>
           <div className="space-y-3 text-sm text-white/70 leading-relaxed">
@@ -224,11 +220,11 @@ export default function HowItWorksPage() {
               Currently covering 102 products across 7 categories &mdash; laptops, phones, tablets, TVs, monitors, headphones, and smartwatches &mdash; from 11 UK retailers. Prices update every 6 hours.
             </p>
           </div>
-        </div>
+        </div></Reveal>
 
         {/* CTA */}
-        <div className="mt-12 border-t border-white/10 pt-10">
-          <div className="text-xs uppercase tracking-widest text-white/50 mb-6">Browse by category</div>
+        <div className="mt-12 border-t border-[var(--border)] pt-10">
+          <div className="label text-[var(--ink-faint)] mb-6">Browse by category</div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
             <a href="/laptops" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Laptops &rarr;</a>
             <a href="/phones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Phones &rarr;</a>
@@ -237,7 +233,7 @@ export default function HowItWorksPage() {
             <a href="/monitors" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Monitors &rarr;</a>
             <a href="/headphones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Headphones &rarr;</a>
             <a href="/smartwatches" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Smartwatches &rarr;</a>
-            <a href="/trade-in" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--slice)] transition-colors text-center">Trade-in &rarr;</a>
+            <a href="/trade-in" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--slice-text)] transition-colors text-center">Trade-in &rarr;</a>
           </div>
         </div>
 

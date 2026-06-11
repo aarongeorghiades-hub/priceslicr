@@ -20,16 +20,16 @@ function formatDate(dateString: string): string {
 const CONFIDENCE_META: Record<string, { label: string; color: string; bg: string; border: string; desc: string }> = {
   confirmed: {
     label: 'Confirmed',
-    color: 'text-[var(--savings)]',
-    bg: 'bg-[var(--savings-dim)]',
-    border: 'border-[rgba(0,255,133,0.2)]',
+    color: 'text-[var(--slice-text)]',
+    bg: 'bg-[var(--slice-dim)]',
+    border: 'border-[rgba(224,32,32,0.2)]',
     desc: 'Date officially announced by retailer or Amazon.',
   },
   expected: {
     label: 'Expected',
-    color: 'text-[var(--slice)]',
+    color: 'text-[var(--slice-text)]',
     bg: 'bg-[var(--slice-dim)]',
-    border: 'border-[rgba(0,194,255,0.2)]',
+    border: 'border-[rgba(224,32,32,0.2)]',
     desc: 'Highly likely based on consistent annual pattern.',
   },
   historical_pattern: {
@@ -47,7 +47,7 @@ function BuyDecisionHelper({ events }: { events: SaleEvent[] }) {
 
   if (!next) {
     return (
-      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6">
+      <div className="card p-6">
         <div className="font-display font-bold text-white text-sm mb-2">Should I buy now?</div>
         <div className="text-sm text-white/70">No upcoming confirmed sale events. Prices are stable &mdash; now is a reasonable time to buy.</div>
       </div>
@@ -62,13 +62,13 @@ function BuyDecisionHelper({ events }: { events: SaleEvent[] }) {
   if (days <= 7) {
     recommendation = {
       verdict: 'Wait \u2014 sale starts imminently',
-      color: 'text-[var(--savings)]',
+      color: 'text-[var(--slice-text)]',
       rationale: `${next.event_name} starts in ${days} day${days !== 1 ? 's' : ''}. Historical discounts of ${next.historical_discount_min}\u2013${next.historical_discount_max}% make waiting worthwhile unless your need is urgent.`,
     }
   } else if (days <= 21) {
     recommendation = {
       verdict: 'Wait if you can',
-      color: 'text-[var(--slice)]',
+      color: 'text-[var(--slice-text)]',
       rationale: `${next.event_name} is ${days} days away. An average saving of ~${avgDiscount}% justifies a short wait if you can hold out.`,
     }
   } else if (days <= 60) {
@@ -86,11 +86,11 @@ function BuyDecisionHelper({ events }: { events: SaleEvent[] }) {
   }
 
   return (
-    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6">
+    <div className="card p-6">
       <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
         Should I buy now?
       </div>
-      <div className={`font-display text-xl font-extrabold mb-3 ${recommendation.color}`}>
+      <div className={`font-display text-xl font-semibold mb-3 ${recommendation.color}`}>
         {recommendation.verdict}
       </div>
       <div className="text-sm text-white/70 leading-relaxed mb-4">
@@ -126,14 +126,14 @@ function LiveCountdown({ event }: { event: SaleEvent }) {
   const conf = CONFIDENCE_META[event.confidence] ?? CONFIDENCE_META.historical_pattern
 
   return (
-    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-7 grid grid-cols-[1fr_auto] gap-10 items-center">
+    <div className="card p-7 grid grid-cols-[1fr_auto] gap-10 items-center">
       <div>
         <div className="flex items-center gap-2 mb-3">
           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${conf.bg} ${conf.color} ${conf.border}`}>
             {conf.label}
           </span>
         </div>
-        <div className="font-display text-2xl font-extrabold text-white mb-2">
+        <div className="font-display text-2xl font-semibold text-white mb-2">
           {event.event_name}
         </div>
         <div className="text-sm text-white/70 mb-3 leading-relaxed">
@@ -159,7 +159,7 @@ function LiveCountdown({ event }: { event: SaleEvent }) {
           { val: cd.sec, lbl: 'Sec', green: false },
         ].map((u, i) => (
           <div key={i} className="text-center bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-5 py-4 min-w-[68px]">
-            <div className={`font-mono text-3xl font-medium leading-none ${u.green ? 'text-[var(--savings)] savings-glow' : 'text-white'}`}>
+            <div className={`font-mono text-3xl font-medium leading-none ${u.green ? 'text-[var(--slice-text)] savings-glow' : 'text-white'}`}>
               {u.val}
             </div>
             <div className="text-[10px] uppercase tracking-widest text-white/70 mt-2">{u.lbl}</div>
@@ -186,7 +186,7 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
       {/* Active sales */}
       {active.length > 0 && (
         <div>
-          <div className="text-xs uppercase tracking-widest text-[var(--savings)] mb-4 font-medium flex items-center gap-2">
+          <div className="text-xs uppercase tracking-widest text-[var(--slice-text)] mb-4 font-medium flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[var(--savings)] animate-pulse" />
             Live right now
           </div>
@@ -195,10 +195,10 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
               const daysLeft = daysUntil(event.expected_end_date)
               const conf = CONFIDENCE_META[event.confidence] ?? CONFIDENCE_META.historical_pattern
               return (
-                <div key={event.id} className="bg-[var(--savings-dim)] border border-[rgba(0,255,133,0.2)] rounded-2xl p-5">
+                <div key={event.id} className="bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.2)] rounded-2xl p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <div className="font-display font-extrabold text-[var(--savings)] text-lg mb-1">{event.event_name}</div>
+                      <div className="font-display font-semibold text-[var(--slice-text)] text-lg mb-1">{event.event_name}</div>
                       {event.category_notes && (
                         <div className="text-sm text-white/70 mb-2">{event.category_notes}</div>
                       )}
@@ -207,7 +207,7 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="font-mono text-2xl font-medium text-[var(--savings)] savings-glow">{daysLeft}d left</div>
+                      <div className="font-mono text-2xl font-medium text-[var(--slice-text)] savings-glow">{daysLeft}d left</div>
                       <div className="text-[11px] text-white/70 mt-1">{event.historical_discount_min}&ndash;{event.historical_discount_max}% off</div>
                     </div>
                   </div>
@@ -236,7 +236,7 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
         <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
           Full sale calendar
         </div>
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="px-5 py-4 border-b border-[var(--border)] grid grid-cols-[1fr_auto_auto_auto] gap-4 text-[10px] uppercase tracking-widest text-white/70 font-medium">
             <span>Event</span>
             <span className="text-right">Date</span>
@@ -254,15 +254,15 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
                 key={event.id}
                 className={`px-5 py-4 grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center ${
                   i < events.length - 1 ? 'border-b border-[var(--border)]' : ''
-                } ${isActive ? 'bg-[var(--savings-dim)]' : isPast ? 'opacity-50' : ''}`}
+                } ${isActive ? 'bg-[var(--slice-dim)]' : isPast ? 'opacity-50' : ''}`}
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className={`text-sm font-medium ${isActive ? 'text-[var(--savings)]' : 'text-[var(--ink)]'}`}>
+                    <span className={`text-sm font-medium ${isActive ? 'text-[var(--slice-text)]' : 'text-[var(--ink)]'}`}>
                       {event.event_name}
                     </span>
                     {isActive && (
-                      <span className="text-[10px] font-semibold text-[var(--savings)] bg-[var(--savings-dim)] border border-[rgba(0,255,133,0.2)] px-2 py-0.5 rounded animate-pulse">
+                      <span className="text-[10px] font-semibold text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.2)] px-2 py-0.5 rounded animate-pulse">
                         LIVE
                       </span>
                     )}
@@ -277,7 +277,7 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
                       href={event.source_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[10px] text-[var(--slice)] hover:underline mt-0.5 block"
+                      className="text-[10px] text-[var(--slice-text)] hover:underline mt-0.5 block"
                     >
                       Source &rarr;
                     </a>
@@ -334,7 +334,7 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
       </div>
 
       {/* Stacking reminder */}
-      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5">
+      <div className="card p-5">
         <div className="font-display font-bold text-white text-sm mb-3">
           Can&apos;t wait? Stack these layers now
         </div>

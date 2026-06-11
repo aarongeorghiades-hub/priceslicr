@@ -40,19 +40,19 @@ const TYPE_ICON: Record<string, string> = {
 }
 
 const TYPE_COLOR: Record<string, { bg: string; text: string }> = {
-  cashback:        { bg: 'bg-[var(--savings-dim)]', text: 'text-[var(--savings)]' },
-  gift_card:       { bg: 'bg-[var(--savings-dim)]', text: 'text-[var(--savings)]' },
-  card_linked:     { bg: 'bg-[var(--slice-dim)]',   text: 'text-[var(--slice)]' },
-  credit_card:     { bg: 'bg-[var(--slice-dim)]',   text: 'text-[var(--slice)]' },
-  card_cashback:   { bg: 'bg-[var(--slice-dim)]',   text: 'text-[var(--slice)]' },
-  student:         { bg: 'bg-[rgba(154,133,255,0.12)]', text: 'text-[#9A85FF]' },
-  youth_discount:  { bg: 'bg-[rgba(154,133,255,0.12)]', text: 'text-[#9A85FF]' },
-  nhs:             { bg: 'bg-[rgba(154,133,255,0.12)]', text: 'text-[#9A85FF]' },
-  key_worker:      { bg: 'bg-[rgba(154,133,255,0.12)]', text: 'text-[#9A85FF]' },
+  cashback:        { bg: 'bg-[var(--slice-dim)]', text: 'text-[var(--slice-text)]' },
+  gift_card:       { bg: 'bg-[var(--slice-dim)]', text: 'text-[var(--slice-text)]' },
+  card_linked:     { bg: 'bg-[var(--slice-dim)]',   text: 'text-[var(--slice-text)]' },
+  credit_card:     { bg: 'bg-[var(--slice-dim)]',   text: 'text-[var(--slice-text)]' },
+  card_cashback:   { bg: 'bg-[var(--slice-dim)]',   text: 'text-[var(--slice-text)]' },
+  student:         { bg: 'bg-[rgba(224,32,32,0.12)]', text: 'text-[var(--slice-text)]' },
+  youth_discount:  { bg: 'bg-[rgba(224,32,32,0.12)]', text: 'text-[var(--slice-text)]' },
+  nhs:             { bg: 'bg-[rgba(224,32,32,0.12)]', text: 'text-[var(--slice-text)]' },
+  key_worker:      { bg: 'bg-[rgba(224,32,32,0.12)]', text: 'text-[var(--slice-text)]' },
   bnpl:            { bg: 'bg-[var(--risk-dim)]',    text: 'text-[var(--risk)]' },
-  signup:          { bg: 'bg-[var(--slice-dim)]',   text: 'text-[var(--slice)]' },
+  signup:          { bg: 'bg-[var(--slice-dim)]',   text: 'text-[var(--slice-text)]' },
   refurbished:     { bg: 'bg-[var(--risk-dim)]',    text: 'text-[var(--risk)]' },
-  trade_in:        { bg: 'bg-[var(--savings-dim)]', text: 'text-[var(--savings)]' },
+  trade_in:        { bg: 'bg-[var(--slice-dim)]', text: 'text-[var(--slice-text)]' },
   salary_sacrifice:{ bg: 'bg-[rgba(90,90,138,0.15)]', text: 'text-white/70' },
 }
 
@@ -100,7 +100,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
 
   if (layers.length === 0) {
     return (
-      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-8 text-center">
+      <div className="card p-8 text-center">
         <div className="text-sm text-white/70">No saving layers found.</div>
       </div>
     )
@@ -110,7 +110,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
     <div className="space-y-3">
 
       {/* Stacking guide */}
-      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5">
+      <div className="card p-5">
         <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">Key stacking rules</div>
         <div className="space-y-2">
           {[
@@ -125,7 +125,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
               <span className="text-xs text-white/70">{item.rule}</span>
               <span className={`text-[10px] font-semibold px-2 py-0.5 rounded shrink-0 ${
                 item.ok
-                  ? 'bg-[var(--savings-dim)] text-[var(--savings)] border border-[rgba(0,255,133,0.2)]'
+                  ? 'bg-[var(--slice-dim)] text-[var(--slice-text)] border border-[rgba(224,32,32,0.2)]'
                   : 'bg-[var(--risk-dim)] text-[var(--risk)] border border-[rgba(255,181,32,0.2)]'
               }`}>
                 {item.result}
@@ -145,7 +145,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
         const isRisk = type === 'bnpl'
 
         return (
-          <div key={type} className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden">
+          <div key={type} className="card overflow-hidden">
             <button
               onClick={() => setExpandedType(isExpanded ? null : type)}
               className="w-full flex items-center gap-3 px-5 py-4 hover:bg-[rgba(255,255,255,0.02)] transition-colors text-left"
@@ -202,7 +202,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
 
                       <div className="flex items-center gap-3 mt-3">
                         {layer.is_stackable && (
-                          <span className="text-[10px] text-[var(--savings)] bg-[var(--savings-dim)] border border-[rgba(0,255,133,0.15)] px-2 py-0.5 rounded">
+                          <span className="text-[10px] text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.15)] px-2 py-0.5 rounded">
                             &check; Stackable
                           </span>
                         )}
@@ -221,7 +221,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
                             href={portalUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="ml-auto text-[10px] text-[var(--slice)] hover:underline shrink-0"
+                            className="ml-auto text-[10px] text-[var(--slice-text)] hover:underline shrink-0"
                           >
                             Activate via portal &rarr;
                           </a>

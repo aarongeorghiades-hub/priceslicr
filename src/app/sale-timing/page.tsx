@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Nav from '@/components/layout/Nav'
 import SaleTimingPage from '@/components/product/SaleTimingPage'
+import Reveal from '@/components/Reveal'
 import { getUpcomingSaleEvents } from '@/lib/product'
 
 export const metadata: Metadata = {
@@ -13,30 +14,25 @@ export default async function SaleTimingRoute() {
 
   return (
     <div className="dark-section min-h-screen">
-      {/* Radar background */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[image:linear-gradient(rgba(0,194,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(0,194,255,0.025)_1px,transparent_1px)] bg-[size:48px_48px]" />
-      </div>
-
       <Nav />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-12 py-10">
+      <div className="relative z-10 max-w-5xl mx-auto px-6 md:px-12 py-12 md:py-16">
 
         {/* Header */}
-        <div className="mb-10">
-          <div className="text-xs uppercase tracking-widest text-white/70 mb-3">
+        <div className="mb-12">
+          <div className="eyebrow mb-4">
             Saving layer &middot; Sale timing
           </div>
-          <h1 className="font-display text-5xl font-extrabold text-white leading-tight mb-4">
+          <h1 className="heading-section text-[var(--ink)] mb-5">
             Buy at the right<br />
-            <span className="text-[var(--slice)]">moment.</span>
+            <span className="text-[var(--slice-text)]">moment.</span>
           </h1>
-          <p className="text-white/70 text-lg max-w-xl leading-relaxed">
+          <p className="text-[var(--ink-dim)] text-lg max-w-xl leading-relaxed">
             UK electronics prices drop predictably at the same events every year. We track every confirmed and expected sale &mdash; with historical discount ranges &mdash; so you know whether to buy now or wait.
           </p>
         </div>
 
-        <SaleTimingPage events={events} />
+        <Reveal><SaleTimingPage events={events} /></Reveal>
 
       </div>
     </div>

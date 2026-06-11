@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Nav from '@/components/layout/Nav'
 import TradeInCalculator from '@/components/product/TradeInCalculator'
+import Reveal from '@/components/Reveal'
 
 export const metadata: Metadata = {
   title: 'Trade-In Value Calculator — UK Laptops, Phones & Tablets',
@@ -10,32 +11,27 @@ export const metadata: Metadata = {
 export default function TradeInPage() {
   return (
     <div className="dark-section min-h-screen">
-      {/* Radar background */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[image:linear-gradient(rgba(0,194,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(0,194,255,0.025)_1px,transparent_1px)] bg-[size:48px_48px]" />
-      </div>
-
       <Nav />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-12 py-10">
+      <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12 py-12 md:py-16">
 
         {/* Header */}
-        <div className="mb-10">
-          <div className="text-xs uppercase tracking-widest text-white/70 mb-3">
+        <div className="mb-12">
+          <div className="eyebrow mb-4">
             Saving layer &middot; Trade-in
           </div>
-          <h1 className="font-display text-5xl font-extrabold text-white leading-tight mb-4">
+          <h1 className="heading-section text-[var(--ink)] mb-5">
             What&apos;s your old<br />
-            <span className="text-[var(--slice)]">device worth?</span>
+            <span className="text-[var(--slice-text)]">device worth?</span>
           </h1>
-          <p className="text-white/70 text-lg max-w-xl leading-relaxed">
+          <p className="text-[var(--ink-dim)] text-lg max-w-xl leading-relaxed">
             Compare trade-in values across every major UK platform. Find the best offer, then stack it with cashback, student discounts, and price matching to reach your lowest possible price.
           </p>
         </div>
 
         {/* How it stacks */}
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 mb-8">
-          <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
+        <Reveal className="mist mb-8"><div className="card p-5">
+          <div className="label text-[var(--ink-faint)] mb-4">
             How trade-in fits your saving stack
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -50,9 +46,9 @@ export default function TradeInPage() {
                 key={i}
                 className={`text-xs px-3 py-1.5 rounded-lg font-medium border ${
                   item.highlight === 'result'
-                    ? 'bg-[var(--savings-dim)] text-[var(--savings)] border-[rgba(0,255,133,0.2)]'
+                    ? 'bg-[var(--slice-dim)] text-[var(--slice-text)] border-[rgba(224,32,32,0.2)]'
                     : item.highlight === 'savings'
-                    ? 'bg-[var(--slice-dim)] text-[var(--slice)] border-[rgba(0,194,255,0.2)]'
+                    ? 'bg-[var(--slice-dim)] text-[var(--slice-text)] border-[rgba(224,32,32,0.2)]'
                     : 'bg-[rgba(255,255,255,0.04)] text-white/70 border-[var(--border)]'
                 }`}
               >
@@ -60,13 +56,13 @@ export default function TradeInPage() {
               </span>
             ))}
           </div>
-        </div>
+        </div></Reveal>
 
-        <TradeInCalculator />
+        <Reveal><TradeInCalculator /></Reveal>
 
         {/* Platform guide */}
-        <div className="mt-8 bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6">
-          <div className="font-display font-bold text-white text-sm mb-4">Which platform should I use?</div>
+        <Reveal className="mist mist-wide mt-8"><div className="card p-6">
+          <div className="heading-card text-[var(--ink)] mb-4">Which platform should I use?</div>
           <div className="space-y-3 text-[11px] text-white/70 leading-relaxed">
             <div>
               <span className="text-[var(--ink)]">MusicMagpie</span> &mdash; Best for convenience. Free postage, cash in 5 days, no haggling. Reliable rates. Good Awin affiliate commission.
@@ -84,10 +80,10 @@ export default function TradeInPage() {
               <span className="text-[var(--ink)]">Apple Trade In</span> &mdash; Store credit only, redeemable against any Apple product. Worth using if you&apos;re buying a new Mac. Not competitive if you&apos;re switching brands.
             </div>
           </div>
-        </div>
+        </div></Reveal>
 
-        <div className="mt-12 border-t border-white/10 pt-10">
-          <div className="text-xs uppercase tracking-widest text-white/50 mb-6">Compare prices by category</div>
+        <div className="mt-12 border-t border-[var(--border)] pt-10">
+          <div className="label text-[var(--ink-faint)] mb-6">Compare prices by category</div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <a href="/laptops" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Laptops &rarr;</a>
             <a href="/phones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Phones &rarr;</a>
@@ -96,7 +92,7 @@ export default function TradeInPage() {
             <a href="/monitors" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Monitors &rarr;</a>
             <a href="/headphones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Headphones &rarr;</a>
             <a href="/smartwatches" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Smartwatches &rarr;</a>
-            <a href="/how-it-works" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--slice)] transition-colors text-center">How it works &rarr;</a>
+            <a href="/how-it-works" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--slice-text)] transition-colors text-center">How it works &rarr;</a>
           </div>
         </div>
       </div>

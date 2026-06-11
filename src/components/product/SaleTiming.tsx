@@ -9,9 +9,9 @@ function daysUntil(dateString: string): number {
 }
 
 const CONFIDENCE_STYLES: Record<string, string> = {
-  confirmed:          'bg-[var(--savings-dim)] text-[var(--savings)] border-[rgba(0,255,133,0.2)]',
-  expected:           'bg-[var(--slice-dim)] text-[var(--slice)] border-[rgba(0,194,255,0.2)]',
-  historical_pattern: 'bg-[rgba(90,90,138,0.12)] text-white/50 border-[rgba(90,90,138,0.2)]',
+  confirmed:          'bg-[var(--slice-dim)] text-[var(--slice-text)] border-[rgba(224,32,32,0.2)]',
+  expected:           'bg-[var(--slice-dim)] text-[var(--slice-text)] border-[rgba(224,32,32,0.2)]',
+  historical_pattern: 'bg-[rgba(90,90,138,0.12)] text-[var(--ink-dim)] border-[rgba(90,90,138,0.2)]',
 }
 
 const CONFIDENCE_LABELS: Record<string, string> = {
@@ -24,7 +24,7 @@ export default function SaleTiming({ events }: { events: SaleEvent[] }) {
   if (events.length === 0) return null
 
   return (
-    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden">
+    <div className="card overflow-hidden">
       <div className="px-5 py-4 border-b border-[var(--border)]">
         <div className="font-display font-bold text-white text-sm">Sale timing intelligence</div>
         <div className="text-xs text-white/70 mt-1">Upcoming events where prices historically drop</div>
@@ -40,14 +40,14 @@ export default function SaleTiming({ events }: { events: SaleEvent[] }) {
         return (
           <div
             key={event.id}
-            className={`px-5 py-4 ${i < events.length - 1 ? 'border-b border-[var(--border)]' : ''} ${isActive ? 'bg-[var(--savings-dim)]' : ''}`}
+            className={`px-5 py-4 ${i < events.length - 1 ? 'border-b border-[var(--border)]' : ''} ${isActive ? 'bg-[var(--slice-dim)]' : ''}`}
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-sm font-medium text-[var(--ink)]">{event.event_name}</span>
                   {isActive && (
-                    <span className="text-[10px] font-semibold text-[var(--savings)] bg-[var(--savings-dim)] border border-[rgba(0,255,133,0.2)] px-2 py-0.5 rounded animate-pulse">
+                    <span className="text-[10px] font-semibold text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.2)] px-2 py-0.5 rounded animate-pulse">
                       LIVE NOW
                     </span>
                   )}
@@ -70,7 +70,7 @@ export default function SaleTiming({ events }: { events: SaleEvent[] }) {
                 {isPast ? (
                   <div className="text-[11px] text-white/60">Ended</div>
                 ) : isActive ? (
-                  <div className="font-mono text-sm text-[var(--savings)] font-medium">Active</div>
+                  <div className="font-mono text-sm text-[var(--slice-text)] font-medium">Active</div>
                 ) : (
                   <>
                     <div className="font-mono text-2xl font-medium text-white">{days}</div>

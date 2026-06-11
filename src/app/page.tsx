@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/layout/Nav'
 import HeroDemoCard from '@/components/HeroDemoCard'
+import Reveal from '@/components/Reveal'
 
 export default function HomePage() {
 
@@ -62,7 +63,7 @@ export default function HomePage() {
               transform: 'scale(1.1)',
             }}
           />
-          <div className="relative z-10 w-full flex md:justify-end">
+          <div className="mist relative z-10 w-full flex md:justify-end">
             <HeroDemoCard />
           </div>
         </div>
@@ -77,21 +78,21 @@ export default function HomePage() {
             { val: '30+',   label: 'Saving layers' },
             { val: '£200+', label: 'Avg saving surfaced' },
           ].map((s, i) => (
-            <div key={i} className="text-center px-6 md:border-r border-[var(--border)] last:border-0">
+            <Reveal key={i} delay={Math.min(i * 70, 350)} className="text-center px-6 md:border-r border-[var(--border)] last:border-0">
               <div className="font-display font-semibold text-4xl md:text-5xl tracking-tight text-[var(--ink)]">{s.val}</div>
               <div className="label mt-3">{s.label}</div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
 
       {/* Countdown */}
-      <section className="relative z-10 max-w-[1200px] mx-auto px-6 md:px-12 py-24 md:py-32">
+      <Reveal as="section" className="relative z-10 max-w-[1200px] mx-auto px-6 md:px-12 py-24 md:py-32">
         <div className="label mb-5 text-[var(--ink-faint)]">Sale timing intelligence</div>
         <h2 className="heading-section text-[var(--ink)] mb-10 max-w-2xl">
           Buy at the right moment, not just the right price.
         </h2>
-        <div className="card p-7 md:p-9 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-10 items-center">
+        <div className="mist mist-wide"><div className="card p-7 md:p-9 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-10 items-center">
           <div>
             <div className="heading-card text-[var(--ink)] mb-2.5">Black Friday 2026</div>
             <div className="text-[var(--ink-dim)] leading-relaxed mb-5 max-w-md">
@@ -116,8 +117,8 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </div></div>
+      </Reveal>
 
       <footer className="relative z-10 border-t border-[var(--border)]">
         <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-9 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">

@@ -4,6 +4,7 @@ import PriceTable from '@/components/product/PriceTable'
 import SavingsStack from '@/components/product/SavingsStack'
 import SaleTiming from '@/components/product/SaleTiming'
 import SliceGuide from '@/components/product/SliceGuide'
+import Reveal from '@/components/Reveal'
 import {
   getProductBySlug,
   getListingsForProduct,
@@ -203,21 +204,21 @@ export default async function ProductPage({ slug }: { slug: string }) {
         <div className="space-y-10">
 
           {/* Price comparison table */}
-          <section>
+          <Reveal as="section">
             <div className="label mb-4">Retailer prices</div>
-            <PriceTable listings={listings} />
-          </section>
+            <div className="mist"><PriceTable listings={listings} /></div>
+          </Reveal>
 
           {/* Sale timing */}
           {saleEvents.length > 0 && (
-            <section>
+            <Reveal as="section">
               <div className="label mb-4">Sale timing</div>
-              <SaleTiming events={saleEvents} />
-            </section>
+              <div className="mist mist-high"><SaleTiming events={saleEvents} /></div>
+            </Reveal>
           )}
 
           {/* Price match note */}
-          <div className="card p-7">
+          <Reveal className="mist mist-wide"><div className="card p-7">
             <div className="heading-card text-[var(--ink)] mb-4">Price match intelligence</div>
             <div className="space-y-3 text-[13px] text-[var(--ink-dim)] leading-relaxed">
               <div>
@@ -230,7 +231,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
                 <span className="text-[var(--ink)] font-medium">Amazon &amp; eBay</span> &mdash; No formal price match policy. Monitor for price drops via camelcamelcamel (Amazon) or eBay saved searches.
               </div>
             </div>
-          </div>
+          </div></Reveal>
         </div>
 
         {/* Right column — Savings Stack */}
@@ -240,13 +241,13 @@ export default async function ProductPage({ slug }: { slug: string }) {
             productName={product.name}
             bestPrice={cheapestNew?.price_gbp ?? cheapestRefurb?.price_gbp ?? listings[0]?.price_gbp ?? null}
           />
-          <div>
+          <Reveal>
             <div className="label mb-2">Savings stack</div>
             <div className="text-[13px] text-[var(--ink-dim)] leading-relaxed">
               Every saving layer available on this product &mdash; stack multiple to reach your lowest price.
             </div>
-          </div>
-          <SavingsStack layers={relevantLayers} />
+          </Reveal>
+          <div className="mist"><SavingsStack layers={relevantLayers} /></div>
         </aside>
       </div>
     </div>
