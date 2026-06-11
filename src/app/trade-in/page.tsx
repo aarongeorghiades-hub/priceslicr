@@ -58,7 +58,7 @@ export default function TradeInPage() {
           </div>
         </div></Reveal>
 
-        <Reveal><TradeInCalculator /></Reveal>
+        <Reveal className="mist mist-high"><TradeInCalculator /></Reveal>
 
         {/* Platform guide */}
         <Reveal className="mist mist-wide mt-8"><div className="card p-6">

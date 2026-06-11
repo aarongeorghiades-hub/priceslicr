@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import Nav from '@/components/layout/Nav'
 import SaleTimingPage from '@/components/product/SaleTimingPage'
-import Reveal from '@/components/Reveal'
 import { getUpcomingSaleEvents } from '@/lib/product'
 
 export const metadata: Metadata = {
@@ -32,7 +31,7 @@ export default async function SaleTimingRoute() {
           </p>
         </div>
 
-        <Reveal><SaleTimingPage events={events} /></Reveal>
+        <SaleTimingPage events={events} />
 
       </div>
     </div>

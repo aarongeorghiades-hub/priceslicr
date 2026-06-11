@@ -198,7 +198,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
 
           {/* Top bar */}
           <div className="sticky top-0 z-[10001] flex items-center justify-between px-8 py-5">
-            <div className="font-display text-lg font-semibold tracking-tight">
+            <div className="font-display text-xl font-semibold tracking-tight">
               <span className="text-white">Price</span>
               <span className="text-[var(--slice-text)]">/Slicr</span>
             </div>

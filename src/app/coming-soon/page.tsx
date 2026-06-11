@@ -7,23 +7,17 @@ export const metadata: Metadata = {
 
 export default function ComingSoonPage() {
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{ background: '#07070F' }}
-    >
-      <div className="text-center">
-        <div className="font-display text-4xl font-extrabold tracking-tight mb-8">
-          <span style={{ color: '#fff' }}>Price</span>
-          <span style={{ color: '#00C2FF' }}>/</span>
-          <span style={{ color: '#00C2FF' }}>Slicr</span>
+    <div className="dark-section min-h-screen flex flex-col items-center justify-center px-6">
+      <div className="relative z-10 text-center">
+        <div className="font-display text-4xl font-bold tracking-tight mb-8">
+          <span className="text-[var(--ink)]">Price</span>
+          <span className="text-[var(--slice-text)]">/</span>
+          <span className="text-[var(--ink)]">Slicr</span>
         </div>
-        <h1
-          className="font-display text-2xl font-bold mb-3"
-          style={{ color: '#E8E8F5' }}
-        >
+        <h1 className="heading-section text-[var(--ink)] mb-3">
           Coming soon.
         </h1>
-        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1rem' }}>
+        <p className="text-[var(--ink-dim)] text-lg">
           Something sharp is on its way.
         </p>
       </div>

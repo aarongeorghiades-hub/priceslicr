@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import type { SaleEvent } from '@/types'
+import Reveal from '@/components/Reveal'
 
 function daysUntil(dateString: string): number {
   const target = new Date(dateString)
@@ -185,7 +186,7 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
 
       {/* Active sales */}
       {active.length > 0 && (
-        <div>
+        <Reveal>
           <div className="text-xs uppercase tracking-widest text-[var(--slice-text)] mb-4 font-medium flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[var(--savings)] animate-pulse" />
             Live right now
@@ -215,24 +216,24 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
               )
             })}
           </div>
-        </div>
+        </Reveal>
       )}
 
       {/* Countdown to next event */}
       {nextEvent && (
-        <div>
+        <Reveal className="mist">
           <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
             Next sale event
           </div>
           <LiveCountdown event={nextEvent} />
-        </div>
+        </Reveal>
       )}
 
       {/* Buy decision helper */}
-      <BuyDecisionHelper events={events} />
+      <Reveal className="mist mist-high"><BuyDecisionHelper events={events} /></Reveal>
 
       {/* Full calendar */}
-      <div>
+      <Reveal className="mist mist-wide">
         <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
           Full sale calendar
         </div>
@@ -331,10 +332,10 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
             </div>
           ))}
         </div>
-      </div>
+      </Reveal>
 
       {/* Stacking reminder */}
-      <div className="card p-5">
+      <Reveal className="mist"><div className="card p-5">
         <div className="font-display font-bold text-white text-sm mb-3">
           Can&apos;t wait? Stack these layers now
         </div>
@@ -352,7 +353,7 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
             <span className="text-[var(--ink)]">Amex intro cashback</span> &mdash; 5% for 5 months, capped &pound;125. Pairs with portal cashback at JL and Currys.
           </div>
         </div>
-      </div>
+      </div></Reveal>
 
     </div>
   )

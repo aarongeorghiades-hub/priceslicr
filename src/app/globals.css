@@ -214,11 +214,26 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: var(--glow-slice), var(--shadow-card);
 }
 
-/* ── White mist halos (Part A) — apply to a transparent WRAPPER around a card.
-   isolation:isolate traps the -1 ::before behind the card child but above the page.
-   Two techniques combine for guaranteed visibility:
+/* ════════════════════════════════════════════════════════════════════
+   MIST STANDARD (site-wide — keep parity across all routes)
+
+   WHAT GETS MIST: every meaningful content/feature panel gets a .mist
+   variant on a transparent WRAPPER (the card sits as a child). Alternate
+   .mist / .mist-high / .mist-wide between adjacent panels so halos don't
+   look stamped.
+
+   WHAT NEVER GETS MIST: dense item grids (category product cards),
+   small list rows (e.g. the how-it-works 7-layer rows), the nav, footers,
+   and overlay surfaces (the SliceGuide full-screen modal). The page-level
+   backdrop (.dark-section ::before red glows + white mist fields + grain)
+   provides ambient mist everywhere; per-panel mist is the second tier.
+
+   HOW IT WORKS: apply to a transparent WRAPPER around a card —
+   isolation:isolate traps the -1 ::before behind the card child but above
+   the page. Two techniques combine for guaranteed visibility:
    (1) a large soft halo extending well beyond the card edges, and
-   (2) a faint white outer glow on the card itself, which can never be occluded. */
+   (2) a faint white outer glow on the card itself, which can never be occluded.
+   ════════════════════════════════════════════════════════════════════ */
 .mist {
   position: relative;
   isolation: isolate;
