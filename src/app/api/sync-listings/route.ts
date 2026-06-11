@@ -164,7 +164,7 @@ async function insertRetailerSearchLinks(
   products: { id: string; name: string; category: string }[]
 ): Promise<number> {
   const retailers = [
-    { name: 'Amazon UK', searchUrl: (q: string) => `https://www.amazon.co.uk/s?k=${encodeURIComponent(q)}` },
+    { name: 'Amazon UK', searchUrl: (q: string) => `https://www.amazon.co.uk/s?k=${encodeURIComponent(q)}&tag=pestproindex2-21` },
     { name: 'Currys', searchUrl: (q: string) => `https://www.currys.co.uk/search?q=${encodeURIComponent(q)}` },
     { name: 'John Lewis', searchUrl: (q: string) => `https://www.johnlewis.com/search?search-term=${encodeURIComponent(q)}` },
   ]
