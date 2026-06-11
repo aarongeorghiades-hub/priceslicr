@@ -198,16 +198,16 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
 
           {/* Top bar */}
           <div className="sticky top-0 z-[10001] flex items-center justify-between px-8 py-5">
-            <div className="font-display text-lg font-extrabold tracking-tight">
+            <div className="font-display text-lg font-semibold tracking-tight">
               <span className="text-white">Price</span>
-              <span className="text-[var(--slice)]">/Slicr</span>
+              <span className="text-[var(--slice-text)]">/Slicr</span>
             </div>
-            <span className="text-[10px] tracking-[0.3em] text-[var(--slice)] uppercase font-medium text-center flex-1">
+            <span className="text-[10px] tracking-[0.3em] text-[var(--slice-text)] uppercase font-medium text-center flex-1">
               Slice Guide
             </span>
             <button
               onClick={() => { setState('closed'); setShowWarning(false) }}
-              className="text-white/60 hover:text-[var(--slice)] transition-colors text-xl leading-none"
+              className="text-white/60 hover:text-[var(--slice-text)] transition-colors text-xl leading-none"
             >
               &#x2715;
             </button>
@@ -216,12 +216,12 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
           {/* ── INTRO ── */}
           {state === 'intro' && (
             <div className="relative max-w-[640px] mx-auto px-6 py-12 flex flex-col items-center text-center min-h-[80vh] justify-center">
-              <div className="text-[10px] tracking-[0.25em] text-[var(--slice)] uppercase font-medium mb-6">
+              <div className="text-[10px] tracking-[0.25em] text-[var(--slice-text)] uppercase font-medium mb-6">
                 Your saving stack
               </div>
-              <h2 className="font-display text-5xl md:text-6xl font-extrabold text-white leading-tight mb-4">
+              <h2 className="font-display text-5xl md:text-6xl font-semibold text-white leading-tight mb-4">
                 Stack every saving.<br />
-                <span className="text-[var(--slice)]">In the right order.</span>
+                <span className="text-[var(--slice-text)]">In the right order.</span>
               </h2>
               <p className="text-white/60 text-base max-w-[480px] mb-10 leading-relaxed">
                 Each saving layer must be activated in sequence. Skip one or do them
@@ -237,13 +237,13 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                       key={step.type}
                       className="flex items-center gap-4 py-3 border-b border-[rgba(255,255,255,0.06)] last:border-0"
                     >
-                      <span className="font-mono text-sm text-[var(--slice)] w-8 shrink-0 text-left">
+                      <span className="font-mono text-sm text-[var(--slice-text)] w-8 shrink-0 text-left">
                         {String(i + 1).padStart(2, '0')}
                       </span>
                       <span className="text-sm text-white flex-1 text-left">
                         {step.label}
                       </span>
-                      <span className="font-mono text-sm text-[var(--savings)] shrink-0">
+                      <span className="font-mono text-sm text-[var(--slice-text)] shrink-0">
                         ~&pound;{saving}
                       </span>
                     </div>
@@ -253,10 +253,10 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
 
               {/* Total saving card */}
               <div className="w-full bg-[var(--savings-dim)] border border-[rgba(255,68,68,0.2)] rounded-xl px-6 py-5 mb-6">
-                <div className="text-[10px] tracking-[0.2em] text-[var(--savings)] uppercase font-medium mb-2">
+                <div className="text-[10px] tracking-[0.2em] text-[var(--slice-text)] uppercase font-medium mb-2">
                   Total potential saving
                 </div>
-                <div className="font-mono text-4xl font-medium text-[var(--savings)] savings-glow">
+                <div className="font-mono text-4xl font-medium text-[var(--slice-text)] savings-glow">
                   ~&pound;{totalSaving}
                 </div>
               </div>
@@ -269,7 +269,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
               {/* Begin button */}
               <button
                 onClick={() => setState('slice-0')}
-                className="px-10 py-4 bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm rounded-xl transition-all hover:brightness-110 hover:shadow-[0_0_24px_rgba(224,32,32,0.4)] w-full md:w-auto"
+                className="px-10 py-4 bg-[var(--slice)] text-white font-display font-bold text-sm rounded-xl transition-all hover:brightness-110 hover:shadow-[0_0_24px_rgba(224,32,32,0.4)] w-full md:w-auto"
               >
                 Begin Slicing &rarr;
               </button>
@@ -298,20 +298,20 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                   <div>
                     {/* Slice header */}
                     <div className="mb-2">
-                      <span className="text-[var(--slice)] font-mono text-sm">
+                      <span className="text-[var(--slice-text)] font-mono text-sm">
                         Slice {currentSliceIndex + 1} of {stepLayers.length}
                       </span>
                     </div>
-                    <h3 className="font-display text-2xl font-extrabold text-white mb-2">
+                    <h3 className="font-display text-2xl font-semibold text-white mb-2">
                       {step.label}
                     </h3>
-                    <div className="font-mono text-3xl font-medium text-[var(--savings)] savings-glow mb-8">
+                    <div className="font-mono text-3xl font-medium text-[var(--slice-text)] savings-glow mb-8">
                       Save ~&pound;{saving}
                     </div>
 
                     {/* WHAT YOU NEED */}
                     <div className="mb-6">
-                      <div className="text-[9px] tracking-[0.3em] uppercase font-medium text-[var(--slice)] mb-3">
+                      <div className="text-[9px] tracking-[0.3em] uppercase font-medium text-[var(--slice-text)] mb-3">
                         What you need
                       </div>
                       <div className="border-l-2 border-[var(--slice)] pl-4 py-3 rounded-r-lg" style={{ background: 'rgba(224,32,32,0.04)' }}>
@@ -329,7 +329,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                       <div className="space-y-3">
                         {actionSteps.map((s, i) => (
                           <div key={i} className="flex items-start gap-3">
-                            <div className="w-6 h-6 rounded-full bg-[var(--slice-dim)] text-[var(--slice)] text-xs font-mono flex items-center justify-center shrink-0 mt-0.5">
+                            <div className="w-6 h-6 rounded-full bg-[var(--slice-dim)] text-[var(--slice-text)] text-xs font-mono flex items-center justify-center shrink-0 mt-0.5">
                               {i + 1}
                             </div>
                             <p className="text-sm text-white/80 leading-relaxed">{s}</p>
@@ -341,7 +341,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                           href={layer.cashback_portal_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-xl bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm hover:brightness-110 transition-all hover:shadow-[0_0_16px_rgba(224,32,32,0.4)]"
+                          className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-xl bg-[var(--slice)] text-white font-display font-bold text-sm hover:brightness-110 transition-all hover:shadow-[0_0_16px_rgba(224,32,32,0.4)]"
                         >
                           Open {layer.description?.includes('TopCashback') ? 'TopCashback' :
                                 layer.description?.includes('Quidco') ? 'Quidco' :
@@ -380,7 +380,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                             handleDone(currentSliceIndex)
                           }
                         }}
-                        className="flex-1 px-8 py-4 bg-[var(--slice)] text-[var(--void)] font-display font-bold text-sm rounded-xl transition-all hover:brightness-110 hover:shadow-[0_0_24px_rgba(224,32,32,0.4)]"
+                        className="flex-1 px-8 py-4 bg-[var(--slice)] text-white font-display font-bold text-sm rounded-xl transition-all hover:brightness-110 hover:shadow-[0_0_24px_rgba(224,32,32,0.4)]"
                       >
                         {isLast ? 'Complete \u2014 see your savings summary \u2192' : `Done \u2014 Slice ${currentSliceIndex + 2} \u2192`}
                       </button>
@@ -394,11 +394,11 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                         {productName}
                       </div>
                       {bestPrice && (
-                        <div className="font-mono text-lg text-white/40 line-through mb-1">
+                        <div className="font-mono text-lg text-[var(--ink-dim)] line-through decoration-[var(--ink-faint)] mb-1">
                           &pound;{bestPrice.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
                         </div>
                       )}
-                      <div className="text-[10px] text-white/50 mb-4">Original price</div>
+                      <div className="text-[10px] text-[var(--ink-dim)] mb-4">Original price</div>
 
                       {/* Breakdown so far */}
                       <div className="space-y-2 mb-4 border-t border-[var(--border)] pt-4">
@@ -407,7 +407,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                           return (
                             <div key={i} className="flex justify-between text-xs">
                               <span className="text-white/60">{s.label}</span>
-                              <span className="font-mono text-[var(--savings)]">&minus;&pound;{sv}</span>
+                              <span className="font-mono text-[var(--slice-text)]">&minus;&pound;{sv}</span>
                             </div>
                           )
                         })}
@@ -415,7 +415,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
 
                       {/* Saved so far pill */}
                       <div className="bg-[var(--savings-dim)] border border-[rgba(255,68,68,0.15)] px-3 py-2 rounded-full text-center">
-                        <span className="text-[var(--savings)] font-mono text-sm">
+                        <span className="text-[var(--slice-text)] font-mono text-sm">
                           Potential saving: &pound;{savedSoFar}
                         </span>
                       </div>
@@ -426,7 +426,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                 {/* Running total pill — mobile */}
                 <div className="fixed bottom-6 left-6 md:hidden z-[10002]">
                   <div className="bg-[var(--savings-dim)] border border-[rgba(255,68,68,0.15)] px-3 py-1 rounded-full">
-                    <span className="text-[var(--savings)] font-mono text-sm">
+                    <span className="text-[var(--slice-text)] font-mono text-sm">
                       Potential saving: &pound;{savedSoFar}
                     </span>
                   </div>
@@ -438,7 +438,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
           {/* ── COMPLETE ── */}
           {state === 'complete' && (
             <div className="relative max-w-[640px] mx-auto px-6 py-12 flex flex-col items-center text-center min-h-[80vh] justify-center">
-              <h2 className="font-display text-5xl md:text-6xl font-extrabold text-white leading-tight mb-3">
+              <h2 className="font-display text-5xl md:text-6xl font-semibold text-white leading-tight mb-3">
                 You&apos;ve sliced it.
               </h2>
               <p className="text-white/60 text-base mb-10">
@@ -449,15 +449,15 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
               {bestPrice && slicedPrice !== null && (
                 <div className="flex flex-col items-center gap-3 mb-8">
                   <div className="relative">
-                    <span className="font-mono text-3xl text-white/40 line-through" style={{ textDecorationColor: 'var(--muted)' }}>
+                    <span className="font-mono text-3xl text-[var(--ink-dim)] line-through" style={{ textDecorationColor: 'var(--ink-faint)' }}>
                       &pound;{bestPrice.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
-                  <div className="text-white/40 text-lg">&darr;</div>
-                  <div className="font-mono text-5xl font-medium text-[var(--savings)] savings-glow">
+                  <div className="text-[var(--ink-dim)] text-lg">&darr;</div>
+                  <div className="font-mono text-5xl font-medium text-[var(--slice-text)] savings-glow">
                     &pound;{slicedPrice.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
                   </div>
-                  <div className="bg-[var(--savings-dim)] text-[var(--savings)] border border-[rgba(255,68,68,0.2)] px-4 py-1 rounded-full font-mono text-sm">
+                  <div className="bg-[var(--savings-dim)] text-[var(--slice-text)] border border-[rgba(255,68,68,0.2)] px-4 py-1 rounded-full font-mono text-sm">
                     Save {Math.round((totalSaving / bestPrice) * 100)}%
                   </div>
                 </div>
@@ -471,16 +471,16 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                     return (
                       <div key={i} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="font-mono text-xs text-[var(--slice)] w-6">{String(i + 1).padStart(2, '0')}</span>
+                          <span className="font-mono text-xs text-[var(--slice-text)] w-6">{String(i + 1).padStart(2, '0')}</span>
                           <span className="text-sm text-white/80">{step.label}</span>
                         </div>
-                        <span className="font-mono text-sm text-[var(--savings)]">&minus;&pound;{saving}</span>
+                        <span className="font-mono text-sm text-[var(--slice-text)]">&minus;&pound;{saving}</span>
                       </div>
                     )
                   })}
                   <div className="border-t border-[var(--border)] pt-3 flex justify-between">
                     <span className="text-sm font-bold text-white">Total saved</span>
-                    <span className="font-mono text-lg font-medium text-[var(--savings)] savings-glow">&pound;{totalSaving}</span>
+                    <span className="font-mono text-lg font-medium text-[var(--slice-text)] savings-glow">&pound;{totalSaving}</span>
                   </div>
                 </div>
               </div>
@@ -501,7 +501,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                         href={layer.cashback_portal_url!}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block w-full px-5 py-3 border border-[var(--slice)] text-[var(--slice)] font-display font-bold text-sm rounded-xl text-center hover:bg-[var(--slice-dim)] transition-colors"
+                        className="block w-full px-5 py-3 border border-[var(--slice)] text-[var(--slice-text)] font-display font-bold text-sm rounded-xl text-center hover:bg-[var(--slice-dim)] transition-colors"
                       >
                         Open {portalName} &rarr;
                       </a>

@@ -11,7 +11,7 @@ const CONDITION_LABELS: Record<string, string> = {
 
 // Single neutral pill treatment — crimson is reserved as the sole accent.
 const CONDITION_PILL =
-  'eyebrow text-[var(--ink-dim)] bg-[var(--surface-2)] border border-[var(--border)] rounded-md px-2 py-0.5'
+  'label text-xs text-[var(--ink-dim)] bg-[var(--surface-2)] border border-[var(--border)] rounded-md px-2 py-0.5'
 
 function formatGBP(n: number) {
   return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -22,7 +22,7 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
     return (
       <div className="card p-8 text-center">
         <div className="w-11 h-11 rounded-xl bg-[var(--slice-dim)] flex items-center justify-center mx-auto mb-4">
-          <span className="text-[var(--slice)] text-lg">&loz;</span>
+          <span className="text-[var(--slice-text)] text-lg">&loz;</span>
         </div>
         <div className="heading-card text-[var(--ink)] mb-2">Live prices loading</div>
         <div className="text-sm text-[var(--ink-dim)] max-w-xs mx-auto leading-relaxed">
@@ -36,7 +36,7 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
     <div className="card overflow-hidden">
       <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
         <div className="heading-card text-[var(--ink)] text-base">Retailer prices</div>
-        <div className="eyebrow normal-case tracking-normal text-[var(--ink-faint)]">{(() => {
+        <div className="label text-[var(--ink-faint)]">{(() => {
           const pricedCount = listings.filter(l => l.price_gbp > 0).length
           const searchCount = listings.filter(l => l.price_gbp === 0).length
           return <>{pricedCount} price{pricedCount !== 1 ? 's' : ''}{searchCount > 0 ? ` · ${searchCount} retailer${searchCount !== 1 ? 's' : ''} to check` : ' · sorted by price'}</>
@@ -85,7 +85,7 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
                       </span>
                     )}
                     {isBest && (
-                      <span className="eyebrow text-[var(--slice)]">Best price</span>
+                      <span className="label text-xs text-[var(--slice-text)]">Best price</span>
                     )}
                   </div>
                   {isSearchLink ? (
@@ -109,7 +109,7 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
                     </a>
                   ) : (
                     <>
-                      <div className={`price-num text-xl ${isBest ? 'text-[var(--slice)]' : 'text-[var(--ink)]'}`}>{formatGBP(listing.price_gbp)}</div>
+                      <div className={`price-num text-xl ${isBest ? 'text-[var(--slice-text)]' : 'text-[var(--ink)]'}`}>{formatGBP(listing.price_gbp)}</div>
                       <div className="text-[11px] text-[var(--ink-faint)] mt-0.5">
                         {new Date(listing.scraped_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                       </div>

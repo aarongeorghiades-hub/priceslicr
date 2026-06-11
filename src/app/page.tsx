@@ -31,29 +31,40 @@ export default function HomePage() {
       <Nav />
 
       {/* Hero */}
-      <section className="relative z-10 max-w-[1200px] mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-20 items-center min-h-[85vh] py-20">
+      <section className="relative z-10 max-w-[1200px] mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-20 items-center min-h-[78vh] py-20">
         <div>
           <div className="eyebrow mb-7">UK Price Comparison — New · Refurb · Used</div>
           <h1 className="heading-hero text-[var(--ink)] mb-6">
             Never overpay<br />for tech again.
           </h1>
-          <p className="text-[var(--ink-dim)] text-lg leading-relaxed max-w-md mb-10">
+          <p className="text-[var(--ink-dim)] text-lg leading-relaxed max-w-[40ch] mb-10">
             We compare every major UK retailer and stack every saving — cashback,
             trade-in, price match, timing — to find your real lowest price.
           </p>
           <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-            <Link href="/laptops" className="btn-primary inline-flex items-center justify-center px-8 py-4 text-sm">
+            <Link href="/laptops" className="btn-primary inline-flex items-center justify-center px-9 py-4 text-[0.9375rem]">
               Compare prices &rarr;
             </Link>
-            <span className="eyebrow normal-case tracking-normal text-[var(--ink-faint)]">
+            <span className="label text-[var(--ink-faint)]">
               No ads. No cookie tricks. Independent.
             </span>
           </div>
         </div>
 
-        {/* Demo card — the visual anchor */}
-        <div className="flex md:justify-end">
-          <HeroDemoCard />
+        {/* Demo card — the visual anchor, with the viewport's single soft glow behind it */}
+        <div className="relative flex md:justify-end">
+          <div
+            aria-hidden
+            className="absolute inset-0 z-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(224,32,32,0.10), transparent 65%)',
+              filter: 'blur(50px)',
+              transform: 'scale(1.1)',
+            }}
+          />
+          <div className="relative z-10 w-full flex md:justify-end">
+            <HeroDemoCard />
+          </div>
         </div>
       </section>
 
@@ -67,8 +78,8 @@ export default function HomePage() {
             { val: '£200+', label: 'Avg saving surfaced' },
           ].map((s, i) => (
             <div key={i} className="text-center px-6 md:border-r border-[var(--border)] last:border-0">
-              <div className="price-num text-4xl md:text-5xl text-[var(--ink)]">{s.val}</div>
-              <div className="eyebrow mt-3">{s.label}</div>
+              <div className="font-display font-semibold text-4xl md:text-5xl tracking-tight text-[var(--ink)]">{s.val}</div>
+              <div className="label mt-3">{s.label}</div>
             </div>
           ))}
         </div>
@@ -76,7 +87,7 @@ export default function HomePage() {
 
       {/* Countdown */}
       <section className="relative z-10 max-w-[1200px] mx-auto px-6 md:px-12 py-24 md:py-32">
-        <div className="eyebrow mb-5">Sale timing intelligence</div>
+        <div className="label mb-5 text-[var(--ink-faint)]">Sale timing intelligence</div>
         <h2 className="heading-section text-[var(--ink)] mb-10 max-w-2xl">
           Buy at the right moment, not just the right price.
         </h2>
@@ -86,7 +97,7 @@ export default function HomePage() {
             <div className="text-[var(--ink-dim)] leading-relaxed mb-5 max-w-md">
               Historically 20&ndash;60% off electronics. The deepest discounts of the year.
             </div>
-            <div className="inline-flex items-center gap-2 eyebrow text-[var(--slice)] bg-[var(--slice-dim)] border border-[var(--border-2)] px-3 py-1.5 rounded-[var(--radius-pill)]">
+            <div className="inline-flex items-center gap-2 label text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[var(--border-2)] px-3 py-1.5 rounded-[var(--radius-pill)]">
               &#x2B25; Confirmed: 27 November 2026
             </div>
           </div>
@@ -98,10 +109,10 @@ export default function HomePage() {
               { val: cd.sec,          lbl: 'Sec',  accent: false },
             ].map((u, i) => (
               <div key={i} className="text-center bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 md:px-5 py-4 min-w-[64px]">
-                <div className={`price-num text-3xl leading-none ${u.accent ? 'text-[var(--slice)] savings-glow' : 'text-[var(--ink)]'}`}>
+                <div className={`price-num text-3xl leading-none ${u.accent ? 'text-[var(--slice-text)] savings-glow' : 'text-[var(--ink)]'}`}>
                   {u.val}
                 </div>
-                <div className="eyebrow mt-2.5 text-[10px]">{u.lbl}</div>
+                <div className="label mt-2.5 text-xs text-[var(--ink-faint)]">{u.lbl}</div>
               </div>
             ))}
           </div>
@@ -111,9 +122,9 @@ export default function HomePage() {
       <footer className="relative z-10 border-t border-[var(--border)]">
         <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-9 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
           <div className="font-display text-base font-bold">
-            <span className="text-[var(--ink)]">Price</span><span className="text-[var(--slice)]">/Slicr</span>
+            <span className="text-[var(--ink)]">Price</span><span className="text-[var(--slice-text)]">/Slicr</span>
           </div>
-          <div className="eyebrow normal-case tracking-normal text-[var(--ink-faint)]">
+          <div className="label text-[var(--ink-faint)]">
             &copy; 2026 PriceSlicr &middot; priceslicr.com &middot; Independent. No retailer funding.
           </div>
         </div>

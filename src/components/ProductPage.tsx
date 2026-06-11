@@ -135,7 +135,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
         <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-12 md:py-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
             <div>
-              <div className="eyebrow mb-4">
+              <div className="label mb-4 text-[var(--ink-faint)]">
                 {product.brand} &middot; {categoryLabel}
               </div>
               <h1 className="heading-section text-[var(--ink)] mb-5">
@@ -177,19 +177,19 @@ export default async function ProductPage({ slug }: { slug: string }) {
                     <div className="flex items-center justify-end gap-2 mb-2">
                       <span className="eyebrow">From</span>
                       {conditionPill && (
-                        <span className="eyebrow text-[var(--ink-dim)] bg-[var(--surface-2)] border border-[var(--border)] rounded-md px-2 py-0.5">
+                        <span className="label text-xs text-[var(--ink-dim)] bg-[var(--surface-2)] border border-[var(--border)] rounded-md px-2 py-0.5">
                           {conditionPill}
                         </span>
                       )}
                     </div>
-                    <div className="price-num text-[2.5rem] leading-none text-[var(--slice)] savings-glow">
+                    <div className="price-num text-[2.5rem] leading-none text-[var(--slice-text)] savings-glow">
                       &pound;{heroListing.price_gbp.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
                     </div>
                   </div>
                 ) : null
               })()}
               {listings.length === 0 && (
-                <div className="eyebrow normal-case tracking-normal text-[var(--ink-dim)]">Prices loading</div>
+                <div className="label text-[var(--ink-dim)]">Prices loading</div>
               )}
             </div>
           </div>
@@ -204,14 +204,14 @@ export default async function ProductPage({ slug }: { slug: string }) {
 
           {/* Price comparison table */}
           <section>
-            <div className="eyebrow mb-4">Retailer prices</div>
+            <div className="label mb-4">Retailer prices</div>
             <PriceTable listings={listings} />
           </section>
 
           {/* Sale timing */}
           {saleEvents.length > 0 && (
             <section>
-              <div className="eyebrow mb-4">Sale timing</div>
+              <div className="label mb-4">Sale timing</div>
               <SaleTiming events={saleEvents} />
             </section>
           )}
@@ -241,7 +241,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
             bestPrice={cheapestNew?.price_gbp ?? cheapestRefurb?.price_gbp ?? listings[0]?.price_gbp ?? null}
           />
           <div>
-            <div className="eyebrow mb-2">Savings stack</div>
+            <div className="label mb-2">Savings stack</div>
             <div className="text-[13px] text-[var(--ink-dim)] leading-relaxed">
               Every saving layer available on this product &mdash; stack multiple to reach your lowest price.
             </div>

@@ -24,7 +24,7 @@ function Wordmark() {
   return (
     <Link href="/" className="flex items-center font-display text-xl font-bold tracking-tight">
       <span className="text-[var(--ink)]">Price</span>
-      <span className="text-[var(--slice)]">/</span>
+      <span className="text-[var(--slice-text)]">/</span>
       <span className="text-[var(--ink)]">Slicr</span>
     </Link>
   )
@@ -87,7 +87,7 @@ export default function Nav() {
             </Link>
           ))}
 
-          <span className="eyebrow text-[var(--ink-faint)] border border-[var(--border)] rounded-[var(--radius-pill)] px-3 py-1">
+          <span className="label text-xs text-[var(--ink-faint)] border border-[var(--border)] rounded-[var(--radius-pill)] px-3 py-1">
             Beta
           </span>
         </div>
@@ -114,7 +114,7 @@ export default function Nav() {
       {open && (
         <div className="md:hidden border-t border-[var(--border)] bg-[var(--surface)]">
           <div className="px-6 py-5 flex flex-col gap-1">
-            <div className="eyebrow mb-2">Products</div>
+            <div className="label mb-2 text-[var(--ink-faint)]">Products</div>
             {CATEGORIES.map(cat => (
               <Link
                 key={cat.href}

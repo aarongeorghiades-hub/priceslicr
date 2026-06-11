@@ -1,4 +1,4 @@
-@import '@fontsource-variable/syne';
+@import '@fontsource-variable/archivo';
 @import '@fontsource/dm-sans';
 @import '@fontsource/dm-mono';
 @import "tailwindcss";
@@ -11,6 +11,7 @@
   --color-border-2: #351A1A;
   --color-slice: #E02020;
   --color-slice-dim: rgba(224,32,32,0.12);
+  --color-slice-text: #FF5C5C;
   --color-savings: #FF4444;
   --color-savings-dim: rgba(255,68,68,0.10);
   --color-risk: #FFB520;
@@ -18,10 +19,10 @@
   --color-muted: #8A6A6A;
   --color-muted-2: #5A3A3A;
   --color-ink: #F5EAEA;
-  --color-ink-dim: rgba(245,234,234,0.55);
-  --color-ink-faint: rgba(245,234,234,0.32);
+  --color-ink-dim: rgba(245,234,234,0.68);
+  --color-ink-faint: rgba(245,234,234,0.45);
 
-  --font-display: 'Syne Variable', sans-serif;
+  --font-display: 'Archivo Variable', sans-serif;
   --font-body: 'DM Sans', sans-serif;
   --font-mono: 'DM Mono', monospace;
 
@@ -48,8 +49,9 @@
   --border-2:    #351A1A;
 
   /* Accent — crimson is the only accent */
-  --slice:       #E02020;
+  --slice:       #E02020;                  /* fills, borders, left-bars, icon tints, focus */
   --slice-dim:   rgba(224,32,32,0.12);
+  --slice-text:  #FF5C5C;                   /* red TEXT on dark surfaces (legible) */
   --savings:     #FF4444;
   --savings-dim: rgba(255,68,68,0.10);
 
@@ -59,9 +61,9 @@
 
   /* Text */
   --ink:         #F5EAEA;
-  --ink-dim:     rgba(245,234,234,0.55);
-  --ink-faint:   rgba(245,234,234,0.32);
-  --muted:       #8A6A6A;
+  --ink-dim:     rgba(245,234,234,0.68);   /* secondary text — raised for legibility */
+  --ink-faint:   rgba(245,234,234,0.45);   /* eyebrows / meta — raised for legibility */
+  --muted:       #8A6A6A;                  /* defined only; never used for text */
   --muted-2:     #5A3A3A;
 
   /* Depth system */
@@ -103,36 +105,50 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ── Typography scale ───────────────────────────── */
 
+/* Mono-caps eyebrow — retained ONLY for the hero eyebrow, the
+   ORIGINAL PRICE / SLICED TO labels, and the PriceTable divider. */
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   line-height: 1.2;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--ink-faint);
+  color: var(--ink-dim);
+}
+
+/* Quiet sans label — everything that used to be a mono-caps eyebrow:
+   section labels, card meta, stat labels, footer, specs lines. */
+.label {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-dim);
 }
 
 .heading-hero {
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(2.75rem, 7vw, 5.5rem);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
+  font-weight: 650;
+  font-size: clamp(2.5rem, 4.5vw, 4.25rem);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
 }
 
 .heading-section {
   font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
-  line-height: 1.08;
+  font-weight: 600;
+  font-size: clamp(1.625rem, 3vw, 2.5rem);
+  line-height: 1.1;
   letter-spacing: -0.02em;
 }
 
 .heading-card {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 1.1875rem;
-  line-height: 1.2;
+  font-size: 1.125rem;
+  line-height: 1.25;
   letter-spacing: -0.01em;
 }
 
