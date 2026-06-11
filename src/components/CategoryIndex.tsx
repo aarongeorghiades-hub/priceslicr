@@ -58,8 +58,8 @@ export default async function CategoryIndex({ category, title, singular, descrip
 
         <div className="space-y-10">
           {Object.entries(grouped).map(([brand, brandProducts], gi) => (
-            <Reveal key={brand} delay={Math.min(gi * 70, 350)}>
-              <div className="label text-[var(--ink-faint)] mb-4 border-b border-[var(--border)] pb-3">
+            <Reveal key={brand} delay={Math.min(gi * 70, 350)} className={['mist', 'mist mist-high', 'mist mist-wide'][gi % 3]}>
+              <div className="label text-[var(--ink-dim)] mb-4 border-b border-[var(--border)] pb-3">
                 {brand}
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -79,7 +79,7 @@ export default async function CategoryIndex({ category, title, singular, descrip
                           .filter((s): s is { key: string; label: string } => s.label !== null)
                           .slice(0, 3)
                           .map(({ key, label }) => (
-                            <span key={key} className="text-[10px] text-[var(--ink-dim)] bg-[rgba(255,255,255,0.03)] border border-[var(--border)] px-2 py-0.5 rounded">
+                            <span key={key} className="text-[10px] text-[var(--ink-dim)] bg-[rgba(255,255,255,0.03)] border border-[var(--border-2)] px-2 py-0.5 rounded">
                               {label}
                             </span>
                           ))}

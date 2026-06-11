@@ -20,7 +20,7 @@
   --color-muted-2: #5A3A3A;
   --color-ink: #F5EAEA;
   --color-ink-dim: rgba(245,234,234,0.68);
-  --color-ink-faint: rgba(245,234,234,0.45);
+  --color-ink-faint: rgba(245,234,234,0.52);
 
   --font-display: 'Archivo Variable', sans-serif;
   --font-body: 'DM Sans', sans-serif;
@@ -62,7 +62,7 @@
   /* Text */
   --ink:         #F5EAEA;
   --ink-dim:     rgba(245,234,234,0.68);   /* secondary text — raised for legibility */
-  --ink-faint:   rgba(245,234,234,0.45);   /* eyebrows / meta — raised for legibility */
+  --ink-faint:   rgba(245,234,234,0.52);   /* eyebrows / meta — raised for legibility */
   --muted:       #8A6A6A;                  /* defined only; never used for text */
   --muted-2:     #5A3A3A;
 
@@ -98,9 +98,14 @@ body {
   z-index: 0;
   pointer-events: none;
   background:
+    /* top red bleed (topmost) */
+    radial-gradient(120% 55% at 50% 0%, rgba(224,32,32,0.05), rgba(224,32,32,0.012) 34%, transparent 60%),
+    /* white mist fields — atmosphere, above the red undertone */
+    radial-gradient(ellipse 55% 38% at 18% 28%, rgba(245,234,234,0.05), transparent 70%),
+    radial-gradient(ellipse 50% 34% at 85% 68%, rgba(245,234,234,0.045), transparent 72%),
+    /* red ambient glows (undertone) */
     radial-gradient(ellipse 50% 40% at 0% 75%, rgba(224,32,32,0.05), transparent 70%),
-    radial-gradient(ellipse 45% 35% at 100% 35%, rgba(224,32,32,0.04), transparent 70%),
-    radial-gradient(120% 55% at 50% 0%, rgba(224,32,32,0.05), rgba(224,32,32,0.012) 34%, transparent 60%);
+    radial-gradient(ellipse 45% 35% at 100% 35%, rgba(224,32,32,0.04), transparent 70%);
 }
 /* Film grain — above the glows, below the content. */
 .dark-section::after {
