@@ -52,7 +52,7 @@ export default function TradeInPage() {
                     ? 'bg-[var(--slice-dim)] text-[var(--slice-text)] border-[rgba(224,32,32,0.2)]'
                     : item.highlight === 'savings'
                     ? 'bg-[var(--slice-dim)] text-[var(--slice-text)] border-[rgba(224,32,32,0.2)]'
-                    : 'bg-[rgba(255,255,255,0.04)] text-white/70 border-[var(--border)]'
+                    : 'bg-[rgba(255,255,255,0.04)] text-[var(--ink-dim)] border-[var(--border)]'
                 }`}
               >
                 {item.label}
@@ -66,7 +66,7 @@ export default function TradeInPage() {
         {/* Platform guide */}
         <Reveal className="mist mist-wide mt-8"><div className="card p-6">
           <div className="heading-card text-[var(--ink)] mb-4">Which platform should I use?</div>
-          <div className="space-y-3 text-[11px] text-white/70 leading-relaxed">
+          <div className="space-y-3 meta text-[var(--ink-dim)] leading-relaxed">
             <div>
               <span className="text-[var(--ink)]">MusicMagpie</span> &mdash; Best for convenience. Free postage, cash in 5 days, no haggling. Reliable rates.
             </div>
@@ -88,13 +88,13 @@ export default function TradeInPage() {
         <div className="mt-12 border-t border-[var(--border)] pt-10">
           <div className="label text-[var(--ink-faint)] mb-6">Compare prices by category</div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <a href="/laptops" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Laptops &rarr;</a>
-            <a href="/phones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Phones &rarr;</a>
-            <a href="/tablets" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Tablets &rarr;</a>
-            <a href="/tvs" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">TVs &rarr;</a>
-            <a href="/monitors" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Monitors &rarr;</a>
-            <a href="/headphones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Headphones &rarr;</a>
-            <a href="/smartwatches" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Smartwatches &rarr;</a>
+            <a href="/laptops" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--ink)] transition-colors text-center">Laptops &rarr;</a>
+            <a href="/phones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--ink)] transition-colors text-center">Phones &rarr;</a>
+            <a href="/tablets" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--ink)] transition-colors text-center">Tablets &rarr;</a>
+            <a href="/tvs" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--ink)] transition-colors text-center">TVs &rarr;</a>
+            <a href="/monitors" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--ink)] transition-colors text-center">Monitors &rarr;</a>
+            <a href="/headphones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--ink)] transition-colors text-center">Headphones &rarr;</a>
+            <a href="/smartwatches" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--ink)] transition-colors text-center">Smartwatches &rarr;</a>
             <a href="/how-it-works" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--slice-text)] transition-colors text-center">How it works &rarr;</a>
           </div>
         </div>

@@ -212,7 +212,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
                     .map(({ key, label }) => (
                       <span
                         key={key}
-                        className="text-xs text-[var(--ink-dim)] bg-[var(--surface-2)] border border-[var(--border)] px-3 py-1 rounded-[var(--radius-pill)]"
+                        className="text-xs font-medium text-[var(--ink-dim)] bg-[var(--surface-2)] border border-[var(--border)] px-3 py-1 rounded-[var(--radius-pill)]"
                       >
                         {label}
                       </span>
@@ -259,7 +259,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
           {/* Price match note */}
           <Reveal className="mist mist-wide"><div className="card p-7">
             <div className="heading-card text-[var(--ink)] mb-4">Price match intelligence</div>
-            <div className="space-y-3 text-[13px] text-[var(--ink-dim)] leading-relaxed">
+            <div className="space-y-3 text-sm text-[var(--ink-dim)] leading-relaxed">
               <div>
                 <span className="text-[var(--ink)] font-medium">John Lewis price match</span> &mdash; JL will price match to major UK retailers including Currys. Buy at JL, claim the lower price, keep JL&apos;s 2-year guarantee at no extra cost.
               </div>

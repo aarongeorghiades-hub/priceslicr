@@ -53,7 +53,7 @@ const TYPE_COLOR: Record<string, { bg: string; text: string }> = {
   signup:          { bg: 'bg-[var(--slice-dim)]',   text: 'text-[var(--slice-text)]' },
   refurbished:     { bg: 'bg-[var(--risk-dim)]',    text: 'text-[var(--risk)]' },
   trade_in:        { bg: 'bg-[var(--slice-dim)]', text: 'text-[var(--slice-text)]' },
-  salary_sacrifice:{ bg: 'bg-[rgba(90,90,138,0.15)]', text: 'text-white/70' },
+  salary_sacrifice:{ bg: 'bg-[rgba(90,90,138,0.15)]', text: 'text-[var(--ink-dim)]' },
 }
 
 function formatValue(layer: DiscountLayer): string {
@@ -101,7 +101,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
   if (layers.length === 0) {
     return (
       <div className="card p-8 text-center">
-        <div className="text-sm text-white/70">No saving layers found.</div>
+        <div className="text-sm text-[var(--ink-dim)]">No saving layers found.</div>
       </div>
     )
   }
@@ -111,7 +111,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
 
       {/* Stacking guide */}
       <div className="card p-5">
-        <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">Key stacking rules</div>
+        <div className="text-xs uppercase tracking-widest text-[var(--ink-dim)] mb-4 font-medium">Key stacking rules</div>
         <div className="space-y-2">
           {[
             { rule: 'Cashback portal + credit card', result: 'YES \u2014 can stack', ok: true },
@@ -122,8 +122,8 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
             { rule: 'Key worker discount + student discount', result: 'NO \u2014 retailers only accept one discount code', ok: false },
           ].map((item, i) => (
             <div key={i} className="flex items-center justify-between gap-4">
-              <span className="text-xs text-white/70">{item.rule}</span>
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded shrink-0 ${
+              <span className="text-xs font-medium text-[var(--ink-dim)]">{item.rule}</span>
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
                 item.ok
                   ? 'bg-[var(--slice-dim)] text-[var(--slice-text)] border border-[rgba(224,32,32,0.2)]'
                   : 'bg-[var(--risk-dim)] text-[var(--risk)] border border-[rgba(255,181,32,0.2)]'
@@ -138,7 +138,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
       {/* Layers by type */}
       {sortedTypes.map(type => {
         const typeLayers = grouped[type]
-        const color = TYPE_COLOR[type] ?? { bg: 'bg-[rgba(90,90,138,0.15)]', text: 'text-white/70' }
+        const color = TYPE_COLOR[type] ?? { bg: 'bg-[rgba(90,90,138,0.15)]', text: 'text-[var(--ink-dim)]' }
         const icon = TYPE_ICON[type] ?? '\u25C6'
         const label = TYPE_LABELS[type] ?? type
         const isExpanded = expandedType === type
@@ -157,16 +157,16 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-[var(--ink)]">{label}</span>
                   {isRisk && (
-                    <span className="text-[10px] text-[var(--risk)] bg-[var(--risk-dim)] border border-[rgba(255,181,32,0.2)] px-2 py-0.5 rounded">
+                    <span className="text-xs font-semibold text-[var(--risk)] bg-[var(--risk-dim)] border border-[rgba(255,181,32,0.2)] px-2 py-0.5 rounded">
                       Interest risk
                     </span>
                   )}
                 </div>
-                <div className="text-[11px] text-white/70 mt-0.5">
+                <div className="meta text-[var(--ink-dim)] mt-0.5">
                   {typeLayers.length} option{typeLayers.length !== 1 ? 's' : ''} &middot; best: {formatValue(typeLayers[0])}
                 </div>
               </div>
-              <span className={`text-white/70 text-xs transition-transform ${isExpanded ? 'rotate-180' : ''}`}>&darr;</span>
+              <span className={`text-[var(--ink-dim)] text-xs transition-transform ${isExpanded ? 'rotate-180' : ''}`}>&darr;</span>
             </button>
 
             {isExpanded && (
@@ -182,10 +182,10 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
                         <div className="flex-1 min-w-0">
                           <div className="text-sm text-[var(--ink)] mb-1">{layer.description}</div>
                           {layer.conditions && (
-                            <div className="text-[11px] text-white/70 leading-relaxed">{layer.conditions}</div>
+                            <div className="meta text-[var(--ink-dim)] leading-relaxed">{layer.conditions}</div>
                           )}
                           {layer.valid_until && (
-                            <div className="text-[11px] text-[var(--risk)] mt-1">
+                            <div className="meta text-[var(--risk)] mt-1">
                               Expires {new Date(layer.valid_until).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                             </div>
                           )}
@@ -195,24 +195,24 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
                             {layer.value_type === 'percentage' ? `${layer.value}%` : `\u00A3${layer.value}`}
                           </div>
                           {layer.min_spend && (
-                            <div className="text-[10px] text-white/70">min \u00A3{layer.min_spend}</div>
+                            <div className="meta text-[var(--ink-dim)]">min \u00A3{layer.min_spend}</div>
                           )}
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3 mt-3">
                         {layer.is_stackable && (
-                          <span className="text-[10px] text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.15)] px-2 py-0.5 rounded">
+                          <span className="text-xs font-semibold text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.15)] px-2 py-0.5 rounded">
                             &check; Stackable
                           </span>
                         )}
                         {layer.verification_required && layer.verification_platform && (
-                          <span className="text-[10px] text-white/70 bg-[rgba(90,90,138,0.12)] border border-[rgba(90,90,138,0.2)] px-2 py-0.5 rounded">
+                          <span className="text-xs font-semibold text-[var(--ink-dim)] bg-[rgba(90,90,138,0.12)] border border-[rgba(90,90,138,0.2)] px-2 py-0.5 rounded">
                             Verify: {layer.verification_platform}
                           </span>
                         )}
                         {layer.retailer && (
-                          <span className="text-[10px] text-white/70">
+                          <span className="meta text-[var(--ink-dim)]">
                             @ {layer.retailer.name}
                           </span>
                         )}
@@ -221,7 +221,7 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
                             href={portalUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="ml-auto text-[10px] text-[var(--slice-text)] hover:underline shrink-0"
+                            className="ml-auto meta text-[var(--slice-text)] hover:underline shrink-0"
                           >
                             Activate via portal &rarr;
                           </a>

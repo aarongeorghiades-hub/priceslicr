@@ -26,8 +26,8 @@ export default function SaleTiming({ events }: { events: SaleEvent[] }) {
   return (
     <div className="card overflow-hidden">
       <div className="px-5 py-4 border-b border-[var(--border)]">
-        <div className="font-display font-bold text-white text-sm">Sale timing intelligence</div>
-        <div className="text-xs text-white/70 mt-1">Upcoming events where prices historically drop</div>
+        <div className="font-display font-bold text-[var(--ink)] text-sm">Sale timing intelligence</div>
+        <div className="text-xs font-medium text-[var(--ink-dim)] mt-1">Upcoming events where prices historically drop</div>
       </div>
 
       {events.map((event, i) => {
@@ -47,19 +47,19 @@ export default function SaleTiming({ events }: { events: SaleEvent[] }) {
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-sm font-medium text-[var(--ink)]">{event.event_name}</span>
                   {isActive ? (
-                    <span className="text-[10px] font-semibold text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.2)] px-2 py-0.5 rounded animate-pulse">
+                    <span className="text-xs font-semibold text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.2)] px-2 py-0.5 rounded animate-pulse">
                       LIVE NOW
                     </span>
                   ) : (
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${confStyle}`}>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${confStyle}`}>
                       {confLabel}
                     </span>
                   )}
                 </div>
                 {event.category_notes && (
-                  <div className="text-[11px] text-white/70">{event.category_notes}</div>
+                  <div className="meta text-[var(--ink-dim)]">{event.category_notes}</div>
                 )}
-                <div className="text-[11px] text-white/70 mt-1">
+                <div className="meta text-[var(--ink-dim)] mt-1">
                   {new Date(event.expected_start_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                   {event.expected_end_date !== event.expected_start_date && (
                     <> &rarr; {new Date(event.expected_end_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</>
@@ -69,16 +69,16 @@ export default function SaleTiming({ events }: { events: SaleEvent[] }) {
 
               <div className="text-right shrink-0">
                 {isPast ? (
-                  <div className="text-[11px] text-white/60">Ended</div>
+                  <div className="meta text-[var(--ink-faint)]">Ended</div>
                 ) : isActive ? (
                   <div className="font-mono text-sm text-[var(--slice-text)] font-medium">Active</div>
                 ) : (
                   <>
-                    <div className="font-mono text-2xl font-medium text-white">{days}</div>
-                    <div className="text-[10px] text-white/70">days away</div>
+                    <div className="font-mono text-2xl font-medium text-[var(--ink)]">{days}</div>
+                    <div className="meta text-[var(--ink-dim)]">days away</div>
                   </>
                 )}
-                <div className="text-[11px] text-white/70 mt-1">
+                <div className="meta text-[var(--ink-dim)] mt-1">
                   {event.historical_discount_min}&ndash;{event.historical_discount_max}% off
                 </div>
               </div>

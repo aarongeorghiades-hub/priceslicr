@@ -99,10 +99,10 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
                     )}
                   </div>
                   {isSearchLink ? (
-                    <div className="text-[11px] text-[var(--ink-faint)]">Check site for current price</div>
+                    <div className="meta text-[var(--ink-faint)]">Check site for current price</div>
                   ) : (
                     retailer?.warranty_years && listing.condition !== 'used' ? (
-                      <div className="text-[11px] text-[var(--ink-dim)]">{retailer.warranty_years}-year warranty</div>
+                      <div className="meta text-[var(--ink-dim)]">{retailer.warranty_years}-year warranty</div>
                     ) : null
                   )}
                 </div>
@@ -120,7 +120,7 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
                   ) : (
                     <>
                       <div className={`price-num text-xl ${isBest ? 'text-[var(--slice-text)]' : 'text-[var(--ink)]'}`}>{formatGBP(listing.price_gbp)}</div>
-                      <div className="text-[11px] text-[var(--ink-faint)] mt-0.5">
+                      <div className="meta text-[var(--ink-faint)] mt-0.5">
                         {new Date(listing.scraped_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                       </div>
                     </>

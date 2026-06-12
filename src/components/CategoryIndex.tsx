@@ -80,13 +80,13 @@ export default async function CategoryIndex({ category, title, singular, descrip
                           .filter((s): s is { key: string; label: string } => s.label !== null)
                           .slice(0, 3)
                           .map(({ key, label }) => (
-                            <span key={key} className="text-[10px] text-[var(--ink-dim)] bg-[rgba(255,255,255,0.03)] border border-[var(--border-2)] px-2 py-0.5 rounded">
+                            <span key={key} className="meta text-[var(--ink-dim)] bg-[rgba(255,255,255,0.03)] border border-[var(--border-2)] px-2 py-0.5 rounded">
                               {label}
                             </span>
                           ))}
                       </div>
                     )}
-                    <div className="text-[11px] text-[var(--slice-text)] mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="meta text-[var(--slice-text)] mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       Compare prices &rarr;
                     </div>
                   </Link>

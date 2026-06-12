@@ -65,7 +65,7 @@ export default function TradeInCalculator() {
 
       {/* Step 1 — Category */}
       <div className="card p-6">
-        <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
+        <div className="text-xs uppercase tracking-widest text-[var(--ink-dim)] mb-4 font-medium">
           1 &middot; What are you trading in?
         </div>
         <div className="flex gap-3">
@@ -76,7 +76,7 @@ export default function TradeInCalculator() {
               className={`flex-1 py-3 rounded-xl text-sm font-display font-bold transition-all ${
                 selectedCategory === cat
                   ? 'bg-[var(--slice)] text-white'
-                  : 'bg-[rgba(255,255,255,0.04)] text-white/70 border border-[var(--border)] hover:border-[var(--slice)] hover:text-[var(--ink)]'
+                  : 'bg-[rgba(255,255,255,0.04)] text-[var(--ink-dim)] border border-[var(--border)] hover:border-[var(--slice)] hover:text-[var(--ink)]'
               }`}
             >
               {CATEGORY_LABELS[cat]}
@@ -87,7 +87,7 @@ export default function TradeInCalculator() {
 
       {/* Step 2 — Device */}
       <div className="card p-6">
-        <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
+        <div className="text-xs uppercase tracking-widest text-[var(--ink-dim)] mb-4 font-medium">
           2 &middot; Select your device
         </div>
         <div className="grid grid-cols-1 gap-2">
@@ -98,16 +98,16 @@ export default function TradeInCalculator() {
               className={`flex items-center justify-between px-4 py-3 rounded-xl text-left transition-all slice-bar ${
                 selectedDeviceId === device.id
                   ? 'bg-[var(--slice-dim)] border border-[var(--slice)] text-[var(--ink)]'
-                  : 'bg-[rgba(255,255,255,0.02)] border border-[var(--border)] text-white/70 hover:border-[rgba(224,32,32,0.3)] hover:text-[var(--ink)]'
+                  : 'bg-[rgba(255,255,255,0.02)] border border-[var(--border)] text-[var(--ink-dim)] hover:border-[rgba(224,32,32,0.3)] hover:text-[var(--ink)]'
               }`}
             >
               <span className="text-sm font-medium">{device.name}</span>
               {selectedDeviceId === device.id && (
-                <span className="text-[var(--slice-text)] text-xs">Selected</span>
+                <span className="text-[var(--slice-text)] text-xs font-medium">Selected</span>
               )}
             </button>
           ))}
-          <p className="text-[11px] text-white/70 mt-2 px-1">
+          <p className="meta text-[var(--ink-dim)] mt-2 px-1">
             Don&apos;t see your device? These are the most commonly traded models. More coming soon.
           </p>
         </div>
@@ -116,7 +116,7 @@ export default function TradeInCalculator() {
       {/* Step 3 — Condition */}
       {selectedDeviceId && (
         <div className="card p-6">
-          <div className="text-xs uppercase tracking-widest text-white/70 mb-4 font-medium">
+          <div className="text-xs uppercase tracking-widest text-[var(--ink-dim)] mb-4 font-medium">
             3 &middot; What condition is it in?
           </div>
           <div className="space-y-2">
@@ -131,10 +131,10 @@ export default function TradeInCalculator() {
                 }`}
               >
                 <div className="flex-1">
-                  <div className={`text-sm font-medium mb-0.5 ${selectedGrade === grade ? 'text-[var(--ink)]' : 'text-white/70'}`}>
+                  <div className={`text-sm font-medium mb-0.5 ${selectedGrade === grade ? 'text-[var(--ink)]' : 'text-[var(--ink-dim)]'}`}>
                     {GRADE_LABELS[grade]}
                   </div>
-                  <div className="text-[11px] text-white/70 leading-relaxed">
+                  <div className="meta text-[var(--ink-dim)] leading-relaxed">
                     {GRADE_DESCRIPTIONS[grade]}
                   </div>
                 </div>
@@ -153,20 +153,20 @@ export default function TradeInCalculator() {
           <div className="px-6 py-5 border-b border-[var(--border)]">
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-display font-bold text-white text-sm mb-1">
+                <div className="font-display font-bold text-[var(--ink)] text-sm mb-1">
                   Trade-in values
                 </div>
-                <div className="text-[11px] text-white/70">
+                <div className="meta text-[var(--ink-dim)]">
                   {selectedDevice?.name} &middot; {GRADE_LABELS[selectedGrade as GradeKey]} condition &middot; typical ranges
                 </div>
               </div>
               {best && (
                 <div className="text-right">
-                  <div className="text-[10px] uppercase tracking-widest text-white/70 mb-0.5">Best offer</div>
+                  <div className="meta uppercase tracking-widest text-[var(--ink-dim)] mb-0.5">Best offer</div>
                   <div className="font-mono text-2xl font-medium text-[var(--slice-text)] savings-glow">
                     &pound;{best.value}
                   </div>
-                  <div className="text-[11px] text-white/70">{best.meta.name}</div>
+                  <div className="meta text-[var(--ink-dim)]">{best.meta.name}</div>
                 </div>
               )}
             </div>
@@ -180,7 +180,7 @@ export default function TradeInCalculator() {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-sm font-medium text-[var(--ink)]">{result.meta.name}</span>
-                  <span className={`text-[10px] px-2 py-0.5 rounded border font-semibold ${
+                  <span className={`text-xs px-2 py-0.5 rounded border font-semibold ${
                     result.meta.type === 'cash'
                       ? 'bg-[var(--slice-dim)] text-[var(--slice-text)] border-[rgba(224,32,32,0.2)]'
                       : result.meta.type === 'voucher'
@@ -190,24 +190,24 @@ export default function TradeInCalculator() {
                     {result.meta.type === 'cash' ? 'Cash' : result.meta.type === 'voucher' ? 'Voucher' : 'Store credit'}
                   </span>
                   {i === 0 && (
-                    <span className="text-[10px] text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.15)] px-2 py-0.5 rounded">
+                    <span className="text-xs font-semibold text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.15)] px-2 py-0.5 rounded">
                       Best
                     </span>
                   )}
                 </div>
-                <div className="text-[11px] text-white/70 leading-relaxed">
+                <div className="meta text-[var(--ink-dim)] leading-relaxed">
                   {result.meta.note}
                 </div>
               </div>
               <div className="text-right shrink-0">
-                <div className={`font-mono text-xl font-medium ${i === 0 ? 'text-[var(--slice-text)] savings-glow' : 'text-white'}`}>
+                <div className={`font-mono text-xl font-medium ${i === 0 ? 'text-[var(--slice-text)] savings-glow' : 'text-[var(--ink)]'}`}>
                   &pound;{result.value}
                 </div>
                 <a
                   href={result.meta.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[11px] text-[var(--slice-text)] hover:underline"
+                  className="meta text-[var(--slice-text)] hover:underline"
                 >
                   Get quote &rarr;
                 </a>
@@ -217,10 +217,10 @@ export default function TradeInCalculator() {
 
           {/* Stacking tip */}
           <div className="px-6 py-4 bg-[rgba(224,32,32,0.04)] border-t border-[rgba(224,32,32,0.1)]">
-            <div className="text-[11px] text-[var(--slice-text)] font-medium mb-1">
+            <div className="meta text-[var(--slice-text)] mb-1">
               &check; Trade-in stacks with everything
             </div>
-            <div className="text-[11px] text-white/70 leading-relaxed">
+            <div className="meta text-[var(--ink-dim)] leading-relaxed">
               Your trade-in value is independent of how you pay for your new laptop. Stack it with portal cashback, a student discount, gift card cashback, or a new customer offer &mdash; they all combine.
             </div>
           </div>
@@ -228,7 +228,7 @@ export default function TradeInCalculator() {
       )}
 
       {/* Disclaimer */}
-      <p className="text-[11px] text-white/70 leading-relaxed px-1">
+      <p className="meta text-[var(--ink-dim)] leading-relaxed px-1">
         Values shown are typical ranges based on market research and are not guaranteed quotes. Actual offers depend on device condition assessment at the point of trade-in. Always get a live quote before committing.
       </p>
     </div>

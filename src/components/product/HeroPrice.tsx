@@ -103,7 +103,7 @@ export default function HeroPrice({ segments }: { segments: SegmentPrice[] }) {
           <button
             type="button"
             onClick={() => setSegment(cheaperOther.segment)}
-            className="font-body text-xs text-[var(--ink-dim)] hover:text-[var(--ink)] transition-colors mt-2"
+            className="font-body text-xs font-medium text-[var(--ink-dim)] hover:text-[var(--ink)] transition-colors mt-2"
           >
             from &pound;{Math.round(cheaperOther.price).toLocaleString('en-GB')}{' '}
             {SEGMENT_LABELS[cheaperOther.segment].toLowerCase()}

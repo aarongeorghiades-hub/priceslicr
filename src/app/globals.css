@@ -126,64 +126,82 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
 }
 
-.font-mono, .price-value {
-  font-family: var(--font-mono);
-}
+/* ── Typography scale ─────────────────────────────
+   All type classes live in @layer components so Tailwind v4 utilities
+   (text-[var(--ink-faint)], text-sm, font-medium…) can override them.
+   Bare (unlayered) rules would otherwise silently win over utilities —
+   the Session-13 inventory caught faint labels rendering as dim because of it. */
+@layer components {
+  .font-mono, .price-value {
+    font-family: var(--font-mono);
+  }
 
-/* ── Typography scale ───────────────────────────── */
+  /* Mono-caps eyebrow — hero eyebrow, ORIGINAL PRICE / SLICED TO, PriceTable divider. */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;          /* 12px */
+    font-weight: 500;            /* raised 400→500: small text is never below weight 500 */
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-dim);
+  }
 
-/* Mono-caps eyebrow — retained ONLY for the hero eyebrow, the
-   ORIGINAL PRICE / SLICED TO labels, and the PriceTable divider. */
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  line-height: 1.2;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--ink-dim);
-}
+  /* Quiet sans label — the workhorse meta tier: section labels, card meta,
+     stat labels, footer, specs lines. */
+  .label {
+    font-family: var(--font-body);
+    font-size: 0.875rem;         /* 14px (was 13px) */
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink-dim);
+  }
 
-/* Quiet sans label — everything that used to be a mono-caps eyebrow:
-   section labels, card meta, stat labels, footer, specs lines. */
-.label {
-  font-family: var(--font-body);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  line-height: 1.35;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--ink-dim);
-}
+  /* Compact meta — replaces all former 10px/11px text (spec pills, unit labels,
+     confidence pills, timestamps, notes, disclaimers). 12px floor, weight 500.
+     Faint variant via an explicit text-[var(--ink-faint)] utility where intended. */
+  .meta {
+    font-family: var(--font-body);
+    font-size: 0.75rem;          /* 12px */
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink-dim);
+  }
 
-.heading-hero {
-  font-family: var(--font-display);
-  font-weight: 650;
-  font-size: clamp(2.5rem, 4.5vw, 4.25rem);
-  line-height: 1.05;
-  letter-spacing: -0.025em;
-}
+  .heading-hero {
+    font-family: var(--font-display);
+    font-weight: 650;
+    font-size: clamp(2.5rem, 4.5vw, 4.25rem);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+  }
 
-.heading-section {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(1.625rem, 3vw, 2.5rem);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-}
+  .heading-section {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.625rem, 3vw, 2.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
 
-.heading-card {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1.125rem;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
-}
+  .heading-card {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.125rem;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
 
-.price-num {
-  font-family: var(--font-mono);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum";
+  .price-num {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
 }
 
 /* ── Surface / depth helpers ────────────────────── */

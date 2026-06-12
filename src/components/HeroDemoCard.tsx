@@ -216,7 +216,7 @@ export default function HeroDemoCard() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-[var(--ink)] truncate">{layer.name}</div>
-                <div className="text-[12px] text-[var(--ink-dim)] truncate">{layer.detail}</div>
+                <div className="meta text-[var(--ink-dim)] truncate">{layer.detail}</div>
               </div>
               <div className="price-num text-sm text-[var(--slice-text)] shrink-0">
                 &minus;{formatGBP(layer.saving)}
@@ -231,7 +231,7 @@ export default function HeroDemoCard() {
             <div>
               <div className="heading-card text-[var(--slice-text)] text-base">Sliced to</div>
               {revealed > 0 && (
-                <div className="text-[12px] text-[var(--ink-dim)] mt-0.5">
+                <div className="meta text-[var(--ink-dim)] mt-0.5">
                   You save {formatGBP(totalSaving)} &middot; {savingPct}% off
                 </div>
               )}

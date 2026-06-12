@@ -32,7 +32,7 @@ export default function SavingsColumn({
     return (
       <Reveal>
         <div className="card p-5">
-          <p className="text-[13px] text-[var(--ink-faint)] leading-relaxed">
+          <p className="text-sm text-[var(--ink-faint)] leading-relaxed">
             Savings like cashback and price matching apply to new purchases.
           </p>
         </div>
@@ -45,7 +45,7 @@ export default function SavingsColumn({
       <SliceGuide layers={applicable} productName={productName} bestPrice={bestPrice} />
       <Reveal>
         <div className="label mb-2">Savings stack</div>
-        <div className="text-[13px] text-[var(--ink-dim)] leading-relaxed">
+        <div className="text-sm text-[var(--ink-dim)] leading-relaxed">
           Every saving layer available on this product &mdash; stack multiple to reach your lowest price.
         </div>
       </Reveal>

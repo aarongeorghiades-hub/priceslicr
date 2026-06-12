@@ -118,7 +118,7 @@ export default function HowItWorksPage() {
           <div className="label text-[var(--ink-faint)] mb-4">
             The stacking principle
           </div>
-          <p className="text-sm text-white/70 leading-relaxed mb-5">
+          <p className="text-sm text-[var(--ink-dim)] leading-relaxed mb-5">
             Most saving layers are independent of each other. A portal cashback cookie doesn&apos;t know about your credit card reward. Your trade-in cash is separate from any discount. Stack them all and the savings compound.
           </p>
           <div className="flex items-center gap-2 flex-wrap">
@@ -137,7 +137,7 @@ export default function HowItWorksPage() {
                     ? 'bg-[var(--slice-dim)] text-[var(--slice-text)] border-[rgba(224,32,32,0.2)]'
                     : item.green
                     ? 'bg-[var(--slice-dim)] text-[var(--slice-text)] border-[rgba(224,32,32,0.2)]'
-                    : 'bg-[rgba(255,255,255,0.04)] text-white/70 border-[var(--border)]'
+                    : 'bg-[rgba(255,255,255,0.04)] text-[var(--ink-dim)] border-[var(--border)]'
                 }`}
               >
                 {item.label}
@@ -164,15 +164,15 @@ export default function HowItWorksPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="font-display font-bold text-white text-sm">{layer.title}</span>
-                      <span className="text-[10px] text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.15)] px-2 py-0.5 rounded">
+                      <span className="font-display font-bold text-[var(--ink)] text-sm">{layer.title}</span>
+                      <span className="meta text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.15)] px-2 py-0.5 rounded">
                         ✓ Stackable
                       </span>
                     </div>
-                    <p className="text-sm text-white/70 leading-relaxed mb-3">
+                    <p className="text-sm text-[var(--ink-dim)] leading-relaxed mb-3">
                       {layer.description}
                     </p>
-                    <div className="text-[11px] text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.15)] px-3 py-2 rounded-lg">
+                    <div className="meta text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.15)] px-3 py-2 rounded-lg">
                       Example: {layer.example}
                     </div>
                   </div>
@@ -190,12 +190,12 @@ export default function HowItWorksPage() {
           <div className="space-y-3">
             {STACKING_RULES.map((rule, i) => (
               <div key={i} className="flex items-center justify-between gap-4">
-                <span className="text-sm text-white/70">
+                <span className="text-sm text-[var(--ink-dim)]">
                   <span className="text-[var(--ink)]">{rule.a}</span>
                   {' + '}
                   <span className="text-[var(--ink)]">{rule.b}</span>
                 </span>
-                <span className={`text-[10px] font-semibold px-3 py-1 rounded shrink-0 border ${
+                <span className={`text-xs font-semibold px-3 py-1 rounded shrink-0 border ${
                   rule.ok
                     ? 'bg-[var(--slice-dim)] text-[var(--slice-text)] border-[rgba(224,32,32,0.2)]'
                     : 'bg-[var(--risk-dim)] text-[var(--risk)] border-[rgba(255,181,32,0.2)]'
@@ -212,7 +212,7 @@ export default function HowItWorksPage() {
           <div className="label text-[var(--ink-faint)] mb-4">
             About PriceSlicr
           </div>
-          <div className="space-y-3 text-sm text-white/70 leading-relaxed">
+          <div className="space-y-3 text-sm text-[var(--ink-dim)] leading-relaxed">
             <p>
               PriceSlicr is an independent UK price comparison tool. We earn a small commission when you click through to a retailer and make a purchase — this never affects our recommendations or the prices you see.
             </p>
@@ -229,13 +229,13 @@ export default function HowItWorksPage() {
         <div className="mt-12 border-t border-[var(--border)] pt-10">
           <div className="label text-[var(--ink-faint)] mb-6">Browse by category</div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-            <a href="/laptops" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Laptops &rarr;</a>
-            <a href="/phones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Phones &rarr;</a>
-            <a href="/tablets" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Tablets &rarr;</a>
-            <a href="/tvs" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">TVs &rarr;</a>
-            <a href="/monitors" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Monitors &rarr;</a>
-            <a href="/headphones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Headphones &rarr;</a>
-            <a href="/smartwatches" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-white transition-colors text-center">Smartwatches &rarr;</a>
+            <a href="/laptops" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--ink)] transition-colors text-center">Laptops &rarr;</a>
+            <a href="/phones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--ink)] transition-colors text-center">Phones &rarr;</a>
+            <a href="/tablets" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--ink)] transition-colors text-center">Tablets &rarr;</a>
+            <a href="/tvs" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--ink)] transition-colors text-center">TVs &rarr;</a>
+            <a href="/monitors" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--ink)] transition-colors text-center">Monitors &rarr;</a>
+            <a href="/headphones" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--ink)] transition-colors text-center">Headphones &rarr;</a>
+            <a href="/smartwatches" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--ink)] transition-colors text-center">Smartwatches &rarr;</a>
             <a href="/trade-in" className="px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-sm font-medium text-[var(--slice-text)] transition-colors text-center">Trade-in &rarr;</a>
           </div>
         </div>

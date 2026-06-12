@@ -145,7 +145,7 @@ export default function SearchBox({
                     }`}
                   >
                     <span className="text-sm font-medium text-[var(--ink)] truncate">{p.name}</span>
-                    <span className="text-xs text-[var(--ink-dim)] shrink-0">
+                    <span className="text-xs font-medium text-[var(--ink-dim)] shrink-0">
                       {CATEGORY_LABELS[p.category] ?? p.category}
                     </span>
                   </Link>
@@ -161,7 +161,7 @@ export default function SearchBox({
                     key={href}
                     href={href}
                     onClick={closeAfterNav}
-                    className="text-xs text-[var(--ink-dim)] hover:text-[var(--ink)] bg-[var(--surface-2)] border border-[var(--border)] rounded-[var(--radius-pill)] px-2.5 py-1 transition-colors"
+                    className="text-xs font-medium text-[var(--ink-dim)] hover:text-[var(--ink)] bg-[var(--surface-2)] border border-[var(--border)] rounded-[var(--radius-pill)] px-2.5 py-1 transition-colors"
                   >
                     {label}
                   </Link>
