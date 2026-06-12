@@ -1,17 +1,25 @@
 import { notFound } from 'next/navigation'
 import Nav from '@/components/layout/Nav'
 import PriceTable from '@/components/product/PriceTable'
-import SavingsStack from '@/components/product/SavingsStack'
 import SaleTiming from '@/components/product/SaleTiming'
-import SliceGuide from '@/components/product/SliceGuide'
 import Reveal from '@/components/Reveal'
 import Footer from '@/components/layout/Footer'
+import { ConditionProvider } from '@/components/product/ConditionContext'
+import HeroPrice, { type SegmentPrice } from '@/components/product/HeroPrice'
+import SavingsColumn from '@/components/product/SavingsColumn'
 import {
   getProductBySlug,
   getListingsForProduct,
   getAllDiscountLayers,
   getUpcomingSaleEvents,
 } from '@/lib/product'
+import {
+  availableSegments,
+  cheapestForSegment,
+  conditionToSegment,
+  defaultSegment as resolveDefaultSegment,
+  SEGMENT_LABELS,
+} from '@/lib/conditionSlices'
 import { formatSpec } from '@/lib/specs'
 
 const CATEGORY_ROUTES: Record<string, string> = {
@@ -83,9 +91,22 @@ export default async function ProductPage({ slug }: { slug: string }) {
     layer => layer.retailer_id === null || retailerIds.has(layer.retailer_id) || listings.length === 0
   )
 
-  const cheapestNew = listings.find(l => l.condition === 'new' && l.price_gbp > 0)
-  const cheapestRefurb = listings.find(l => l.condition === 'refurbished' && l.price_gbp > 0)
-  const cheapestUsed = listings.find(l => l.condition === 'used' && l.price_gbp > 0)
+  // Condition segments present on this product (priced rows only).
+  const segments = availableSegments(listings)
+  const defaultSeg = resolveDefaultSegment(listings)
+  const segmentPrices: SegmentPrice[] = segments.map(s => ({
+    segment: s,
+    label: SEGMENT_LABELS[s],
+    price: cheapestForSegment(listings, s)!.price_gbp,
+  }))
+
+  // Default condition fully resolved server-side — drives the hero price and JSON-LD.
+  const defaultHero = defaultSeg ? cheapestForSegment(listings, defaultSeg) : null
+  const defaultSegListings = defaultSeg
+    ? listings
+        .filter(l => l.price_gbp > 0 && conditionToSegment(l.condition) === defaultSeg)
+        .sort((a, b) => a.price_gbp - b.price_gbp)
+    : []
 
   const routePrefix = CATEGORY_ROUTES[product.category] ?? product.category + 's'
   const categoryLabel = CATEGORY_LABELS[product.category] ?? product.category
@@ -109,15 +130,16 @@ export default async function ProductPage({ slug }: { slug: string }) {
     description: `Compare ${product.name} prices across every UK retailer. New, refurbished, and used options with cashback, trade-in, and price match intelligence.`,
   }
 
-  if (listings.length > 0) {
+  // JSON-LD reflects the DEFAULT condition — its price must match the hero price.
+  if (defaultSegListings.length > 0) {
     productSchema.offers = {
       '@type': 'AggregateOffer',
       priceCurrency: 'GBP',
-      lowPrice: listings[0]?.price_gbp,
-      highPrice: listings[listings.length - 1]?.price_gbp,
-      offerCount: listings.length,
+      lowPrice: defaultSegListings[0]?.price_gbp,
+      highPrice: defaultSegListings[defaultSegListings.length - 1]?.price_gbp,
+      offerCount: defaultSegListings.length,
       availability: 'https://schema.org/InStock',
-      offers: listings.slice(0, 5).map(l => ({
+      offers: defaultSegListings.slice(0, 5).map(l => ({
         '@type': 'Offer',
         priceCurrency: 'GBP',
         price: l.price_gbp,
@@ -169,6 +191,8 @@ export default async function ProductPage({ slug }: { slug: string }) {
 
       <Nav />
 
+      <ConditionProvider defaultSegment={defaultSeg ?? 'new'}>
+
       {/* Product header */}
       <div className="relative z-10 border-b border-[var(--border)]">
         <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-12 md:py-16">
@@ -199,35 +223,9 @@ export default async function ProductPage({ slug }: { slug: string }) {
 
             {/* Price summary — the single glow element on this page */}
             <div className="shrink-0">
-              {(() => {
-                const heroListing = [cheapestNew, cheapestRefurb, cheapestUsed]
-                  .filter(Boolean)
-                  .sort((a, b) => (a?.price_gbp ?? 0) - (b?.price_gbp ?? 0))[0] ?? null
-                const heroLabel = heroListing?.condition === 'new' ? 'From (new)'
-                  : heroListing?.condition === 'refurbished' ? 'From (refurb)'
-                  : heroListing?.condition === 'used' ? 'From (used)'
-                  : null
-                const conditionPill = heroListing?.condition === 'new' ? 'New'
-                  : heroListing?.condition === 'refurbished' ? 'Refurbished'
-                  : heroListing?.condition === 'used' ? 'Used'
-                  : null
-                return heroListing && heroLabel ? (
-                  <div className="card glow-slice px-7 py-5 text-right min-w-[200px]">
-                    <div className="flex items-center justify-end gap-2 mb-2">
-                      <span className="eyebrow">From</span>
-                      {conditionPill && (
-                        <span className="label text-xs text-[var(--ink-dim)] bg-[var(--surface-2)] border border-[var(--border)] rounded-md px-2 py-0.5">
-                          {conditionPill}
-                        </span>
-                      )}
-                    </div>
-                    <div className="price-num text-[2.5rem] leading-none text-[var(--slice-text)] savings-glow">
-                      &pound;{heroListing.price_gbp.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
-                    </div>
-                  </div>
-                ) : null
-              })()}
-              {listings.length === 0 && (
+              {defaultHero ? (
+                <HeroPrice segments={segmentPrices} />
+              ) : (
                 <div className="label text-[var(--ink-dim)]">Prices loading</div>
               )}
             </div>
@@ -277,20 +275,15 @@ export default async function ProductPage({ slug }: { slug: string }) {
 
         {/* Right column — Savings Stack */}
         <aside className="space-y-5 lg:sticky lg:top-24">
-          <SliceGuide
+          <SavingsColumn
             layers={relevantLayers}
+            listings={listings}
             productName={product.name}
-            bestPrice={cheapestNew?.price_gbp ?? cheapestRefurb?.price_gbp ?? listings[0]?.price_gbp ?? null}
           />
-          <Reveal>
-            <div className="label mb-2">Savings stack</div>
-            <div className="text-[13px] text-[var(--ink-dim)] leading-relaxed">
-              Every saving layer available on this product &mdash; stack multiple to reach your lowest price.
-            </div>
-          </Reveal>
-          <div className="mist"><SavingsStack layers={relevantLayers} /></div>
         </aside>
       </div>
+
+      </ConditionProvider>
       <Footer />
     </div>
   )

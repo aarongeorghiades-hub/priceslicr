@@ -1,6 +1,8 @@
 'use client'
 
 import type { Listing } from '@/types'
+import { useCondition } from './ConditionContext'
+import { conditionToSegment } from '@/lib/conditionSlices'
 
 const CONDITION_LABELS: Record<string, string> = {
   new: 'New',
@@ -18,6 +20,14 @@ function formatGBP(n: number) {
 }
 
 export default function PriceTable({ listings }: { listings: Listing[] }) {
+  const { segment } = useCondition()
+
+  // Priced rows filter to the selected condition. Search-link rows
+  // (price_gbp === 0, "Check price →") always remain visible.
+  const visible = listings.filter(
+    l => l.price_gbp === 0 || conditionToSegment(l.condition) === segment
+  )
+
   if (listings.length === 0) {
     return (
       <div className="card p-8 text-center">
@@ -37,14 +47,14 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
       <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
         <div className="heading-card text-[var(--ink)] text-base">Retailer prices</div>
         <div className="label text-[var(--ink-faint)]">{(() => {
-          const pricedCount = listings.filter(l => l.price_gbp > 0).length
-          const searchCount = listings.filter(l => l.price_gbp === 0).length
+          const pricedCount = visible.filter(l => l.price_gbp > 0).length
+          const searchCount = visible.filter(l => l.price_gbp === 0).length
           return <>{pricedCount} price{pricedCount !== 1 ? 's' : ''}{searchCount > 0 ? ` · ${searchCount} retailer${searchCount !== 1 ? 's' : ''} to check` : ' · sorted by price'}</>
         })()}</div>
       </div>
 
       {(() => {
-        const sortedListings = [...listings].sort((a, b) => {
+        const sortedListings = [...visible].sort((a, b) => {
           if (a.price_gbp === 0 && b.price_gbp > 0) return 1
           if (a.price_gbp > 0 && b.price_gbp === 0) return -1
           return a.price_gbp - b.price_gbp
