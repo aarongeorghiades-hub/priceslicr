@@ -33,6 +33,12 @@ function titleMatchesModelTokens(title: string, productName: string): boolean {
   return mandatory.every(tok => t.includes(tok))
 }
 
+// Layer (d) cross-condition: reject a New price below this fraction of the
+// second-hand anchor. 0.60 chosen from first-run evidence — every confirmed
+// junk listing sat below 50% of the anchor, while suspected false positives
+// (cross-variant refurb/used matches inflating the anchor) sat at 68%+.
+const NEW_ANCHOR_FACTOR = 0.60
+
 export async function GET(request: NextRequest) {
   // Verify secret
   const secret = request.nextUrl.searchParams.get('secret')
@@ -55,6 +61,11 @@ export async function GET(request: NextRequest) {
     const accessToken = await getEbayAccessToken()
 
     const retailerId = await getEbayRetailerId()
+
+    // Captured before any upsert: every row this run writes gets scraped_at >=
+    // runStart, so eBay rows still older than this afterwards are stale (the run
+    // no longer produced them) and are swept at the end of a successful run.
+    const runStart = new Date().toISOString()
 
     let totalInserted = 0
     let totalFailed = 0
@@ -156,8 +167,8 @@ export async function GET(request: NextRequest) {
         }
 
         // ── Layer (d): cross-condition sanity ──────────────────────────
-        // Reject NEW candidates priced below 0.90× the second-hand anchor
-        // (the dearer of the refurbished/used medians). A "new" Z-Fold at
+        // Reject NEW candidates priced below NEW_ANCHOR_FACTOR× the second-hand
+        // anchor (the dearer of the refurbished/used medians). A "new" Z-Fold at
         // £369.99 against a £564.99 refurb market is junk, not a deal.
         // NOTE: we intentionally do NOT suppress refurbished/used prices
         // that sit ABOVE new — legitimate new-stock sales exist, so that
@@ -167,12 +178,12 @@ export async function GET(request: NextRequest) {
           crossNewConsidered++
           const { anchor, refurbishedMedian, usedMedian } = computeSecondhandAnchor(candidatesByCondition)
           if (anchor != null) {
-            const threshold = 0.90 * anchor
+            const threshold = NEW_ANCHOR_FACTOR * anchor
             const rejected = newCandidates.filter(i => i.price < threshold)
             const survivors = newCandidates.filter(i => i.price >= threshold)
             for (const r of rejected) {
               const line = `[cross-condition] ${product.name} — reject New £${r.price.toFixed(2)} ` +
-                `< £${threshold.toFixed(2)} (0.90 × anchor £${anchor.toFixed(2)}; ` +
+                `< £${threshold.toFixed(2)} (${NEW_ANCHOR_FACTOR.toFixed(2)} × anchor £${anchor.toFixed(2)}; ` +
                 `refurb median ${refurbishedMedian != null ? '£' + refurbishedMedian.toFixed(2) : 'n/a'}, ` +
                 `used median ${usedMedian != null ? '£' + usedMedian.toFixed(2) : 'n/a'})`
               console.log(line)
@@ -240,6 +251,31 @@ export async function GET(request: NextRequest) {
       `(${crossPct}% of New listings).`
     )
 
+    // Stale-row sweep: after a FULLY successful run, delete eBay listings the
+    // run did not re-produce (scraped_at predates runStart). This removes rows
+    // that are no longer found — including pre-existing cross-condition junk the
+    // rule now declines to re-write (e.g. the legacy £369.99 "New" Z-Fold row).
+    // Guarded on a clean, non-empty run so a failed/empty eBay pass can never
+    // mass-wipe the catalogue. Scoped to the eBay retailer only.
+    let staleRowsDeleted = 0
+    if (totalFailed === 0 && totalInserted > 0) {
+      const { data: deleted, error: sweepError } = await supabase
+        .from('listings')
+        .delete()
+        .eq('retailer_id', retailerId)
+        .lt('scraped_at', runStart)
+        .select('id')
+      if (sweepError) {
+        console.error('Stale-row sweep failed:', sweepError)
+        errors.push(`stale sweep: ${JSON.stringify(sweepError)}`)
+      } else {
+        staleRowsDeleted = deleted?.length ?? 0
+        console.log(`[stale-sweep] deleted ${staleRowsDeleted} stale eBay listing(s) scraped before ${runStart}.`)
+      }
+    } else {
+      console.log(`[stale-sweep] skipped (run not fully successful: failed=${totalFailed}, inserted=${totalInserted}).`)
+    }
+
     // Second pass: insert retailer search links for products with no "new" listing
     const searchLinksInserted = await insertRetailerSearchLinks(products)
 
@@ -248,6 +284,7 @@ export async function GET(request: NextRequest) {
       products: products.length,
       listingsInserted: totalInserted,
       searchLinksInserted,
+      staleRowsDeleted,
       failed: totalFailed,
       crossCondition: {
         newConsidered: crossNewConsidered,
