@@ -65,7 +65,7 @@ function ConditionToggle({ segments }: { segments: SegmentPrice[] }) {
             className={`font-body text-xs font-medium px-3 py-1 rounded-[var(--radius-pill)] transition-colors ${
               selected
                 ? 'bg-[var(--slice-dim)] text-[var(--slice-text)]'
-                : 'text-[var(--ink-dim)] hover:text-[var(--ink)]'
+                : 'text-[var(--ink)] hover:bg-[var(--surface-2)]'
             }`}
           >
             {s.label}
