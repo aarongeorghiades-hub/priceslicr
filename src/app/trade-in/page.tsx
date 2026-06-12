@@ -3,12 +3,13 @@ import Nav from '@/components/layout/Nav'
 import Footer from '@/components/layout/Footer'
 import TradeInCalculator from '@/components/product/TradeInCalculator'
 import Reveal from '@/components/Reveal'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/trade-in' },
+export const metadata: Metadata = pageMetadata({
   title: 'Trade-In Value Calculator — UK Laptops, Phones & Tablets',
   description: 'Compare trade-in values across MusicMagpie, Back Market, CEX, and Apple Trade In. Find the best offer for your old device and stack the saving on your new laptop.',
-}
+  path: '/trade-in',
+})
 
 export default function TradeInPage() {
   return (

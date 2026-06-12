@@ -2,12 +2,13 @@ import type { Metadata } from 'next'
 import Nav from '@/components/layout/Nav'
 import Footer from '@/components/layout/Footer'
 import Reveal from '@/components/Reveal'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/how-it-works' },
+export const metadata: Metadata = pageMetadata({
   title: 'How PriceSlicr Works | UK Tech Price Comparison',
   description: 'PriceSlicr finds every available saving on UK electronics — cashback, trade-in, price matching, student rates, and sale timing — automatically surfaced in one place.',
-}
+  path: '/how-it-works',
+})
 
 const SAVING_LAYERS = [
   {

@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
 import Nav from '@/components/layout/Nav'
 import Footer from '@/components/layout/Footer'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/contact' },
+export const metadata: Metadata = pageMetadata({
   title: 'Contact',
   description:
     'Get in touch with PriceSlicr, operated by ENA Enterprises Ltd — for price errors, retailer issues, data requests, or partnerships.',
-}
+  path: '/contact',
+})
 
 export default function ContactPage() {
   return (

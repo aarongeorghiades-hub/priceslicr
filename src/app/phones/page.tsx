@@ -1,10 +1,11 @@
 import CategoryIndex from '@/components/CategoryIndex'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata = {
-  alternates: { canonical: '/phones' },
+export const metadata = pageMetadata({
   title: 'Phone Price Comparison UK',
   description: 'Compare outright phone prices across every UK retailer — new and refurbished. Every saving layer: cashback, trade-in, student rates, and price matching.',
-}
+  path: '/phones',
+})
 
 export default function PhonesPage() {
   return (

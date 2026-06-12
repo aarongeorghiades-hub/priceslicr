@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
 import Nav from '@/components/layout/Nav'
 import Footer from '@/components/layout/Footer'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/privacy' },
+export const metadata: Metadata = pageMetadata({
   title: 'Privacy Policy',
   description:
     'How PriceSlicr handles your data. We run no accounts, forms, or analytics trackers — this policy explains what that means and your rights under UK GDPR.',
-}
+  path: '/privacy',
+})
 
 const linkClass = 'text-[var(--slice-text)] underline underline-offset-2 hover:no-underline'
 

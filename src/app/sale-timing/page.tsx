@@ -3,12 +3,13 @@ import Nav from '@/components/layout/Nav'
 import Footer from '@/components/layout/Footer'
 import SaleTimingPage from '@/components/product/SaleTimingPage'
 import { getUpcomingSaleEvents } from '@/lib/product'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/sale-timing' },
+export const metadata: Metadata = pageMetadata({
   title: 'When to Buy Tech UK | Sale Timing Guide',
   description: 'Know exactly when UK electronics prices drop. Track Black Friday, Prime Day, Back to School and more — with historical discount ranges and countdown timers.',
-}
+  path: '/sale-timing',
+})
 
 export default async function SaleTimingRoute() {
   const events = await getUpcomingSaleEvents()

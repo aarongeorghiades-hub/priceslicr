@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
 import Nav from '@/components/layout/Nav'
 import Footer from '@/components/layout/Footer'
+import { pageMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
-  alternates: { canonical: '/terms' },
+export const metadata: Metadata = pageMetadata({
   title: 'Terms of Use',
   description:
     'The terms governing your use of PriceSlicr, a free UK price-comparison and information service operated by ENA Enterprises Ltd.',
-}
+  path: '/terms',
+})
 
 const linkClass = 'text-[var(--slice-text)] underline underline-offset-2 hover:no-underline'
 

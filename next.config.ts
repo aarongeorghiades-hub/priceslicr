@@ -9,6 +9,17 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: '**.johnlewis.com' },
     ],
   },
+  async redirects() {
+    return [
+      {
+        // Canonical host is www.priceslicr.com — 301 the apex to www.
+        source: '/:path*',
+        has: [{ type: 'host', value: 'priceslicr.com' }],
+        destination: 'https://www.priceslicr.com/:path*',
+        permanent: true,
+      },
+    ]
+  },
   async headers() {
     return [
       {
