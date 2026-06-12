@@ -9,12 +9,46 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger eBay sync
+      - name: Trigger eBay sync (critical — hard fail)
         run: |
-          curl -s --max-time 180 "https://www.priceslicr.com/api/sync-listings?secret=priceslicr-sync-2026"
-      - name: Trigger CEX sync
+          echo "Calling eBay sync..."
+          HTTP=$(curl -s -o /tmp/ebay.json -w "%{http_code}" --max-time 280 \
+            "https://www.priceslicr.com/api/sync-listings?secret=priceslicr-sync-2026")
+          BODY=$(cat /tmp/ebay.json 2>/dev/null)
+          echo "HTTP status: $HTTP"
+          echo "Response: $BODY"
+          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
+            echo "::error::eBay sync failed (HTTP $HTTP)"
+            exit 1
+          fi
+          echo "eBay sync OK"
+
+      - name: Trigger CEX sync (soft — warn only, known Cloudflare-blocked)
+        if: ${{ always() }}
         run: |
-          curl -s --max-time 180 "https://www.priceslicr.com/api/sync-cex?secret=priceslicr-sync-2026"
-      - name: Trigger Back Market sync
+          echo "Calling CEX sync..."
+          HTTP=$(curl -s -o /tmp/cex.json -w "%{http_code}" --max-time 240 \
+            "https://www.priceslicr.com/api/sync-cex?secret=priceslicr-sync-2026")
+          BODY=$(cat /tmp/cex.json 2>/dev/null)
+          echo "HTTP status: $HTTP"
+          echo "Response: $BODY"
+          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
+            echo "::warning::CEX sync failed (known: Cloudflare-blocked) — HTTP $HTTP"
+          else
+            echo "CEX sync OK"
+          fi
+
+      - name: Trigger Back Market sync (soft — warn only, known expired trial)
+        if: ${{ always() }}
         run: |
-          curl -s --max-time 300 "https://www.priceslicr.com/api/sync-backmarket?secret=priceslicr-sync-2026"
+          echo "Calling Back Market sync..."
+          HTTP=$(curl -s -o /tmp/bm.json -w "%{http_code}" --max-time 300 \
+            "https://www.priceslicr.com/api/sync-backmarket?secret=priceslicr-sync-2026")
+          BODY=$(cat /tmp/bm.json 2>/dev/null)
+          echo "HTTP status: $HTTP"
+          echo "Response: $BODY"
+          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
+            echo "::warning::Back Market sync failed (known: expired trial) — HTTP $HTTP"
+          else
+            echo "Back Market sync OK"
+          fi
