@@ -6,20 +6,27 @@ import Nav from '@/components/layout/Nav'
 import HeroDemoCard from '@/components/HeroDemoCard'
 import Reveal from '@/components/Reveal'
 
+// Compute the countdown at render time so the server-rendered HTML shows a real,
+// resolved value (never zeros). JS takes over live ticking after hydration.
+function computeCountdown(targetISO: string) {
+  const diff = new Date(targetISO).getTime() - Date.now()
+  if (diff <= 0) return { days: 0, hrs: '00', min: '00', sec: '00' }
+  return {
+    days: Math.floor(diff / 86400000),
+    hrs:  String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0'),
+    min:  String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'),
+    sec:  String(Math.floor((diff % 60000) / 1000)).padStart(2, '0'),
+  }
+}
+
+const BLACK_FRIDAY_2026 = '2026-11-27T00:00:00'
+
 export default function HomePage() {
 
-  const [cd, setCd] = useState({ days: 0, hrs: '00', min: '00', sec: '00' })
+  const [cd, setCd] = useState(() => computeCountdown(BLACK_FRIDAY_2026))
   useEffect(() => {
     function tick() {
-      const bf = new Date('2026-11-27T00:00:00')
-      const diff = bf.getTime() - Date.now()
-      if (diff < 0) return
-      setCd({
-        days: Math.floor(diff / 86400000),
-        hrs:  String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0'),
-        min:  String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'),
-        sec:  String(Math.floor((diff % 60000) / 1000)).padStart(2, '0'),
-      })
+      setCd(computeCountdown(BLACK_FRIDAY_2026))
     }
     tick()
     const id = setInterval(tick, 1000)
@@ -39,15 +46,15 @@ export default function HomePage() {
             Never overpay<br />for tech again.
           </h1>
           <p className="text-[var(--ink-dim)] text-lg leading-relaxed max-w-[40ch] mb-10">
-            We compare every major UK retailer and stack every saving — cashback,
-            trade-in, price match, timing — to find your real lowest price.
+            We compare prices across major UK retailers and stack every saving —
+            cashback, trade-in, price match, timing — to find your real lowest price.
           </p>
           <div className="flex flex-col sm:flex-row sm:items-center gap-5">
             <Link href="/laptops" className="btn-primary inline-flex items-center justify-center px-9 py-4 text-[0.9375rem]">
               Compare prices &rarr;
             </Link>
             <span className="label text-[var(--ink-faint)]">
-              No ads. No cookie tricks. Independent.
+              Free to use. No ads, no cookie tricks.
             </span>
           </div>
         </div>
@@ -110,7 +117,7 @@ export default function HomePage() {
               { val: cd.sec,          lbl: 'Sec',  accent: false },
             ].map((u, i) => (
               <div key={i} className="text-center bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 md:px-5 py-4 min-w-[64px]">
-                <div className={`price-num text-3xl leading-none ${u.accent ? 'text-[var(--slice-text)] savings-glow' : 'text-[var(--ink)]'}`}>
+                <div suppressHydrationWarning className={`price-num text-3xl leading-none ${u.accent ? 'text-[var(--slice-text)] savings-glow' : 'text-[var(--ink)]'}`}>
                   {u.val}
                 </div>
                 <div className="label mt-2.5 text-xs text-[var(--ink-faint)]">{u.lbl}</div>
@@ -126,7 +133,7 @@ export default function HomePage() {
             <span className="text-[var(--ink)]">Price</span><span className="text-[var(--slice-text)]">/Slicr</span>
           </div>
           <div className="label text-[var(--ink-faint)]">
-            &copy; 2026 PriceSlicr &middot; priceslicr.com &middot; Independent. No retailer funding.
+            &copy; 2026 PriceSlicr &middot; priceslicr.com &middot; Free to use. We may earn a commission when you buy through our links &mdash; it never affects the prices you see.
           </div>
         </div>
       </footer>

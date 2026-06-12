@@ -1,6 +1,7 @@
 import CategoryIndex from '@/components/CategoryIndex'
 
 export const metadata = {
+  alternates: { canonical: '/tvs' },
   title: 'TV Price Comparison UK',
   description: 'Compare TV prices across every UK retailer. OLED, QLED, Mini-LED — every saving layer from cashback to price matching.',
 }

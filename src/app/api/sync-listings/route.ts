@@ -7,6 +7,32 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// ── eBay junk-price plausibility filter ──────────────────────────────
+// Layer (a): reject accessory / parts / broken / box-only listings by title keyword.
+const EBAY_EXCLUSION_KEYWORDS = [
+  'case', 'cover', 'screen protector', 'protector', 'box only', 'empty box',
+  'parts', 'for parts', 'spares', 'faulty', 'broken', 'cracked', 'damaged',
+  'replacement', 'battery', 'cable', 'charger', 'adapter', 'dock', 'stand',
+  'skin', 'sticker', 'dummy', 'display model', 'read description',
+]
+const EBAY_EXCLUSION_RE = new RegExp(
+  '\\b(' + EBAY_EXCLUSION_KEYWORDS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')\\b',
+  'i'
+)
+function titleHasExcludedKeyword(title: string): boolean {
+  return EBAY_EXCLUSION_RE.test(title || '')
+}
+
+// Layer (b): the title must contain every mandatory token from the product name.
+// Mandatory = tokens containing a digit (model numbers like "m3"/"s25", storage like
+// "128gb"). Pure-word tokens ("apple", "macbook") are optional.
+function titleMatchesModelTokens(title: string, productName: string): boolean {
+  const t = (title || '').toLowerCase()
+  const tokens = productName.toLowerCase().match(/[a-z0-9]+/g) ?? []
+  const mandatory = tokens.filter(tok => /[0-9]/.test(tok))
+  return mandatory.every(tok => t.includes(tok))
+}
+
 export async function GET(request: NextRequest) {
   // Verify secret
   const secret = request.nextUrl.searchParams.get('secret')
@@ -86,12 +112,34 @@ export async function GET(request: NextRequest) {
           continue
         }
 
-        // Pick best listing per condition
+        // Layers (a) + (b): drop accessory/parts/broken titles and items that
+        // don't match the product's mandatory model/storage tokens.
+        const plausible = listings.filter(
+          l => !titleHasExcludedKeyword(l.title) && titleMatchesModelTokens(l.title, product.name)
+        )
+
+        if (plausible.length === 0) {
+          console.log(`No plausible listings after junk filter for: ${product.name}`)
+          continue
+        }
+
+        // Group plausible items by condition; apply Layer (c) price floor per
+        // condition group (median-based) before picking the lowest valid price.
+        const grouped: Record<string, typeof listings> = {}
+        for (const l of plausible) {
+          (grouped[l.condition] ??= []).push(l)
+        }
+
         const byCondition: Record<string, typeof listings[0]> = {}
-        for (const listing of listings) {
-          if (!byCondition[listing.condition] || listing.price < byCondition[listing.condition].price) {
-            byCondition[listing.condition] = listing
+        for (const [cond, items] of Object.entries(grouped)) {
+          let candidates = items
+          if (items.length >= 3) {
+            const sorted = items.map(i => i.price).sort((a, b) => a - b)
+            const median = sorted[Math.floor(sorted.length / 2)]
+            candidates = items.filter(i => i.price >= 0.4 * median)
           }
+          if (candidates.length === 0) continue
+          byCondition[cond] = candidates.reduce((best, i) => (i.price < best.price ? i : best))
         }
 
         // Drop used listing if it costs more than refurbished (likely wrong match)

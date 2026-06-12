@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/coming-soon' },
   title: 'Coming Soon — PriceSlicr',
   description: 'PriceSlicr is coming soon. Something sharp is on its way.',
 }

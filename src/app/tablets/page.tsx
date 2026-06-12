@@ -1,6 +1,7 @@
 import CategoryIndex from '@/components/CategoryIndex'
 
 export const metadata = {
+  alternates: { canonical: '/tablets' },
   title: 'Tablet Price Comparison UK',
   description: 'Compare tablet prices across every UK retailer — iPad, Samsung, and more. Every saving layer surfaced automatically.',
 }

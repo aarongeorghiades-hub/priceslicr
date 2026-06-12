@@ -3,6 +3,7 @@ import Nav from '@/components/layout/Nav'
 import Reveal from '@/components/Reveal'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/how-it-works' },
   title: 'How PriceSlicr Works | UK Tech Price Comparison',
   description: 'PriceSlicr finds every available saving on UK electronics — cashback, trade-in, price matching, student rates, and sale timing — automatically surfaced in one place.',
 }

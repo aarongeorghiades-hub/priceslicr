@@ -46,14 +46,15 @@ export default function SaleTiming({ events }: { events: SaleEvent[] }) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-sm font-medium text-[var(--ink)]">{event.event_name}</span>
-                  {isActive && (
+                  {isActive ? (
                     <span className="text-[10px] font-semibold text-[var(--slice-text)] bg-[var(--slice-dim)] border border-[rgba(224,32,32,0.2)] px-2 py-0.5 rounded animate-pulse">
                       LIVE NOW
                     </span>
+                  ) : (
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${confStyle}`}>
+                      {confLabel}
+                    </span>
                   )}
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${confStyle}`}>
-                    {confLabel}
-                  </span>
                 </div>
                 {event.category_notes && (
                   <div className="text-[11px] text-white/70">{event.category_notes}</div>

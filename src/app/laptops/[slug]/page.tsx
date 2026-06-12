@@ -21,10 +21,10 @@ export async function generateMetadata({
     openGraph: {
       title: `${product.name} — Price Comparison`,
       description: `Find the lowest price on ${product.name} across every UK retailer.`,
-      url: `https://priceslicr.com/laptops/${slug}`,
+      url: `/laptops/${slug}`,
     },
     alternates: {
-      canonical: `https://priceslicr.com/laptops/${slug}`,
+      canonical: `/laptops/${slug}`,
     },
   }
 }

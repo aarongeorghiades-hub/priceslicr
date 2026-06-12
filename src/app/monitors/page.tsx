@@ -1,6 +1,7 @@
 import CategoryIndex from '@/components/CategoryIndex'
 
 export const metadata = {
+  alternates: { canonical: '/monitors' },
   title: 'Monitor Price Comparison UK',
   description: 'Compare monitor prices across every UK retailer. 4K, ultrawide, OLED gaming — every saving layer surfaced.',
 }

@@ -18,6 +18,18 @@ function formatDate(dateString: string): string {
   })
 }
 
+// Compute the countdown at render time so server HTML ships a real value, not zeros.
+function computeCountdown(targetISO: string) {
+  const diff = new Date(targetISO).getTime() - Date.now()
+  if (diff <= 0) return { days: 0, hrs: '00', min: '00', sec: '00' }
+  return {
+    days: Math.floor(diff / 86400000),
+    hrs: String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0'),
+    min: String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'),
+    sec: String(Math.floor((diff % 60000) / 1000)).padStart(2, '0'),
+  }
+}
+
 const CONFIDENCE_META: Record<string, { label: string; color: string; bg: string; border: string; desc: string }> = {
   confirmed: {
     label: 'Confirmed',
@@ -105,19 +117,11 @@ function BuyDecisionHelper({ events }: { events: SaleEvent[] }) {
 }
 
 function LiveCountdown({ event }: { event: SaleEvent }) {
-  const [cd, setCd] = useState({ days: 0, hrs: '00', min: '00', sec: '00' })
+  const [cd, setCd] = useState(() => computeCountdown(event.expected_start_date))
 
   useEffect(() => {
     function tick() {
-      const target = new Date(event.expected_start_date)
-      const diff = target.getTime() - Date.now()
-      if (diff <= 0) return
-      setCd({
-        days: Math.floor(diff / 86400000),
-        hrs: String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0'),
-        min: String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'),
-        sec: String(Math.floor((diff % 60000) / 1000)).padStart(2, '0'),
-      })
+      setCd(computeCountdown(event.expected_start_date))
     }
     tick()
     const id = setInterval(tick, 1000)
@@ -160,7 +164,7 @@ function LiveCountdown({ event }: { event: SaleEvent }) {
           { val: cd.sec, lbl: 'Sec', green: false },
         ].map((u, i) => (
           <div key={i} className="text-center bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-5 py-4 min-w-[68px]">
-            <div className={`font-mono text-3xl font-medium leading-none ${u.green ? 'text-[var(--slice-text)] savings-glow' : 'text-white'}`}>
+            <div suppressHydrationWarning className={`font-mono text-3xl font-medium leading-none ${u.green ? 'text-[var(--slice-text)] savings-glow' : 'text-white'}`}>
               {u.val}
             </div>
             <div className="text-[10px] uppercase tracking-widest text-white/70 mt-2">{u.lbl}</div>
@@ -312,9 +316,15 @@ export default function SaleTimingPage({ events }: { events: SaleEvent[] }) {
                 </div>
 
                 <div className="text-right shrink-0">
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${conf.bg} ${conf.color} ${conf.border}`}>
-                    {conf.label}
-                  </span>
+                  {isActive ? (
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded border bg-[var(--slice-dim)] text-[var(--slice-text)] border-[rgba(224,32,32,0.2)]">
+                      Live
+                    </span>
+                  ) : (
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${conf.bg} ${conf.color} ${conf.border}`}>
+                      {conf.label}
+                    </span>
+                  )}
                 </div>
               </div>
             )

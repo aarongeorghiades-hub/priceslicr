@@ -1,6 +1,7 @@
 import CategoryIndex from '@/components/CategoryIndex'
 
 export const metadata = {
+  alternates: { canonical: '/laptops' },
   title: 'Laptop Price Comparison UK',
   description: 'Compare laptop prices across every UK retailer — new, refurbished, and used. Find every saving layer automatically.',
 }

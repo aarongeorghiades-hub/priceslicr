@@ -53,7 +53,9 @@ function formatGBP(n: number) {
 
 export default function HeroDemoCard() {
   const [index, setIndex] = useState(0)
-  const [revealed, setRevealed] = useState(0)        // layers shown so far
+  // Start fully resolved so the server-rendered HTML always shows a correct,
+  // resolved state (sliced price ≠ original). The animation rewinds to 0 on mount.
+  const [revealed, setRevealed] = useState(DEMO_SCENARIOS[0].layers.length) // layers shown so far
   const [dip, setDip] = useState(false)              // brief price-change dip
   const [hovering, setHovering] = useState(false)    // pause while hovered
   const [autoAdvance, setAutoAdvance] = useState(true) // dots disable this permanently
@@ -69,12 +71,14 @@ export default function HeroDemoCard() {
   const displayPrice = parseFloat((scenario.originalPrice - totalSaving).toFixed(2))
   const savingPct = Math.round((totalSaving / scenario.originalPrice) * 100)
 
-  // Respect reduced-motion: render the first scenario fully resolved, no timeline.
+  // SSR ships the fully-resolved first scenario. On mount: reduced-motion keeps it
+  // static; otherwise rewind to 0 and let the timeline play the slicing animation.
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setReduced(true)
-      setRevealed(DEMO_SCENARIOS[0].layers.length)
+    } else {
+      setRevealed(0)
     }
   }, [])
 

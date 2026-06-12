@@ -1,6 +1,7 @@
 import CategoryIndex from '@/components/CategoryIndex'
 
 export const metadata = {
+  alternates: { canonical: '/smartwatches' },
   title: 'Smartwatch Price Comparison UK',
   description: 'Compare smartwatch prices across every UK retailer. Apple Watch, Samsung, Garmin — every saving layer surfaced.',
 }

@@ -25,7 +25,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: '/',
       },
     ],
-    sitemap: 'https://priceslicr.com/sitemap.xml',
-    host: 'https://priceslicr.com',
+    sitemap: 'https://www.priceslicr.com/sitemap.xml',
+    host: 'https://www.priceslicr.com',
   }
 }

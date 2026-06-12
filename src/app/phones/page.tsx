@@ -1,6 +1,7 @@
 import CategoryIndex from '@/components/CategoryIndex'
 
 export const metadata = {
+  alternates: { canonical: '/phones' },
   title: 'Phone Price Comparison UK',
   description: 'Compare outright phone prices across every UK retailer — new and refurbished. Every saving layer: cashback, trade-in, student rates, and price matching.',
 }

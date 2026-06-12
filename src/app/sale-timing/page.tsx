@@ -4,6 +4,7 @@ import SaleTimingPage from '@/components/product/SaleTimingPage'
 import { getUpcomingSaleEvents } from '@/lib/product'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/sale-timing' },
   title: 'When to Buy Tech UK | Sale Timing Guide',
   description: 'Know exactly when UK electronics prices drop. Track Black Friday, Prime Day, Back to School and more — with historical discount ranges and countdown timers.',
 }

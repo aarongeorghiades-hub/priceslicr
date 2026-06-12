@@ -4,6 +4,7 @@ import TradeInCalculator from '@/components/product/TradeInCalculator'
 import Reveal from '@/components/Reveal'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/trade-in' },
   title: 'Trade-In Value Calculator — UK Laptops, Phones & Tablets',
   description: 'Compare trade-in values across MusicMagpie, Back Market, CEX, and Apple Trade In. Find the best offer for your old device and stack the saving on your new laptop.',
 }
@@ -65,7 +66,7 @@ export default function TradeInPage() {
           <div className="heading-card text-[var(--ink)] mb-4">Which platform should I use?</div>
           <div className="space-y-3 text-[11px] text-white/70 leading-relaxed">
             <div>
-              <span className="text-[var(--ink)]">MusicMagpie</span> &mdash; Best for convenience. Free postage, cash in 5 days, no haggling. Reliable rates. Good Awin affiliate commission.
+              <span className="text-[var(--ink)]">MusicMagpie</span> &mdash; Best for convenience. Free postage, cash in 5 days, no haggling. Reliable rates.
             </div>
             <div>
               <span className="text-[var(--ink)]">Back Market Trade-In</span> &mdash; Often the highest cash offer. Grade criteria are strict &mdash; condition is assessed on arrival. Rates may be revised if condition doesn&apos;t match.

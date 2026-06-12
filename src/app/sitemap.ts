@@ -12,7 +12,7 @@ const CATEGORY_ROUTES: Record<string, string> = {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = 'https://priceslicr.com'
+  const base = 'https://www.priceslicr.com'
 
   const { data: products } = await supabase
     .from('products')

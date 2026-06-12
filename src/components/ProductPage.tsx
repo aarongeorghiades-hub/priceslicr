@@ -33,6 +33,38 @@ const CATEGORY_LABELS: Record<string, string> = {
   smartwatch: 'Smartwatches',
 }
 
+// Keep the embedded sale calendar relevant to the product's category, plus
+// genuinely cross-category tentpole events. The full 12-event calendar lives on
+// /sale-timing only.
+const CATEGORY_SYNONYMS: Record<string, string[]> = {
+  laptop: ['laptop'],
+  phone: ['phone'],
+  tablet: ['tablet', 'ipad'],
+  tv: ['tv', 'television'],
+  monitor: ['monitor'],
+  headphones: ['headphone', 'earphone', 'earbud', 'audio'],
+  smartwatch: ['watch', 'smartwatch', 'wearable'],
+}
+const GENERAL_SALE_EVENT_RE =
+  /black friday|cyber monday|boxing day|prime day|january|spring|summer sale|deal days|back to school/i
+
+function isSaleEventRelevant(
+  event: { event_name: string; category_notes: string },
+  category: string
+): boolean {
+  const name = (event.event_name || '').toLowerCase()
+  const notes = (event.category_notes || '').toLowerCase()
+  // Tentpole / cross-category events apply everywhere.
+  if (GENERAL_SALE_EVENT_RE.test(name)) return true
+  const syn = CATEGORY_SYNONYMS[category] ?? [category]
+  if (syn.some(s => name.includes(s) || notes.includes(s))) return true
+  // If the notes single out no category at all, treat the event as general.
+  const anyCategoryMentioned = Object.values(CATEGORY_SYNONYMS)
+    .flat()
+    .some(s => notes.includes(s))
+  return !anyCategoryMentioned
+}
+
 export default async function ProductPage({ slug }: { slug: string }) {
   const [product, layers, saleEvents] = await Promise.all([
     getProductBySlug(slug),
@@ -57,6 +89,11 @@ export default async function ProductPage({ slug }: { slug: string }) {
   const routePrefix = CATEGORY_ROUTES[product.category] ?? product.category + 's'
   const categoryLabel = CATEGORY_LABELS[product.category] ?? product.category
 
+  // Category-relevant sale events, capped at 4 (full calendar is on /sale-timing).
+  const relevantSaleEvents = saleEvents
+    .filter(e => isSaleEventRelevant(e, product.category))
+    .slice(0, 4)
+
   // Build JSON-LD Product schema
   const productSchema: Record<string, unknown> = {
     '@context': 'https://schema.org',
@@ -67,7 +104,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
       name: product.brand,
     },
     category: product.category,
-    url: `https://priceslicr.com/${routePrefix}/${slug}`,
+    url: `https://www.priceslicr.com/${routePrefix}/${slug}`,
     description: `Compare ${product.name} prices across every UK retailer. New, refurbished, and used options with cashback, trade-in, and price match intelligence.`,
   }
 
@@ -107,13 +144,13 @@ export default async function ProductPage({ slug }: { slug: string }) {
         '@type': 'ListItem',
         position: 1,
         name: categoryLabel,
-        item: `https://priceslicr.com/${routePrefix}`,
+        item: `https://www.priceslicr.com/${routePrefix}`,
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: product.name,
-        item: `https://priceslicr.com/${routePrefix}/${slug}`,
+        item: `https://www.priceslicr.com/${routePrefix}/${slug}`,
       },
     ],
   }
@@ -207,13 +244,16 @@ export default async function ProductPage({ slug }: { slug: string }) {
           <Reveal as="section">
             <div className="label mb-4">Retailer prices</div>
             <div className="mist"><PriceTable listings={listings} /></div>
+            <div className="label text-[var(--ink-dim)] mt-3">
+              We may earn a commission when you buy through our links &mdash; it never affects the prices you see.
+            </div>
           </Reveal>
 
           {/* Sale timing */}
-          {saleEvents.length > 0 && (
+          {relevantSaleEvents.length > 0 && (
             <Reveal as="section">
               <div className="label mb-4">Sale timing</div>
-              <div className="mist mist-high"><SaleTiming events={saleEvents} /></div>
+              <div className="mist mist-high"><SaleTiming events={relevantSaleEvents} /></div>
             </Reveal>
           )}
 

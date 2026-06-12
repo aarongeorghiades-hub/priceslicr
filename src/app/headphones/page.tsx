@@ -1,6 +1,7 @@
 import CategoryIndex from '@/components/CategoryIndex'
 
 export const metadata = {
+  alternates: { canonical: '/headphones' },
   title: 'Headphone Price Comparison UK',
   description: 'Compare headphone prices across every UK retailer. ANC, wireless, premium audio — every saving layer surfaced.',
 }
