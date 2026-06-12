@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Nav from '@/components/layout/Nav'
+import Footer from '@/components/layout/Footer'
 import SaleTimingPage from '@/components/product/SaleTimingPage'
 import { getUpcomingSaleEvents } from '@/lib/product'
 
@@ -35,6 +36,7 @@ export default async function SaleTimingRoute() {
         <SaleTimingPage events={events} />
 
       </div>
+      <Footer />
     </div>
   )
 }

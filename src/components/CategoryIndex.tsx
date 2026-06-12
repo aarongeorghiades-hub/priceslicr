@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import Nav from '@/components/layout/Nav'
+import Footer from '@/components/layout/Footer'
 import Link from 'next/link'
 import type { Product } from '@/types'
 import { formatSpec } from '@/lib/specs'
@@ -95,6 +96,7 @@ export default async function CategoryIndex({ category, title, singular, descrip
           ))}
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

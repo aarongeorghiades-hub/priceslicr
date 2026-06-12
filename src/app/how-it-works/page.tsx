@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Nav from '@/components/layout/Nav'
+import Footer from '@/components/layout/Footer'
 import Reveal from '@/components/Reveal'
 
 export const metadata: Metadata = {
@@ -239,6 +240,7 @@ export default function HowItWorksPage() {
         </div>
 
       </div>
+      <Footer />
     </div>
   )
 }

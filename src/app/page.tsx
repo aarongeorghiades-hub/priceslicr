@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Nav from '@/components/layout/Nav'
+import Footer from '@/components/layout/Footer'
 import HeroDemoCard from '@/components/HeroDemoCard'
 import Reveal from '@/components/Reveal'
 
@@ -127,16 +128,7 @@ export default function HomePage() {
         </div></div>
       </Reveal>
 
-      <footer className="relative z-10 border-t border-[var(--border)]">
-        <div className="max-w-[1200px] mx-auto px-6 md:px-12 py-9 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-          <div className="font-display text-base font-bold">
-            <span className="text-[var(--ink)]">Price</span><span className="text-[var(--slice-text)]">/Slicr</span>
-          </div>
-          <div className="label text-[var(--ink-faint)]">
-            &copy; 2026 PriceSlicr &middot; priceslicr.com &middot; Free to use. We may earn a commission when you buy through our links &mdash; it never affects the prices you see.
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

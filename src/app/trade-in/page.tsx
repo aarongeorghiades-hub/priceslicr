@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Nav from '@/components/layout/Nav'
+import Footer from '@/components/layout/Footer'
 import TradeInCalculator from '@/components/product/TradeInCalculator'
 import Reveal from '@/components/Reveal'
 
@@ -97,6 +98,7 @@ export default function TradeInPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

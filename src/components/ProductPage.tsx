@@ -5,6 +5,7 @@ import SavingsStack from '@/components/product/SavingsStack'
 import SaleTiming from '@/components/product/SaleTiming'
 import SliceGuide from '@/components/product/SliceGuide'
 import Reveal from '@/components/Reveal'
+import Footer from '@/components/layout/Footer'
 import {
   getProductBySlug,
   getListingsForProduct,
@@ -290,6 +291,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
           <div className="mist"><SavingsStack layers={relevantLayers} /></div>
         </aside>
       </div>
+      <Footer />
     </div>
   )
 }
