@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { supabase } from '@/lib/supabase'
+import { SearchProvider } from '@/components/search/SearchProvider'
+import type { SearchProduct } from '@/lib/search'
 
 export const metadata: Metadata = {
   title: {
@@ -70,7 +73,14 @@ const organizationSchema = {
   ],
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Lightweight product index for the header search (name, slug, category, brand only).
+  const { data } = await supabase
+    .from('products')
+    .select('name, slug, category, brand')
+    .order('name', { ascending: true })
+  const searchIndex = (data ?? []) as SearchProduct[]
+
   return (
     <html lang="en-GB">
       <body>
@@ -82,7 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
-        {children}
+        <SearchProvider products={searchIndex}>{children}</SearchProvider>
       </body>
     </html>
   )

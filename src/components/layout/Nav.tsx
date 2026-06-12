@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import SearchBox from '@/components/search/SearchBox'
 
 const CATEGORIES = [
   { label: 'Laptops', href: '/laptops' },
@@ -33,6 +34,7 @@ function Wordmark() {
 export default function Nav() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
 
   const isActive = (href: string) => pathname === href
   const productsActive = CATEGORIES.some(c => pathname?.startsWith(c.href))
@@ -45,11 +47,16 @@ export default function Nav() {
 
   return (
     <nav className="sticky top-0 z-50 border-b border-[var(--border)] bg-[rgba(10,7,7,0.8)] backdrop-blur-xl">
-      <div className="max-w-[1200px] mx-auto flex items-center justify-between px-6 md:px-12 h-20">
+      <div className="max-w-[1200px] mx-auto flex items-center gap-3 px-6 md:px-12 h-20">
         <Wordmark />
 
+        {/* Desktop search — flexible width, shrinks to fit */}
+        <div className="hidden md:flex flex-1 min-w-0 justify-center px-2 lg:px-4">
+          <SearchBox className="w-full max-w-[260px]" />
+        </div>
+
         {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-6 shrink-0">
           {/* Products dropdown */}
           <div className="relative group">
             <button
@@ -92,23 +99,43 @@ export default function Nav() {
           </span>
         </div>
 
-        {/* Mobile toggle */}
-        <button
-          onClick={() => setOpen(v => !v)}
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          aria-expanded={open}
-          className="md:hidden flex flex-col gap-1.5 p-2 -mr-2"
-        >
-          <span
-            className="block w-5 h-px bg-[var(--ink)] transition-transform duration-200"
-            style={{ transform: open ? 'translateY(3px) rotate(45deg)' : 'none' }}
-          />
-          <span
-            className="block w-5 h-px bg-[var(--ink)] transition-transform duration-200"
-            style={{ transform: open ? 'translateY(-3px) rotate(-45deg)' : 'none' }}
-          />
-        </button>
+        {/* Mobile controls */}
+        <div className="flex md:hidden items-center gap-1 ml-auto -mr-2">
+          <button
+            onClick={() => { setSearchOpen(v => !v); setOpen(false) }}
+            aria-label={searchOpen ? 'Close search' : 'Open search'}
+            aria-expanded={searchOpen}
+            className="p-2 text-[var(--ink-dim)] hover:text-[var(--ink)] transition-colors"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-3.5-3.5" />
+            </svg>
+          </button>
+          <button
+            onClick={() => { setOpen(v => !v); setSearchOpen(false) }}
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-expanded={open}
+            className="flex flex-col gap-1.5 p-2"
+          >
+            <span
+              className="block w-5 h-px bg-[var(--ink)] transition-transform duration-200"
+              style={{ transform: open ? 'translateY(3px) rotate(45deg)' : 'none' }}
+            />
+            <span
+              className="block w-5 h-px bg-[var(--ink)] transition-transform duration-200"
+              style={{ transform: open ? 'translateY(-3px) rotate(-45deg)' : 'none' }}
+            />
+          </button>
+        </div>
       </div>
+
+      {/* Mobile search panel */}
+      {searchOpen && (
+        <div className="md:hidden border-t border-[var(--border)] bg-[var(--surface)] px-6 py-4">
+          <SearchBox className="w-full" autoFocus onNavigate={() => setSearchOpen(false)} />
+        </div>
+      )}
 
       {/* Mobile panel */}
       {open && (
