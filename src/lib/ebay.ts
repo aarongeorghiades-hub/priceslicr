@@ -85,3 +85,27 @@ function normaliseCondition(condition: string | undefined): 'new' | 'refurbished
   if (c.includes('refurb') || c.includes('excellent') || c.includes('good') || c.includes('very good')) return 'refurbished'
   return 'used'
 }
+
+// ── Cross-condition sanity anchor (junk-filter Layer d) ───────────────
+// A "New" price far below the second-hand market is almost always junk
+// (parts / box-only / network-locked / broken) that slipped layers (a)–(c).
+// The anchor is the DEARER of the refurbished/used medians; the caller
+// rejects New listings priced below 0.90× it. Each median is only used
+// when its condition has >=2 accepted candidates (a single candidate is
+// too thin to anchor against). Returns anchor: null when neither median
+// is available, signalling the caller to skip the rule for that product.
+export function computeSecondhandAnchor(
+  candidatesByCondition: Record<string, { price: number }[]>
+): { anchor: number | null; refurbishedMedian: number | null; usedMedian: number | null } {
+  const medianOf = (cond: string): number | null => {
+    const arr = candidatesByCondition[cond]
+    if (!arr || arr.length < 2) return null
+    const sorted = arr.map(i => i.price).sort((a, b) => a - b)
+    return sorted[Math.floor(sorted.length / 2)]
+  }
+  const refurbishedMedian = medianOf('refurbished')
+  const usedMedian = medianOf('used')
+  const available = [refurbishedMedian, usedMedian].filter((v): v is number => v != null)
+  const anchor = available.length > 0 ? Math.max(...available) : null
+  return { anchor, refurbishedMedian, usedMedian }
+}

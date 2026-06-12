@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { getEbayAccessToken, searchEbayUK } from '@/lib/ebay'
+import { getEbayAccessToken, searchEbayUK, computeSecondhandAnchor } from '@/lib/ebay'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -59,6 +59,11 @@ export async function GET(request: NextRequest) {
     let totalInserted = 0
     let totalFailed = 0
     const errors: string[] = []
+
+    // Cross-condition (Layer d) run-level tallies for the rejection summary.
+    let crossNewConsidered = 0   // products that had >=1 accepted eBay New candidate pre-rule
+    let crossNewSuppressed = 0   // products whose New row was removed entirely by the rule
+    const crossRejLines: string[] = []  // one line per rejected New listing
 
     function buildEbayQuery(productName: string): string {
       // Remove storage/RAM specs that confuse eBay search
@@ -131,6 +136,7 @@ export async function GET(request: NextRequest) {
         }
 
         const byCondition: Record<string, typeof listings[0]> = {}
+        const candidatesByCondition: Record<string, typeof listings> = {}
         for (const [cond, items] of Object.entries(grouped)) {
           let candidates = items
           if (items.length >= 3) {
@@ -139,6 +145,7 @@ export async function GET(request: NextRequest) {
             candidates = items.filter(i => i.price >= 0.4 * median)
           }
           if (candidates.length === 0) continue
+          candidatesByCondition[cond] = candidates
           byCondition[cond] = candidates.reduce((best, i) => (i.price < best.price ? i : best))
         }
 
@@ -146,6 +153,40 @@ export async function GET(request: NextRequest) {
         if (byCondition['used'] && byCondition['refurbished'] &&
             byCondition['used'].price >= byCondition['refurbished'].price) {
           delete byCondition['used']
+        }
+
+        // ── Layer (d): cross-condition sanity ──────────────────────────
+        // Reject NEW candidates priced below 0.90× the second-hand anchor
+        // (the dearer of the refurbished/used medians). A "new" Z-Fold at
+        // £369.99 against a £564.99 refurb market is junk, not a deal.
+        // NOTE: we intentionally do NOT suppress refurbished/used prices
+        // that sit ABOVE new — legitimate new-stock sales exist, so that
+        // asymmetry is a deliberate product decision; do not "fix" it.
+        const newCandidates = candidatesByCondition['new']
+        if (newCandidates && newCandidates.length > 0) {
+          crossNewConsidered++
+          const { anchor, refurbishedMedian, usedMedian } = computeSecondhandAnchor(candidatesByCondition)
+          if (anchor != null) {
+            const threshold = 0.90 * anchor
+            const rejected = newCandidates.filter(i => i.price < threshold)
+            const survivors = newCandidates.filter(i => i.price >= threshold)
+            for (const r of rejected) {
+              const line = `[cross-condition] ${product.name} — reject New £${r.price.toFixed(2)} ` +
+                `< £${threshold.toFixed(2)} (0.90 × anchor £${anchor.toFixed(2)}; ` +
+                `refurb median ${refurbishedMedian != null ? '£' + refurbishedMedian.toFixed(2) : 'n/a'}, ` +
+                `used median ${usedMedian != null ? '£' + usedMedian.toFixed(2) : 'n/a'})`
+              console.log(line)
+              crossRejLines.push(line)
+            }
+            if (rejected.length > 0) {
+              if (survivors.length === 0) {
+                delete byCondition['new']
+                crossNewSuppressed++
+              } else {
+                byCondition['new'] = survivors.reduce((best, i) => (i.price < best.price ? i : best))
+              }
+            }
+          }
         }
 
         // Filter out implausibly low prices (accessories, parts, warranties)
@@ -189,6 +230,16 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Cross-condition (Layer d) run summary — one block, easy to grep in CI logs.
+    const crossPct = crossNewConsidered > 0
+      ? Math.round((crossNewSuppressed / crossNewConsidered) * 1000) / 10
+      : 0
+    console.log(
+      `[cross-condition] summary: ${crossRejLines.length} New listing(s) rejected; ` +
+      `${crossNewSuppressed}/${crossNewConsidered} products with a New eBay pick had it suppressed ` +
+      `(${crossPct}% of New listings).`
+    )
+
     // Second pass: insert retailer search links for products with no "new" listing
     const searchLinksInserted = await insertRetailerSearchLinks(products)
 
@@ -198,6 +249,13 @@ export async function GET(request: NextRequest) {
       listingsInserted: totalInserted,
       searchLinksInserted,
       failed: totalFailed,
+      crossCondition: {
+        newConsidered: crossNewConsidered,
+        newSuppressed: crossNewSuppressed,
+        rejectedListings: crossRejLines.length,
+        pctOfNewSuppressed: crossPct,
+        rejections: crossRejLines.slice(0, 50),
+      },
       errors: errors.slice(0, 10),
     })
 
