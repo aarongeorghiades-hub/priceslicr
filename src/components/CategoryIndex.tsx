@@ -2,9 +2,15 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 import Nav from '@/components/layout/Nav'
 import Footer from '@/components/layout/Footer'
 import Link from 'next/link'
-import type { Product } from '@/types'
+import type { Product, Listing } from '@/types'
 import { formatSpec } from '@/lib/specs'
+import { defaultSegment, cheapestForSegment } from '@/lib/conditionSlices'
+import { formatGBP } from '@/lib/utils'
 import Reveal from '@/components/Reveal'
+
+// Category cards pull only the listing fields the pricing helpers read.
+type CardListing = Pick<Listing, 'price_gbp' | 'condition' | 'in_stock'>
+type ProductWithListings = Product & { listings: CardListing[] }
 
 const CATEGORY_ROUTES: Record<string, string> = {
   laptop: 'laptops',
@@ -29,13 +35,14 @@ export default async function CategoryIndex({ category, title, singular, descrip
   const supabase = await createServerSupabaseClient()
   const { data: products } = await supabase
     .from('products')
-    .select('*')
+    .select('*, listings(price_gbp, condition, in_stock)')
     .eq('category', category)
     .order('brand', { ascending: true })
 
-  const grouped = (products ?? []).reduce<Record<string, Product[]>>((acc, p) => {
-    if (!acc[p.brand]) acc[p.brand] = []
-    acc[p.brand].push(p as Product)
+  const grouped = (products ?? []).reduce<Record<string, ProductWithListings[]>>((acc, p) => {
+    const prod = p as ProductWithListings
+    if (!acc[prod.brand]) acc[prod.brand] = []
+    acc[prod.brand].push(prod)
     return acc
   }, {})
 
@@ -64,7 +71,15 @@ export default async function CategoryIndex({ category, title, singular, descrip
                 {brand}
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {brandProducts.map(product => (
+                {brandProducts.map(product => {
+                  // Mirror the detail page: defaultSegment() then cheapest in that
+                  // segment. Only in-stock listings; helpers exclude price_gbp = 0.
+                  const inStockListings = (product.listings ?? []).filter(l => l.in_stock)
+                  const seg = defaultSegment(inStockListings as Listing[])
+                  const fromPrice = seg
+                    ? cheapestForSegment(inStockListings as Listing[], seg)?.price_gbp ?? null
+                    : null
+                  return (
                   <Link
                     key={product.id}
                     href={`/${routePrefix}/${product.slug}`}
@@ -86,11 +101,18 @@ export default async function CategoryIndex({ category, title, singular, descrip
                           ))}
                       </div>
                     )}
+                    {fromPrice != null && (
+                      <div className="mt-3">
+                        <span className="meta">from </span>
+                        <span className="price-num text-base text-[var(--ink)]">{formatGBP(fromPrice)}</span>
+                      </div>
+                    )}
                     <div className="meta text-[var(--slice-text)] mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       Compare prices &rarr;
                     </div>
                   </Link>
-                ))}
+                  )
+                })}
               </div>
             </Reveal>
           ))}
