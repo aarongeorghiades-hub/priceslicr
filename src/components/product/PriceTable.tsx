@@ -13,7 +13,7 @@ const CONDITION_LABELS: Record<string, string> = {
 
 // Single neutral pill treatment — crimson is reserved as the sole accent.
 const CONDITION_PILL =
-  'label text-xs text-[var(--ink-dim)] bg-[var(--surface-2)] border border-[var(--border)] rounded-md px-2 py-0.5'
+  'label text-xs text-[var(--ink)] bg-[var(--surface-2)] border border-[var(--border-2)] rounded-md px-2 py-0.5'
 
 function formatGBP(n: number) {
   return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })

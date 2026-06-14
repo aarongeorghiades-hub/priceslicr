@@ -212,7 +212,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
                     .map(({ key, label }) => (
                       <span
                         key={key}
-                        className="text-xs font-medium text-[var(--ink-dim)] bg-[var(--surface-2)] border border-[var(--border)] px-3 py-1 rounded-[var(--radius-pill)]"
+                        className="text-xs font-medium text-[var(--ink)] bg-[var(--surface-2)] border border-[var(--border-2)] px-3 py-1 rounded-[var(--radius-pill)]"
                       >
                         {label}
                       </span>

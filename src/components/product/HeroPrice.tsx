@@ -22,7 +22,7 @@ function ConditionToggle({ segments }: { segments: SegmentPrice[] }) {
     const only = segments[0]
     if (!only) return null
     return (
-      <span className="label text-xs text-[var(--ink-dim)] bg-[var(--surface-2)] border border-[var(--border)] rounded-md px-2 py-0.5">
+      <span className="label text-xs text-[var(--ink)] bg-[var(--surface-2)] border border-[var(--border-2)] rounded-md px-2 py-0.5">
         {only.label}
       </span>
     )
