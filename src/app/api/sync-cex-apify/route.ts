@@ -48,6 +48,37 @@ function isExcluded(item: CexItem): boolean {
   return false
 }
 
+// Map CEX letter grade → the DB condition_grade enum (excellent|good|fair|null).
+// CEX has no tier matching 'very_good'. Grade F is already excluded upstream.
+function mapGrade(grade?: string): 'excellent' | 'good' | 'fair' | null {
+  switch ((grade || '').toUpperCase()) {
+    case 'A': return 'excellent'
+    case 'B': return 'good'
+    case 'C': return 'fair'
+    default: return null
+  }
+}
+
+// Variant guard: reject a candidate whose title carries a tier word our
+// product name does NOT (e.g. plain "Galaxy Tab S10" must not match
+// "Galaxy Tab S10 Lite"; plain "iPhone 15" must not match "15 Pro"/"15 Max").
+const VARIANT_WORDS = ['pro', 'plus', 'max', 'ultra', 'lite', 'fe', 'mini', 'se', 'neo']
+function variantWordsIn(text: string): Set<string> {
+  const found = new Set<string>()
+  for (const w of VARIANT_WORDS) {
+    if (new RegExp(`\\b${w}\\b`, 'i').test(text || '')) found.add(w)
+  }
+  return found
+}
+function passesVariantGuard(title: string, name: string): boolean {
+  const titleVariants = variantWordsIn(title)
+  const nameVariants = variantWordsIn(name)
+  for (const w of titleVariants) {
+    if (!nameVariants.has(w)) return false // title has a tier word our product doesn't → reject
+  }
+  return true
+}
+
 async function fetchCexItems(searchInput: string): Promise<CexItem[]> {
   const url = `https://api.apify.com/v2/acts/${APIFY_ACTOR}/run-sync-get-dataset-items?token=${process.env.APIFY_TOKEN}`
   const res = await fetch(url, {
@@ -109,7 +140,8 @@ export async function GET(request: NextRequest) {
           !isExcluded(it) &&
           typeof it.sellPrice === 'number' && it.sellPrice > 0 &&
           titleMatchesModelTokens(it.title || '', product.name) &&
-          nameTokenGate(it.title || '', product.name)
+          nameTokenGate(it.title || '', product.name) &&
+          passesVariantGuard(it.title || '', product.name)
         )
 
         if (candidates.length === 0) {
@@ -127,7 +159,7 @@ export async function GET(request: NextRequest) {
           retailer_id: CEX_RETAILER_ID,
           price_gbp: best.sellPrice!,
           condition: 'used' as const,
-          condition_grade: best.grade ?? null,
+          condition_grade: mapGrade(best.grade),
           url: encodeURI(best.productUrl || ''),
           in_stock: true,
           scraped_at: runStart,
