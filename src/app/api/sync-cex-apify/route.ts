@@ -64,9 +64,12 @@ function mapGrade(grade?: string): 'excellent' | 'good' | 'fair' | null {
 // "Galaxy Tab S10 Lite"; plain "iPhone 15" must not match "15 Pro"/"15 Max").
 const VARIANT_WORDS = ['pro', 'plus', 'max', 'ultra', 'lite', 'fe', 'mini', 'se', 'neo']
 function variantWordsIn(text: string): Set<string> {
+  // Normalise the "+" plus-tier symbol to the word (e.g. "S10+" → "s10 plus ")
+  // so the word-boundary check catches it. Applied symmetrically to title + name.
+  const normalised = (text || '').replace(/\+/g, ' plus ')
   const found = new Set<string>()
   for (const w of VARIANT_WORDS) {
-    if (new RegExp(`\\b${w}\\b`, 'i').test(text || '')) found.add(w)
+    if (new RegExp(`\\b${w}\\b`, 'i').test(normalised)) found.add(w)
   }
   return found
 }
