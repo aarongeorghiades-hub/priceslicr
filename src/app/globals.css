@@ -19,8 +19,8 @@
   --color-muted: #8A6A6A;
   --color-muted-2: #5A3A3A;
   --color-ink: #F5EAEA;
-  --color-ink-dim: rgba(245,234,234,0.78);
-  --color-ink-faint: rgba(245,234,234,0.64);
+  --color-ink-dim: rgba(245,234,234,0.86);
+  --color-ink-faint: rgba(245,234,234,0.76);
 
   --font-display: 'Archivo Variable', sans-serif;
   --font-body: 'DM Sans', sans-serif;
@@ -61,8 +61,8 @@
 
   /* Text */
   --ink:         #F5EAEA;
-  --ink-dim:     rgba(245,234,234,0.78);   /* secondary text — raised 0.68→0.78 for legibility */
-  --ink-faint:   rgba(245,234,234,0.64);   /* eyebrows / meta — raised 0.52→0.64 for legibility */
+  --ink-dim:     rgba(245,234,234,0.86);   /* secondary text — raised 0.78→0.86 for legibility */
+  --ink-faint:   rgba(245,234,234,0.76);   /* eyebrows / meta — raised 0.64→0.76 for legibility */
   --muted:       #8A6A6A;                  /* defined only; never used for text */
   --muted-2:     #5A3A3A;
 

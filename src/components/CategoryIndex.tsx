@@ -104,7 +104,7 @@ export default async function CategoryIndex({ category, title, singular, descrip
                     {fromPrice != null && (
                       <div className="mt-3">
                         <span className="meta">from </span>
-                        <span className="price-num text-base text-[var(--ink)]">{formatGBP(fromPrice)}</span>
+                        <span className="price-num text-base text-[var(--ink)]">{formatGBP(Math.round(fromPrice))}</span>
                       </div>
                     )}
                     <div className="meta text-[var(--slice-text)] mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
