@@ -76,8 +76,11 @@ function variantWordsIn(text: string): Set<string> {
 function passesVariantGuard(title: string, name: string): boolean {
   const titleVariants = variantWordsIn(title)
   const nameVariants = variantWordsIn(name)
-  for (const w of titleVariants) {
-    if (!nameVariants.has(w)) return false // title has a tier word our product doesn't → reject
+  // Symmetric: the tier-word sets must be EQUAL. Reject if either side carries a
+  // tier word the other lacks — so "S25+" never matches plain "S25" (either way).
+  if (titleVariants.size !== nameVariants.size) return false
+  for (const w of nameVariants) {
+    if (!titleVariants.has(w)) return false
   }
   return true
 }
