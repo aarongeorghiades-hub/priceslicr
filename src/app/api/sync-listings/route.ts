@@ -26,7 +26,7 @@ function titleHasExcludedKeyword(title: string): boolean {
 // Layer (b): the title must contain every mandatory token from the product name.
 // Mandatory = tokens containing a digit (model numbers like "m3"/"s25", storage like
 // "128gb"). Pure-word tokens ("apple", "macbook") are optional.
-function titleMatchesModelTokens(title: string, productName: string): boolean {
+export function titleMatchesModelTokens(title: string, productName: string): boolean {
   const t = (title || '').toLowerCase()
   const tokens = productName.toLowerCase().match(/[a-z0-9]+/g) ?? []
   const mandatory = tokens.filter(tok => /[0-9]/.test(tok))
