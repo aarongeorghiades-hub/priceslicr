@@ -26,7 +26,14 @@ function nameTokenGate(title: string, name: string): boolean {
   const tokens = (name.toLowerCase().match(/[a-z]+/g) ?? [])
     .filter(t => t.length >= 3 && !NAME_TOKEN_STOPLIST.has(t))
   if (tokens.length === 0) return true // nothing to gate on → rely on digit-token matcher
-  return tokens.every(tok => new RegExp(`\\b${tok}\\b`, 'i').test(title || ''))
+  // FIX 2: split letter↔digit transitions in the TITLE only ("Flip5"→"Flip 5",
+  // "Book4"→"Book 4") so concatenated model words still satisfy \bword\b. This
+  // copy is for name-token matching ONLY; titleMatchesModelTokens keeps the raw
+  // title so digit tokens like "256gb" stay intact.
+  const splitTitle = (title || '')
+    .replace(/([A-Za-z])(\d)/g, '$1 $2')
+    .replace(/(\d)([A-Za-z])/g, '$1 $2')
+  return tokens.every(tok => new RegExp(`\\b${tok}\\b`, 'i').test(splitTitle))
 }
 
 interface CexItem {
@@ -64,9 +71,14 @@ function mapGrade(grade?: string): 'excellent' | 'good' | 'fair' | null {
 // "Galaxy Tab S10 Lite"; plain "iPhone 15" must not match "15 Pro"/"15 Max").
 const VARIANT_WORDS = ['pro', 'plus', 'max', 'ultra', 'lite', 'fe', 'mini', 'se', 'neo']
 function variantWordsIn(text: string): Set<string> {
-  // Normalise the "+" plus-tier symbol to the word (e.g. "S10+" → "s10 plus ")
-  // so the word-boundary check catches it. Applied symmetrically to title + name.
-  const normalised = (text || '').replace(/\+/g, ' plus ')
+  // FIX 1: strip RAM+storage notation ("8GB+256GB", "12GB + 256GB") BEFORE the
+  // +→plus normalisation, so a memory "+" is never read as a "plus" tier word
+  // (which was wrongly rejecting Motorola Edge 50 Pro / Nothing 3a / OnePlus 13 /
+  // Galaxy A55). Genuine model "+" (e.g. "S25+ 256GB", where + follows a model
+  // token and is NOT flanked by GB) is preserved and still normalises to "plus".
+  const deSpec = (text || '').replace(/\d+\s*GB\s*\+\s*\d+\s*(?:GB|TB)/gi, ' ')
+  // Normalise the "+" plus-tier symbol to the word (e.g. "S10+" → "s10 plus ").
+  const normalised = deSpec.replace(/\+/g, ' plus ')
   const found = new Set<string>()
   for (const w of VARIANT_WORDS) {
     if (new RegExp(`\\b${w}\\b`, 'i').test(normalised)) found.add(w)
@@ -85,6 +97,16 @@ function passesVariantGuard(title: string, name: string): boolean {
   return true
 }
 
+// FIX 3 (fallback only): a storage-stripped search term, used ONLY as a retry
+// when the full-name search returns no candidate. Surfaces genuine handsets that
+// the full-name query buries under accessories (e.g. iPhone SE 3rd Gen) WITHOUT
+// perturbing products whose full-name search already returns the right unit — a
+// blanket cleaned search regressed working phones (lost cheapest grade) and even
+// matched "iPhone 16e" to "iPhone 16", so it is gated behind the zero-result case.
+function cexSearchTerm(name: string): string {
+  return name.replace(/\b\d+\s*(?:GB|TB)\b/gi, '').replace(/\s+/g, ' ').trim()
+}
+
 async function fetchCexItems(searchInput: string): Promise<CexItem[]> {
   const url = `https://api.apify.com/v2/acts/${APIFY_ACTOR}/run-sync-get-dataset-items?token=${process.env.APIFY_TOKEN}`
   const res = await fetch(url, {
@@ -95,6 +117,17 @@ async function fetchCexItems(searchInput: string): Promise<CexItem[]> {
   if (!res.ok) throw new Error(`Apify ${res.status}: ${(await res.text()).slice(0, 200)}`)
   const data = await res.json()
   return Array.isArray(data) ? (data as CexItem[]) : []
+}
+
+// All gates + exclusions in one place (used by the primary search and the fallback).
+function selectCandidates(items: CexItem[], name: string): CexItem[] {
+  return items.filter(it =>
+    !isExcluded(it) &&
+    typeof it.sellPrice === 'number' && it.sellPrice > 0 &&
+    titleMatchesModelTokens(it.title || '', name) &&
+    nameTokenGate(it.title || '', name) &&
+    passesVariantGuard(it.title || '', name)
+  )
 }
 
 export async function GET(request: NextRequest) {
@@ -141,14 +174,24 @@ export async function GET(request: NextRequest) {
     for (const product of scoped) {
       processedIds.push(product.id)
       try {
-        const items = await fetchCexItems(product.name)
-        const candidates = items.filter(it =>
-          !isExcluded(it) &&
-          typeof it.sellPrice === 'number' && it.sellPrice > 0 &&
-          titleMatchesModelTokens(it.title || '', product.name) &&
-          nameTokenGate(it.title || '', product.name) &&
-          passesVariantGuard(it.title || '', product.name)
-        )
+        // Primary: full-name search (unchanged — keeps working phones stable).
+        let items = await fetchCexItems(product.name)
+        let candidates = selectCandidates(items, product.name)
+
+        // FIX 3 fallback: only when the full-name search surfaced nothing, retry
+        // with the storage-stripped query (recovers buried handsets like the
+        // iPhone SE 3rd Gen) — the variant/digit gates still enforce precision.
+        if (candidates.length === 0) {
+          const alt = cexSearchTerm(product.name)
+          if (alt && alt !== product.name) {
+            const altItems = await fetchCexItems(alt)
+            const altCandidates = selectCandidates(altItems, product.name)
+            if (altCandidates.length > 0) {
+              items = altItems
+              candidates = altCandidates
+            }
+          }
+        }
 
         if (candidates.length === 0) {
           skipped.push({
