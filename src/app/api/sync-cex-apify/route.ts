@@ -76,7 +76,13 @@ function variantWordsIn(text: string): Set<string> {
   // (which was wrongly rejecting Motorola Edge 50 Pro / Nothing 3a / OnePlus 13 /
   // Galaxy A55). Genuine model "+" (e.g. "S25+ 256GB", where + follows a model
   // token and is NOT flanked by GB) is preserved and still normalises to "plus".
-  const deSpec = (text || '').replace(/\d+\s*GB\s*\+\s*\d+\s*(?:GB|TB)/gi, ' ')
+  const deSpec = (text || '')
+    .replace(/\d+\s*GB\s*\+\s*\d+\s*(?:GB|TB)/gi, ' ')
+    // FIX B: drop Intel "Core Ultra 5/7/9" CPU strings so the CPU name doesn't trip
+    // the 'ultra' tier word (was wrongly rejecting Dell XPS 13 9340 / Surface Pro 11).
+    // A genuine tier "Ultra" (phone "S25 Ultra", tablet "Tab S10 Ultra 5G") is never
+    // followed by a bare 5/7/9, so it is preserved — phones/tablets are unaffected.
+    .replace(/\bultra\s*[579]\b/gi, ' ')
   // Normalise the "+" plus-tier symbol to the word (e.g. "S10+" → "s10 plus ").
   const normalised = deSpec.replace(/\+/g, ' plus ')
   const found = new Set<string>()
@@ -132,15 +138,30 @@ function hasNonPhoneClassToken(title: string): boolean {
     .some(tok => NON_PHONE_CLASS_TOKENS.has(tok))
 }
 
+// FIX A (laptop screen-size guard): the bare digit-token matcher lets an Apple
+// model code like "15,13" satisfy a "13"/"15" size token, so a 15" Mac matches a
+// 13" product (and vice-versa) — the only collision class that writes WRONG prices.
+// Require the title's EXPLICIT inch marker (NN") to equal the product's screen size
+// (specs.display_inches floored to the integer inch class CEX labels with, e.g.
+// 13.6→13, 15.3→15). The "NN,NN" model code has no '"' so it never counts. A title
+// with no inch marker is unverifiable → not rejected here (other gates still apply).
+function laptopScreenMatches(title: string, displayInches: number): boolean {
+  const expected = Math.floor(displayInches)
+  const titleSizes = [...(title || '').matchAll(/(\d+)(?:\.\d+)?"/g)].map(m => parseInt(m[1], 10))
+  if (titleSizes.length === 0) return true
+  return titleSizes.includes(expected)
+}
+
 // All gates + exclusions in one place (used by the primary search and the fallback).
-function selectCandidates(items: CexItem[], name: string, category: string): CexItem[] {
+function selectCandidates(items: CexItem[], name: string, category: string, screenInches?: number): CexItem[] {
   return items.filter(it =>
     !isExcluded(it) &&
     typeof it.sellPrice === 'number' && it.sellPrice > 0 &&
     titleMatchesModelTokens(it.title || '', name) &&
     nameTokenGate(it.title || '', name) &&
     passesVariantGuard(it.title || '', name) &&
-    !(category === 'phone' && hasNonPhoneClassToken(it.title || ''))
+    !(category === 'phone' && hasNonPhoneClassToken(it.title || '')) &&
+    !(category === 'laptop' && typeof screenInches === 'number' && !laptopScreenMatches(it.title || '', screenInches))
   )
 }
 
@@ -158,7 +179,7 @@ export async function GET(request: NextRequest) {
   try {
     let query = supabase
       .from('products')
-      .select('id, name, slug, category')
+      .select('id, name, slug, category, specs')
       .order('brand', { ascending: true })
 
     if (slugsParam) {
@@ -189,8 +210,9 @@ export async function GET(request: NextRequest) {
       processedIds.push(product.id)
       try {
         // Primary: full-name search (unchanged — keeps working phones stable).
+        const screenInches = (product.specs as { display_inches?: number } | null)?.display_inches
         let items = await fetchCexItems(product.name)
-        let candidates = selectCandidates(items, product.name, product.category)
+        let candidates = selectCandidates(items, product.name, product.category, screenInches)
 
         // FIX 3 fallback: only when the full-name search surfaced nothing, retry
         // with the storage-stripped query (recovers buried handsets like the
@@ -199,7 +221,7 @@ export async function GET(request: NextRequest) {
           const alt = cexSearchTerm(product.name)
           if (alt && alt !== product.name) {
             const altItems = await fetchCexItems(alt)
-            const altCandidates = selectCandidates(altItems, product.name, product.category)
+            const altCandidates = selectCandidates(altItems, product.name, product.category, screenInches)
             if (altCandidates.length > 0) {
               items = altItems
               candidates = altCandidates
