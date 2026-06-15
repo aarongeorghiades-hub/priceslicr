@@ -108,12 +108,16 @@ jobs:
           fi
 
       # Headphones (Session 17): FIX H1 accessory/case-only exclusion + H2 compound-
-      # name space-insensitive match. All 12 slugs (incl. the 3 currently NO-STOCK,
-      # kept so they auto-populate when stock appears) = the <=12 chunk limit.
+      # name space-insensitive match. apple-airpods-pro-2nd-gen is HELD BACK: CEX
+      # returns only "MagSafe Case Only" listings for it and the case TITLE varies
+      # between runs (a variant without "Case Only"/"No Airpods" slipped H1 and wrote
+      # a £40 case price), so it waits for a hardened accessory guard. The other 2
+      # NO-STOCK (QC Earbuds II / QC Ultra Headphones) are kept (form-factor tokens
+      # protect them) so they auto-populate when stock appears. 11 slugs (<=12).
       - name: CEX chunk 6 — headphones (soft — warn only)
         if: ${{ always() }}
         run: |
-          SLUGS="apple-airpods-max-usbc,apple-airpods-pro-2nd-gen,bang-olufsen-beoplay-h95,bose-quietcomfort-45,bose-quietcomfort-earbuds-ii,bose-quietcomfort-ultra-headphones,jabra-evolve2-85,samsung-galaxy-buds3-pro,sennheiser-momentum-4-wireless,sonos-ace,sony-wh-1000xm4,sony-wh-1000xm5"
+          SLUGS="apple-airpods-max-usbc,bang-olufsen-beoplay-h95,bose-quietcomfort-45,bose-quietcomfort-earbuds-ii,bose-quietcomfort-ultra-headphones,jabra-evolve2-85,samsung-galaxy-buds3-pro,sennheiser-momentum-4-wireless,sonos-ace,sony-wh-1000xm4,sony-wh-1000xm5"
           echo "Calling CEX sync (headphones)..."
           HTTP=$(curl -s -o /tmp/cex6.json -w "%{http_code}" --max-time 120 \
             "https://www.priceslicr.com/api/sync-cex-apify?secret=priceslicr-sync-2026&slugs=$SLUGS")
