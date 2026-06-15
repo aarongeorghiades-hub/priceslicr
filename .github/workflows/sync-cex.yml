@@ -1,6 +1,6 @@
 name: Sync CEX
 
-# CEX used-price refresh (PHONES + TABLETS + LAPTOPS) via the Apify actor route.
+# CEX used-price refresh (PHONES + TABLETS + LAPTOPS + HEADPHONES) via the Apify route.
 # Laptops added in Step-5 Pass-2 (screen-size guard + Core-Ultra strip); the full
 # laptop set is now covered including acer-swift-go-14 (FIX C 'sfg' Swift-Go guard
 # live). All other categories remain excluded.
@@ -105,4 +105,23 @@ jobs:
             echo "::warning::CEX laptops-B chunk failed (HTTP $HTTP) — non-critical, continuing"
           else
             echo "CEX laptops-B OK"
+          fi
+
+      # Headphones (Session 17): FIX H1 accessory/case-only exclusion + H2 compound-
+      # name space-insensitive match. All 12 slugs (incl. the 3 currently NO-STOCK,
+      # kept so they auto-populate when stock appears) = the <=12 chunk limit.
+      - name: CEX chunk 6 — headphones (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="apple-airpods-max-usbc,apple-airpods-pro-2nd-gen,bang-olufsen-beoplay-h95,bose-quietcomfort-45,bose-quietcomfort-earbuds-ii,bose-quietcomfort-ultra-headphones,jabra-evolve2-85,samsung-galaxy-buds3-pro,sennheiser-momentum-4-wireless,sonos-ace,sony-wh-1000xm4,sony-wh-1000xm5"
+          echo "Calling CEX sync (headphones)..."
+          HTTP=$(curl -s -o /tmp/cex6.json -w "%{http_code}" --max-time 120 \
+            "https://www.priceslicr.com/api/sync-cex-apify?secret=priceslicr-sync-2026&slugs=$SLUGS")
+          BODY=$(cat /tmp/cex6.json 2>/dev/null)
+          echo "HTTP status: $HTTP"
+          echo "Response: $BODY"
+          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
+            echo "::warning::CEX headphones chunk failed (HTTP $HTTP) — non-critical, continuing"
+          else
+            echo "CEX headphones OK"
           fi
