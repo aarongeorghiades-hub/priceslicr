@@ -78,6 +78,20 @@ function isAccessoryOnly(title: string): boolean {
   return false
 }
 
+// FIX H3: stable-boxId accessory reject — title-variance-proof complement to H1.
+// CEX boxIds carry a category prefix; accessory listings sit under "SMPA" (phone
+// accessories) and/or encode the item type in the SKU (MSC=MagSafe Case, CASE, …).
+// Genuine audio/device boxes are SHEA-prefixed or numeric EAN — none use SMPA or
+// these substrings. Keying off the boxId (stable across title variance) is what H1's
+// title phrases could not do (a case slipped H1 and wrote a £40 AirPods Pro price).
+const ACCESSORY_BOX_SUBSTRINGS = ['MSC', 'CASE', 'COVER', 'CUSHION', 'EARPAD', 'EARTIP']
+function isAccessoryBox(item: CexItem): boolean {
+  const box = (item.boxId || (item.productUrl || '').split('/').pop() || '').toUpperCase()
+  if (!box) return false
+  if (box.startsWith('SMPA')) return true
+  return ACCESSORY_BOX_SUBSTRINGS.some(s => box.includes(s))
+}
+
 // Map CEX letter grade → the DB condition_grade enum (excellent|good|fair|null).
 // CEX has no tier matching 'very_good'. Grade F is already excluded upstream.
 function mapGrade(grade?: string): 'excellent' | 'good' | 'fair' | null {
@@ -196,6 +210,7 @@ function selectCandidates(items: CexItem[], name: string, category: string, scre
   return items.filter(it =>
     !isExcluded(it) &&
     !isAccessoryOnly(it.title || '') &&
+    !isAccessoryBox(it) &&
     typeof it.sellPrice === 'number' && it.sellPrice > 0 &&
     titleMatchesModelTokens(it.title || '', name) &&
     nameTokenGate(it.title || '', name) &&
