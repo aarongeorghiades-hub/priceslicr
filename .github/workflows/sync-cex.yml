@@ -3,10 +3,11 @@ name: Sync CEX
 # CEX used-price refresh (PHONES + TABLETS ONLY) via the Apify actor route.
 # Scoped by explicit ?slugs= lists in <=12-product chunks so every HTTP request
 # stays comfortably under Cloudflare's ~100s origin limit (proven Session-15
-# pattern). Foldables (z-flip/z-fold/pro-fold) and all other categories are
-# DELIBERATELY excluded — their CEX titles still mis-match and would write wrong
-# prices (deferred to the Step-5 title-format pass). New non-foldable phone/
-# tablet products must be added to the slug lists below to gain CEX coverage.
+# pattern). Foldables (z-flip/z-fold/pro-fold) are now INCLUDED — the Step-5
+# Pass-1 matcher fixes (RAM+storage "+" strip, name-token concatenation split,
+# phone-only device-class guard) match them correctly. Laptops + all other
+# categories remain excluded (they need the separate screen-size-guard pass).
+# New phone/tablet products must be added to the slug lists below for coverage.
 #
 # Non-critical coverage: every chunk soft-warns on failure and the job stays
 # green (never hard-fails). Schedule is offset from the eBay 00/06/12/18 cron.
@@ -35,18 +36,18 @@ jobs:
             echo "CEX phones-A OK"
           fi
 
-      - name: CEX chunk 2 — phones B (soft — warn only)
+      - name: CEX chunk 2 — phones B + foldables (soft — warn only)
         if: ${{ always() }}
         run: |
-          SLUGS="nothing-phone-3a-128gb,oneplus-13-256gb,samsung-galaxy-a55-128gb,samsung-galaxy-s24-128gb,samsung-galaxy-s25-128gb,samsung-galaxy-s25-plus-256gb"
-          echo "Calling CEX sync (phones B)..."
+          SLUGS="nothing-phone-3a-128gb,oneplus-13-256gb,samsung-galaxy-a55-128gb,samsung-galaxy-s24-128gb,samsung-galaxy-s25-128gb,samsung-galaxy-s25-plus-256gb,google-pixel-9-pro-fold-256gb,samsung-galaxy-z-flip-4-128gb,samsung-galaxy-z-flip-5-256gb,samsung-galaxy-z-flip-6-256gb,samsung-galaxy-z-fold-5-256gb,samsung-galaxy-z-fold-6-256gb"
+          echo "Calling CEX sync (phones B + foldables)..."
           HTTP=$(curl -s -o /tmp/cex2.json -w "%{http_code}" --max-time 120 \
             "https://www.priceslicr.com/api/sync-cex-apify?secret=priceslicr-sync-2026&slugs=$SLUGS")
           BODY=$(cat /tmp/cex2.json 2>/dev/null)
           echo "HTTP status: $HTTP"
           echo "Response: $BODY"
           if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
-            echo "::warning::CEX phones-B chunk failed (HTTP $HTTP) — non-critical, continuing"
+            echo "::warning::CEX phones-B+foldables chunk failed (HTTP $HTTP) — non-critical, continuing"
           else
             echo "CEX phones-B OK"
           fi
