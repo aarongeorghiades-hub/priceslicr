@@ -23,20 +23,8 @@ jobs:
           fi
           echo "eBay sync OK"
 
-      - name: Trigger CEX sync (soft — warn only, known Cloudflare-blocked)
-        if: ${{ always() }}
-        run: |
-          echo "Calling CEX sync..."
-          HTTP=$(curl -s -o /tmp/cex.json -w "%{http_code}" --max-time 240 \
-            "https://www.priceslicr.com/api/sync-cex?secret=priceslicr-sync-2026")
-          BODY=$(cat /tmp/cex.json 2>/dev/null)
-          echo "HTTP status: $HTTP"
-          echo "Response: $BODY"
-          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
-            echo "::warning::CEX sync failed (known: Cloudflare-blocked) — HTTP $HTTP"
-          else
-            echo "CEX sync OK"
-          fi
+      # CEX now runs in its own daily workflow (sync-cex.yml) via the Apify
+      # route; the legacy /api/sync-cex route was retired. Step removed here.
 
       - name: Trigger Back Market sync (soft — warn only, known expired trial)
         if: ${{ always() }}
