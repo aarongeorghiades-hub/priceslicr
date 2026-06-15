@@ -1,6 +1,9 @@
 name: Sync CEX
 
-# CEX used-price refresh (PHONES + TABLETS ONLY) via the Apify actor route.
+# CEX used-price refresh (PHONES + TABLETS + LAPTOPS) via the Apify actor route.
+# Laptops added in Step-5 Pass-2 (screen-size guard + Core-Ultra strip); only
+# acer-swift-go-14 is held back (no Swift-Go guard yet — FIX C). All other
+# categories remain excluded.
 # Scoped by explicit ?slugs= lists in <=12-product chunks so every HTTP request
 # stays comfortably under Cloudflare's ~100s origin limit (proven Session-15
 # pattern). Foldables (z-flip/z-fold/pro-fold) are now INCLUDED — the Step-5
@@ -66,4 +69,41 @@ jobs:
             echo "::warning::CEX tablets chunk failed (HTTP $HTTP) — non-critical, continuing"
           else
             echo "CEX tablets OK"
+          fi
+
+      # Laptops (Step-5 Pass-2): screen-size guard (FIX A) + Core-Ultra CPU strip
+      # (FIX B) match them safely. acer-swift-go-14 is DELIBERATELY excluded — it
+      # has no Swift-Go-distinguishing guard yet (CEX writes "SFG14", never "Go"),
+      # so an unattended cron could write a cheaper non-Go Swift 14 as its price;
+      # it ships once FIX C guards it. NO-STOCK laptops are kept so they auto-populate.
+      - name: CEX chunk 4 — laptops A (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="asus-zenbook-14-oled,dell-xps-13-9340,dell-xps-15-9530,framework-laptop-13-amd,hp-envy-x360-15,hp-spectre-x360-14,huawei-matebook-x-pro,lenovo-ideapad-5-pro-16,lenovo-thinkpad-x1-carbon-gen-12,lg-gram-16,macbook-air-13-m2-8gb-256gb,macbook-air-13-m3-8gb-256gb"
+          echo "Calling CEX sync (laptops A)..."
+          HTTP=$(curl -s -o /tmp/cex4.json -w "%{http_code}" --max-time 120 \
+            "https://www.priceslicr.com/api/sync-cex-apify?secret=priceslicr-sync-2026&slugs=$SLUGS")
+          BODY=$(cat /tmp/cex4.json 2>/dev/null)
+          echo "HTTP status: $HTTP"
+          echo "Response: $BODY"
+          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
+            echo "::warning::CEX laptops-A chunk failed (HTTP $HTTP) — non-critical, continuing"
+          else
+            echo "CEX laptops-A OK"
+          fi
+
+      - name: CEX chunk 5 — laptops B (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="macbook-air-13-m3-8gb-512gb,macbook-air-15-m3,macbook-pro-14-m3,microsoft-surface-laptop-6-13,microsoft-surface-pro-11,razer-blade-14,samsung-galaxy-book4-pro-14"
+          echo "Calling CEX sync (laptops B)..."
+          HTTP=$(curl -s -o /tmp/cex5.json -w "%{http_code}" --max-time 120 \
+            "https://www.priceslicr.com/api/sync-cex-apify?secret=priceslicr-sync-2026&slugs=$SLUGS")
+          BODY=$(cat /tmp/cex5.json 2>/dev/null)
+          echo "HTTP status: $HTTP"
+          echo "Response: $BODY"
+          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
+            echo "::warning::CEX laptops-B chunk failed (HTTP $HTTP) — non-critical, continuing"
+          else
+            echo "CEX laptops-B OK"
           fi
