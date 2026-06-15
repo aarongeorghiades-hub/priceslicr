@@ -33,7 +33,12 @@ function nameTokenGate(title: string, name: string): boolean {
   const splitTitle = (title || '')
     .replace(/([A-Za-z])(\d)/g, '$1 $2')
     .replace(/(\d)([A-Za-z])/g, '$1 $2')
-  return tokens.every(tok => new RegExp(`\\b${tok}\\b`, 'i').test(splitTitle))
+  // FIX H2: also test against a non-alphanumeric-stripped title so a compound model
+  // word ("quietcomfort") matches CEX's spaced form ("Quiet Comfort"). ADDITIVE — a
+  // token passes via word-boundary on the split title OR substring on the stripped
+  // title; it can never remove an existing match.
+  const stripped = (title || '').toLowerCase().replace(/[^a-z0-9]/g, '')
+  return tokens.every(tok => new RegExp(`\\b${tok}\\b`, 'i').test(splitTitle) || stripped.includes(tok))
 }
 
 interface CexItem {
@@ -52,6 +57,24 @@ function isExcluded(item: CexItem): boolean {
   if (title.includes('non working') || title.includes('non-working')) return true
   if (title.includes('qwertz') || title.includes('azerty')) return true
   if (item.in_stock !== true) return true
+  return false
+}
+
+// FIX H1: reject candidates that ARE the accessory (charging case, ear pads, cover,
+// tips, etc.). Most headphones carry no digit token, so accessory-only listings pass
+// the model/name/variant gates and, being cheapest, get chosen (e.g. AirPods Pro
+// "MagSafe Case Only (No Airpods)" £40). This rejects the listing only when it IS the
+// accessory — it does NOT reject a genuine unit that merely INCLUDES one ("(Hard
+// Case)", "w/Dongle", "w/Stand"). Tuned against the real recon titles.
+function isAccessoryOnly(title: string): boolean {
+  const t = (title || '').toLowerCase()
+  if (/\bcase only\b/.test(t)) return true
+  if (/\bno (airpods|earbuds)\b/.test(t)) return true
+  if (/\bbody only\b/.test(t)) return true
+  if (/\bempty\b/.test(t)) return true
+  if (/\breplacement\b/.test(t)) return true
+  // an accessory noun as the listing's subject: "<accessory> for …" / "<accessory> only"
+  if (/\b(case|cover|cushion|cushions|ear ?pads?|ear ?tips?|tips|strap|pouch|sleeve)\s+(for|only)\b/.test(t)) return true
   return false
 }
 
@@ -172,6 +195,7 @@ function passesPerProductRequirements(title: string, slug: string): boolean {
 function selectCandidates(items: CexItem[], name: string, category: string, screenInches?: number, slug?: string): CexItem[] {
   return items.filter(it =>
     !isExcluded(it) &&
+    !isAccessoryOnly(it.title || '') &&
     typeof it.sellPrice === 'number' && it.sellPrice > 0 &&
     titleMatchesModelTokens(it.title || '', name) &&
     nameTokenGate(it.title || '', name) &&
