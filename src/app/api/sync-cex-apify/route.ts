@@ -152,8 +152,24 @@ function laptopScreenMatches(title: string, displayInches: number): boolean {
   return titleSizes.includes(expected)
 }
 
+// FIX C — per-product required title substrings (case-insensitive), applied ON TOP
+// of all other gates for that slug ONLY. CEX never writes the word "Go" for the
+// Acer Swift Go — it writes the model-code prefix "SFG" (SFG14-xx / SFG16-xx);
+// other Swift lines are SF114 / SF314 / SF514 / SFX14 (no "SFG"). Requiring "sfg"
+// means only a genuine Swift Go matches; the 14" screen guard pins it to the 14"
+// model. Absent slug / empty list = current behaviour exactly (no other product changes).
+const PER_PRODUCT_TITLE_REQUIREMENTS: Record<string, string[]> = {
+  'acer-swift-go-14': ['sfg'],
+}
+function passesPerProductRequirements(title: string, slug: string): boolean {
+  const reqs = PER_PRODUCT_TITLE_REQUIREMENTS[slug]
+  if (!reqs || reqs.length === 0) return true
+  const t = (title || '').toLowerCase()
+  return reqs.every(r => t.includes(r.toLowerCase()))
+}
+
 // All gates + exclusions in one place (used by the primary search and the fallback).
-function selectCandidates(items: CexItem[], name: string, category: string, screenInches?: number): CexItem[] {
+function selectCandidates(items: CexItem[], name: string, category: string, screenInches?: number, slug?: string): CexItem[] {
   return items.filter(it =>
     !isExcluded(it) &&
     typeof it.sellPrice === 'number' && it.sellPrice > 0 &&
@@ -161,7 +177,8 @@ function selectCandidates(items: CexItem[], name: string, category: string, scre
     nameTokenGate(it.title || '', name) &&
     passesVariantGuard(it.title || '', name) &&
     !(category === 'phone' && hasNonPhoneClassToken(it.title || '')) &&
-    !(category === 'laptop' && typeof screenInches === 'number' && !laptopScreenMatches(it.title || '', screenInches))
+    !(category === 'laptop' && typeof screenInches === 'number' && !laptopScreenMatches(it.title || '', screenInches)) &&
+    passesPerProductRequirements(it.title || '', slug || '')
   )
 }
 
@@ -212,7 +229,7 @@ export async function GET(request: NextRequest) {
         // Primary: full-name search (unchanged — keeps working phones stable).
         const screenInches = (product.specs as { display_inches?: number } | null)?.display_inches
         let items = await fetchCexItems(product.name)
-        let candidates = selectCandidates(items, product.name, product.category, screenInches)
+        let candidates = selectCandidates(items, product.name, product.category, screenInches, product.slug)
 
         // FIX 3 fallback: only when the full-name search surfaced nothing, retry
         // with the storage-stripped query (recovers buried handsets like the
@@ -221,7 +238,7 @@ export async function GET(request: NextRequest) {
           const alt = cexSearchTerm(product.name)
           if (alt && alt !== product.name) {
             const altItems = await fetchCexItems(alt)
-            const altCandidates = selectCandidates(altItems, product.name, product.category, screenInches)
+            const altCandidates = selectCandidates(altItems, product.name, product.category, screenInches, product.slug)
             if (altCandidates.length > 0) {
               items = altItems
               candidates = altCandidates
