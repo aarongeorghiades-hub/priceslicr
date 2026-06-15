@@ -119,14 +119,28 @@ async function fetchCexItems(searchInput: string): Promise<CexItem[]> {
   return Array.isArray(data) ? (data as CexItem[]) : []
 }
 
+// Device-class guard (PHONE products only): a phone's model number can satisfy a
+// different device's screen-size token (e.g. "OnePlus 13" matching "OnePlus Pad 3
+// 13\""). Reject a candidate whose title carries a non-phone device-class word.
+// Scoped to category 'phone' so iPad / Galaxy Tab / MacBook products are untouched.
+const NON_PHONE_CLASS_TOKENS = new Set([
+  'tab', 'pad', 'tablet', 'watch', 'book', 'notebook', 'macbook', 'laptop',
+  'buds', 'earbuds', 'pen', 'stylus',
+])
+function hasNonPhoneClassToken(title: string): boolean {
+  return (title || '').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)
+    .some(tok => NON_PHONE_CLASS_TOKENS.has(tok))
+}
+
 // All gates + exclusions in one place (used by the primary search and the fallback).
-function selectCandidates(items: CexItem[], name: string): CexItem[] {
+function selectCandidates(items: CexItem[], name: string, category: string): CexItem[] {
   return items.filter(it =>
     !isExcluded(it) &&
     typeof it.sellPrice === 'number' && it.sellPrice > 0 &&
     titleMatchesModelTokens(it.title || '', name) &&
     nameTokenGate(it.title || '', name) &&
-    passesVariantGuard(it.title || '', name)
+    passesVariantGuard(it.title || '', name) &&
+    !(category === 'phone' && hasNonPhoneClassToken(it.title || ''))
   )
 }
 
@@ -176,7 +190,7 @@ export async function GET(request: NextRequest) {
       try {
         // Primary: full-name search (unchanged — keeps working phones stable).
         let items = await fetchCexItems(product.name)
-        let candidates = selectCandidates(items, product.name)
+        let candidates = selectCandidates(items, product.name, product.category)
 
         // FIX 3 fallback: only when the full-name search surfaced nothing, retry
         // with the storage-stripped query (recovers buried handsets like the
@@ -185,7 +199,7 @@ export async function GET(request: NextRequest) {
           const alt = cexSearchTerm(product.name)
           if (alt && alt !== product.name) {
             const altItems = await fetchCexItems(alt)
-            const altCandidates = selectCandidates(altItems, product.name)
+            const altCandidates = selectCandidates(altItems, product.name, product.category)
             if (altCandidates.length > 0) {
               items = altItems
               candidates = altCandidates
