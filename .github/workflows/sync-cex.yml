@@ -153,3 +153,27 @@ jobs:
           else
             echo "CEX smartwatches OK"
           fi
+
+      # Monitors (Session 19): model-code token gate pins size+series precisely
+      # (0 would-be-WRONG in recon). One CEX-local matcher fix only — the 'ultra'
+      # variant word is neutralized for category 'monitor' (titles are full of
+      # standalone "Ultra HD" which would wrongly reject genuine monitors on recall;
+      # 'neo' kept to reject "Odyssey Neo G7"). Monitor accessories already fall under
+      # the SACC prefix (deployed boxId guard), disjoint from bodies {SMON, SLED}, so
+      # no accessory-guard code was needed. NO-STOCK monitors are kept so they
+      # auto-populate when stock appears. 10 slugs (<=12).
+      - name: CEX chunk 8 — monitors (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="alienware-aw3423dwf-34-oled,asus-proart-pa279crv-27-4k,benq-pd3220u-32-4k,dell-s3222dgm-32-curved-gaming,dell-u2723qe-27-4k-usbc,lg-27gp850p-b-27-gaming,lg-27uk850-w-27-4k,lg-45gr95qe-45-oled-gaming,samsung-odyssey-g7-32-curved,samsung-viewfinity-s9-27-5k"
+          echo "Calling CEX sync (monitors)..."
+          HTTP=$(curl -s -o /tmp/cex8.json -w "%{http_code}" --max-time 120 \
+            "https://www.priceslicr.com/api/sync-cex-apify?secret=priceslicr-sync-2026&slugs=$SLUGS")
+          BODY=$(cat /tmp/cex8.json 2>/dev/null)
+          echo "HTTP status: $HTTP"
+          echo "Response: $BODY"
+          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
+            echo "::warning::CEX monitors chunk failed (HTTP $HTTP) — non-critical, continuing"
+          else
+            echo "CEX monitors OK"
+          fi
