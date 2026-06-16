@@ -22,9 +22,19 @@ const CATEGORY_PARAM: Record<string, string> = {
 // rejects every MacBook. Instead require the product NAME's own alphabetic
 // word tokens (≥3 chars, minus a spec stop-list) to appear in the title.
 const NAME_TOKEN_STOPLIST = new Set(['inch', 'wifi', 'gen', 'cellular', 'unlocked', 'ram', 'ssd'])
-function nameTokenGate(title: string, name: string): boolean {
+// FIX 1 (smartwatch only): CEX omits "Apple" from watch-body titles — it writes
+// "Watch Series 10 / Watch SE / Watch Ultra 2", never "Apple Watch ...". So for
+// category 'smartwatch' we add 'apple' to the ignored stop-list, mirroring the
+// MacBook case. The remaining name tokens (watch + se/series/ultra + the size
+// digit, enforced by titleMatchesModelTokens + the size guard) still uniquely
+// identify the genuine Apple watch. Non-Apple watch names contain no "apple", so
+// this is a no-op for them — and it is scoped to smartwatch, so no other category
+// changes. The strap hole this opens is closed by FIX 4 (SAWS/SACC boxId guard).
+const SMARTWATCH_NAME_TOKEN_STOPLIST = new Set([...NAME_TOKEN_STOPLIST, 'apple'])
+function nameTokenGate(title: string, name: string, category?: string): boolean {
+  const stoplist = category === 'smartwatch' ? SMARTWATCH_NAME_TOKEN_STOPLIST : NAME_TOKEN_STOPLIST
   const tokens = (name.toLowerCase().match(/[a-z]+/g) ?? [])
-    .filter(t => t.length >= 3 && !NAME_TOKEN_STOPLIST.has(t))
+    .filter(t => t.length >= 3 && !stoplist.has(t))
   if (tokens.length === 0) return true // nothing to gate on → rely on digit-token matcher
   // FIX 2: split letter↔digit transitions in the TITLE only ("Flip5"→"Flip 5",
   // "Book4"→"Book 4") so concatenated model words still satisfy \bword\b. This
@@ -85,10 +95,18 @@ function isAccessoryOnly(title: string): boolean {
 // these substrings. Keying off the boxId (stable across title variance) is what H1's
 // title phrases could not do (a case slipped H1 and wrote a £40 AirPods Pro price).
 const ACCESSORY_BOX_SUBSTRINGS = ['MSC', 'CASE', 'COVER', 'CUSHION', 'EARPAD', 'EARTIP']
+// FIX 4 (smartwatch straps/bands/chargers): CEX puts watch accessories under two
+// stable prefixes — SAWS (Apple straps/bands: Sport/Ocean/Milanese/Nike) and SACC
+// (the generic accessory prefix: Samsung/Google/Garmin bands, Apple Sport Loop,
+// chargers, SACC cases). Recon Q5 proved both are DISJOINT from every genuine
+// watch-body boxId (Apple SAWAT…, Samsung SWAT…, Google SWEA…, Garmin/Fitbit numeric):
+// note SAWAT vs SAWS differ at char 4, so startsWith('SAWS') can't hit a body. Prefixes,
+// not substrings — SAWS boxes abbreviate ("SAWSSPB…", no literal "BAND"). Global, like SMPA.
+const ACCESSORY_BOX_PREFIXES = ['SMPA', 'SAWS', 'SACC']
 function isAccessoryBox(item: CexItem): boolean {
   const box = (item.boxId || (item.productUrl || '').split('/').pop() || '').toUpperCase()
   if (!box) return false
-  if (box.startsWith('SMPA')) return true
+  if (ACCESSORY_BOX_PREFIXES.some(p => box.startsWith(p))) return true
   return ACCESSORY_BOX_SUBSTRINGS.some(s => box.includes(s))
 }
 
@@ -120,6 +138,11 @@ function variantWordsIn(text: string): Set<string> {
     // A genuine tier "Ultra" (phone "S25 Ultra", tablet "Tab S10 Ultra 5G") is never
     // followed by a bare 5/7/9, so it is preserved — phones/tablets are unaffected.
     .replace(/\bultra\s*[579]\b/gi, ' ')
+    // FIX 2: drop a "+" that joins a connectivity/feature word ("Smartwatch+GPS",
+    // "Sense 2+Bluetooth", "+LTE", "+Solar") BEFORE the +→plus step, so connectivity
+    // never injects a spurious "plus" tier (was wrongly rejecting Fitbit Sense 2). A
+    // genuine "Plus" model is the word "plus", not "+<feature>", so it is unaffected.
+    .replace(/\+\s*(?:GPS|Bluetooth|BT|LTE|Cellular|Cell|Wi-?Fi|WiFi|NFC|Solar)\b/gi, ' ')
   // Normalise the "+" plus-tier symbol to the word (e.g. "S10+" → "s10 plus ").
   const normalised = deSpec.replace(/\+/g, ' plus ')
   const found = new Set<string>()
@@ -189,6 +212,24 @@ function laptopScreenMatches(title: string, displayInches: number): boolean {
   return titleSizes.includes(expected)
 }
 
+// FIX 3 (smartwatch size guard): analogous to FIX A. A watch's model number can
+// satisfy a different size's digit token (e.g. "Venu 3" matching "Venu 3S 41mm",
+// or — now that FIX 1 relaxes the Apple brand token — a 42mm Series 10 matching the
+// 46mm product). Require the title's EXPLICIT size marker (NNmm / "NN mm" / "(NN)")
+// to equal the product's spec mm (specs.screen). Parse ONLY dedicated size markers —
+// a bare digit elsewhere ("Series 10", "(SM-L310)", "(2024)") never counts. A title
+// with no explicit mm marker is unverifiable → not rejected (leniency on absence,
+// like FIX A's inch handling); other gates still apply.
+function watchSizeMatches(title: string, mm: number): boolean {
+  const t = title || ''
+  const sizes = [
+    ...[...t.matchAll(/(\d{2})\s*mm\b/gi)].map(m => parseInt(m[1], 10)),
+    ...[...t.matchAll(/\((\d{2})\)/g)].map(m => parseInt(m[1], 10)),
+  ]
+  if (sizes.length === 0) return true
+  return sizes.includes(mm)
+}
+
 // FIX C — per-product required title substrings (case-insensitive), applied ON TOP
 // of all other gates for that slug ONLY. CEX never writes the word "Go" for the
 // Acer Swift Go — it writes the model-code prefix "SFG" (SFG14-xx / SFG16-xx);
@@ -206,17 +247,18 @@ function passesPerProductRequirements(title: string, slug: string): boolean {
 }
 
 // All gates + exclusions in one place (used by the primary search and the fallback).
-function selectCandidates(items: CexItem[], name: string, category: string, screenInches?: number, slug?: string): CexItem[] {
+function selectCandidates(items: CexItem[], name: string, category: string, screenInches?: number, slug?: string, screenMm?: number): CexItem[] {
   return items.filter(it =>
     !isExcluded(it) &&
     !isAccessoryOnly(it.title || '') &&
     !isAccessoryBox(it) &&
     typeof it.sellPrice === 'number' && it.sellPrice > 0 &&
     titleMatchesModelTokens(it.title || '', name) &&
-    nameTokenGate(it.title || '', name) &&
+    nameTokenGate(it.title || '', name, category) &&
     passesVariantGuard(it.title || '', name) &&
     !(category === 'phone' && hasNonPhoneClassToken(it.title || '')) &&
     !(category === 'laptop' && typeof screenInches === 'number' && !laptopScreenMatches(it.title || '', screenInches)) &&
+    !(category === 'smartwatch' && typeof screenMm === 'number' && !watchSizeMatches(it.title || '', screenMm)) &&
     passesPerProductRequirements(it.title || '', slug || '')
   )
 }
@@ -267,8 +309,9 @@ export async function GET(request: NextRequest) {
       try {
         // Primary: full-name search (unchanged — keeps working phones stable).
         const screenInches = (product.specs as { display_inches?: number } | null)?.display_inches
+        const screenMm = (product.specs as { screen?: number } | null)?.screen
         let items = await fetchCexItems(product.name)
-        let candidates = selectCandidates(items, product.name, product.category, screenInches, product.slug)
+        let candidates = selectCandidates(items, product.name, product.category, screenInches, product.slug, screenMm)
 
         // FIX 3 fallback: only when the full-name search surfaced nothing, retry
         // with the storage-stripped query (recovers buried handsets like the
@@ -277,7 +320,7 @@ export async function GET(request: NextRequest) {
           const alt = cexSearchTerm(product.name)
           if (alt && alt !== product.name) {
             const altItems = await fetchCexItems(alt)
-            const altCandidates = selectCandidates(altItems, product.name, product.category, screenInches, product.slug)
+            const altCandidates = selectCandidates(altItems, product.name, product.category, screenInches, product.slug, screenMm)
             if (altCandidates.length > 0) {
               items = altItems
               candidates = altCandidates
