@@ -151,9 +151,21 @@ function variantWordsIn(text: string): Set<string> {
   }
   return found
 }
-function passesVariantGuard(title: string, name: string): boolean {
+function passesVariantGuard(title: string, name: string, category?: string): boolean {
   const titleVariants = variantWordsIn(title)
   const nameVariants = variantWordsIn(name)
+  // Monitor recall fix: monitor titles are saturated with standalone "Ultra HD"
+  // (and "UltraGear"/"UltraSharp" — those are single words and don't fire \bultra\b,
+  // but "Ultra HD" does), which would wrongly reject a genuine monitor whose NAME
+  // has no 'ultra'. No monitor product name carries 'ultra' as a tier word, so
+  // dropping it from BOTH sets for category 'monitor' cannot cause a wrong match —
+  // the model-code token gate (titleMatchesModelTokens) still pins the exact model.
+  // KEEP 'neo' (it correctly rejects "Odyssey Neo G7" from "Odyssey G7"). Strictly
+  // scoped to 'monitor' → a no-op for every other category.
+  if (category === 'monitor') {
+    titleVariants.delete('ultra')
+    nameVariants.delete('ultra')
+  }
   // Symmetric: the tier-word sets must be EQUAL. Reject if either side carries a
   // tier word the other lacks — so "S25+" never matches plain "S25" (either way).
   if (titleVariants.size !== nameVariants.size) return false
@@ -255,7 +267,7 @@ function selectCandidates(items: CexItem[], name: string, category: string, scre
     typeof it.sellPrice === 'number' && it.sellPrice > 0 &&
     titleMatchesModelTokens(it.title || '', name) &&
     nameTokenGate(it.title || '', name, category) &&
-    passesVariantGuard(it.title || '', name) &&
+    passesVariantGuard(it.title || '', name, category) &&
     !(category === 'phone' && hasNonPhoneClassToken(it.title || '')) &&
     !(category === 'laptop' && typeof screenInches === 'number' && !laptopScreenMatches(it.title || '', screenInches)) &&
     !(category === 'smartwatch' && typeof screenMm === 'number' && !watchSizeMatches(it.title || '', screenMm)) &&
