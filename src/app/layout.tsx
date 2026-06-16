@@ -39,21 +39,17 @@ export const metadata: Metadata = {
   },
 }
 
+// NB: no SearchAction. The site search is a client-side overlay that navigates
+// straight to product pages (components/search) — there is no crawlable
+// search-results URL that accepts a query param, so emitting a SearchAction would
+// point Google at a non-functional endpoint. Removed rather than fabricated.
 const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'PriceSlicr',
   url: 'https://www.priceslicr.com',
   description:
-    'UK laptop price comparison — slice through to every available saving: cashback, trade-in, price matching, student rates, and sale timing.',
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: {
-      '@type': 'EntryPoint',
-      urlTemplate: 'https://www.priceslicr.com/laptops?q={search_term_string}',
-    },
-    'query-input': 'required name=search_term_string',
-  },
+    'UK tech price comparison across phones, tablets, laptops, headphones, smartwatches, monitors and TVs — slice through to every available saving: cashback, trade-in, price matching, student rates, and sale timing.',
 }
 
 const organizationSchema = {
@@ -61,15 +57,22 @@ const organizationSchema = {
   '@type': 'Organization',
   name: 'PriceSlicr',
   url: 'https://www.priceslicr.com',
-  description: 'Independent UK laptop price comparison and savings intelligence.',
+  description:
+    'Independent UK tech price comparison and savings intelligence across phones, tablets, laptops, headphones, smartwatches, monitors and TVs.',
   foundingDate: '2026',
   areaServed: 'GB',
   knowsAbout: [
+    'phone price comparison',
+    'tablet price comparison',
     'laptop price comparison',
+    'headphone price comparison',
+    'smartwatch price comparison',
+    'monitor price comparison',
+    'TV price comparison',
     'cashback',
     'price matching',
     'electronics deals',
-    'refurbished laptops',
+    'refurbished tech',
   ],
 }
 

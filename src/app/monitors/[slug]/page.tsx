@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import ProductPage from '@/components/ProductPage'
 import { getProductBySlug, getProductSlugsForCategory } from '@/lib/product'
+import { pageMetadata } from '@/lib/seo'
 
 export async function generateStaticParams() {
   const slugs = await getProductSlugsForCategory('monitor')
@@ -15,18 +16,11 @@ export async function generateMetadata({
   const { slug } = await params
   const product = await getProductBySlug(slug)
   if (!product) return {}
-  return {
+  return pageMetadata({
     title: `${product.name} — Price Comparison UK`,
     description: `Compare ${product.name} prices across every UK retailer — new, refurbished, and used. Find every available saving: cashback, trade-in, student discounts, price matching, and sale timing. Updated daily.`,
-    openGraph: {
-      title: `${product.name} — Price Comparison`,
-      description: `Find the lowest price on ${product.name} across every UK retailer.`,
-      url: `/monitors/${slug}`,
-    },
-    alternates: {
-      canonical: `/monitors/${slug}`,
-    },
-  }
+    path: `/monitors/${slug}`,
+  })
 }
 
 export default async function MonitorProductPage({

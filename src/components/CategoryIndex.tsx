@@ -48,8 +48,54 @@ export default async function CategoryIndex({ category, title, singular, descrip
 
   const routePrefix = CATEGORY_ROUTES[category] ?? category + 's'
 
+  // Single source of truth for the card "from £X": defaultSegment() then cheapest
+  // in that segment, in-stock only (helpers exclude price_gbp = 0). The ItemList
+  // schema below and the rendered cards both call this — never two price paths.
+  const resolveFromPrice = (product: ProductWithListings): { seg: ReturnType<typeof defaultSegment>; fromPrice: number | null } => {
+    const inStockListings = (product.listings ?? []).filter(l => l.in_stock)
+    const seg = defaultSegment(inStockListings as Listing[])
+    const fromPrice = seg ? cheapestForSegment(inStockListings as Listing[], seg)?.price_gbp ?? null : null
+    return { seg, fromPrice }
+  }
+
+  // CollectionPage → ItemList of this category's products. "from" price omitted
+  // (no £0) when a product has no resolved priced listing.
+  const baseUrl = 'https://www.priceslicr.com'
+  const collectionSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${title} Price Comparison UK`,
+    url: `${baseUrl}/${routePrefix}`,
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: (products ?? []).length,
+      itemListElement: (products ?? []).map((p, i) => {
+        const prod = p as ProductWithListings
+        const { fromPrice: from } = resolveFromPrice(prod)
+        const item: Record<string, unknown> = {
+          '@type': 'Product',
+          name: prod.name,
+          url: `${baseUrl}/${routePrefix}/${prod.slug}`,
+        }
+        if (from != null) {
+          item.offers = {
+            '@type': 'AggregateOffer',
+            priceCurrency: 'GBP',
+            lowPrice: from,
+            availability: 'https://schema.org/InStock',
+          }
+        }
+        return { '@type': 'ListItem', position: i + 1, item }
+      }),
+    },
+  }
+
   return (
     <div className="dark-section min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+      />
       <Nav />
 
       <div className="relative z-10 max-w-[1200px] mx-auto px-6 md:px-12 py-12 md:py-16">
@@ -72,13 +118,8 @@ export default async function CategoryIndex({ category, title, singular, descrip
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {brandProducts.map(product => {
-                  // Mirror the detail page: defaultSegment() then cheapest in that
-                  // segment. Only in-stock listings; helpers exclude price_gbp = 0.
-                  const inStockListings = (product.listings ?? []).filter(l => l.in_stock)
-                  const seg = defaultSegment(inStockListings as Listing[])
-                  const fromPrice = seg
-                    ? cheapestForSegment(inStockListings as Listing[], seg)?.price_gbp ?? null
-                    : null
+                  // Same resolution as the ItemList schema above (single path).
+                  const { seg, fromPrice } = resolveFromPrice(product)
                   return (
                   <Link
                     key={product.id}

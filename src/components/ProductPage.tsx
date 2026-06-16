@@ -132,24 +132,41 @@ export default async function ProductPage({ slug }: { slug: string }) {
 
   // JSON-LD reflects the DEFAULT condition — its price must match the hero price.
   if (defaultSegListings.length > 0) {
+    // priceValidUntil: an HONEST short window tied to the daily price refresh.
+    // Take the freshest scraped_at across the shown offers and add 3 days (covers a
+    // refresh gap / weekend) — never a hardcoded distant date. Date form (YYYY-MM-DD).
+    const latestScraped = defaultSegListings.reduce(
+      (max, l) => (l.scraped_at > max ? l.scraped_at : max),
+      defaultSegListings[0].scraped_at
+    )
+    const priceValidUntil = new Date(new Date(latestScraped).getTime() + 3 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10)
+    // availability mapped from the listing's in_stock boolean (these rows are already
+    // in-stock-filtered upstream, but we map truthfully rather than asserting InStock).
+    const availabilityOf = (inStock: boolean) =>
+      inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'
+
     productSchema.offers = {
       '@type': 'AggregateOffer',
       priceCurrency: 'GBP',
       lowPrice: defaultSegListings[0]?.price_gbp,
       highPrice: defaultSegListings[defaultSegListings.length - 1]?.price_gbp,
       offerCount: defaultSegListings.length,
-      availability: 'https://schema.org/InStock',
+      priceValidUntil,
+      availability: availabilityOf(defaultSegListings.some(l => l.in_stock)),
       offers: defaultSegListings.slice(0, 5).map(l => ({
         '@type': 'Offer',
         priceCurrency: 'GBP',
         price: l.price_gbp,
+        priceValidUntil,
         itemCondition:
           l.condition === 'new'
             ? 'https://schema.org/NewCondition'
             : l.condition === 'certified_refurbished'
             ? 'https://schema.org/RefurbishedCondition'
             : 'https://schema.org/UsedCondition',
-        availability: 'https://schema.org/InStock',
+        availability: availabilityOf(l.in_stock),
         seller: {
           '@type': 'Organization',
           name: l.retailer?.name ?? 'UK Retailer',
