@@ -136,11 +136,12 @@ jobs:
       # vs "Venu 3S 41mm" + Apple sizes), and the SAWS/SACC accessory boxId guard that
       # rejects watch straps/bands/chargers title-independently (must ship with the
       # brand relaxation). apple-watch-series-10-44mm-gps is deliberately OMITTED — its
-      # spec is wrong (Series 10 ships 42/46mm, not 44mm); it returns once corrected. 9 slugs.
+      # spec was wrong (Series 10 ships 42/46mm, not 44mm) and is now corrected to
+      # 42mm — apple-watch-series-10-42mm-gps is included. 10 slugs (<=12).
       - name: CEX chunk 7 — smartwatches (soft — warn only)
         if: ${{ always() }}
         run: |
-          SLUGS="apple-watch-se-2nd-gen-40mm,apple-watch-series-10-46mm-gps,apple-watch-ultra-2,fitbit-sense-2,garmin-fenix-8-47mm,garmin-venu-3,google-pixel-watch-3-45mm,samsung-galaxy-watch-7-44mm,samsung-galaxy-watch-ultra-47mm"
+          SLUGS="apple-watch-se-2nd-gen-40mm,apple-watch-series-10-42mm-gps,apple-watch-series-10-46mm-gps,apple-watch-ultra-2,fitbit-sense-2,garmin-fenix-8-47mm,garmin-venu-3,google-pixel-watch-3-45mm,samsung-galaxy-watch-7-44mm,samsung-galaxy-watch-ultra-47mm"
           echo "Calling CEX sync (smartwatches)..."
           HTTP=$(curl -s -o /tmp/cex7.json -w "%{http_code}" --max-time 120 \
             "https://www.priceslicr.com/api/sync-cex-apify?secret=priceslicr-sync-2026&slugs=$SLUGS")
