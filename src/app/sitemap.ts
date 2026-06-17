@@ -32,6 +32,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }))
 
+  // Buying-guide hubs (one per category with enough live priced data; TVs omitted
+  // — too few priced sets for a credible "best" hub). High-value commercial pages.
+  const guideRoutes = [
+    'best-phones-uk', 'best-laptops-uk', 'best-tablets-uk',
+    'best-headphones-uk', 'best-smartwatches-uk', 'best-monitors-uk',
+  ]
+  const guideUrls: MetadataRoute.Sitemap = guideRoutes.map(route => ({
+    url: `${base}/${route}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: 0.9,
+  }))
+
   const staticUrls: MetadataRoute.Sitemap = [
     { url: base, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 1.0 },
     { url: `${base}/trade-in`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
@@ -42,5 +55,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/contact`, lastModified: new Date(), changeFrequency: 'yearly' as const, priority: 0.3 },
   ]
 
-  return [...staticUrls, ...categoryUrls, ...productUrls]
+  return [...staticUrls, ...guideUrls, ...categoryUrls, ...productUrls]
 }

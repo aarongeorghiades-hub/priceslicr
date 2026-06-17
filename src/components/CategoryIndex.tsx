@@ -6,6 +6,7 @@ import type { Product, Listing } from '@/types'
 import { formatSpec } from '@/lib/specs'
 import { defaultSegment, cheapestForSegment } from '@/lib/conditionSlices'
 import { formatGBP } from '@/lib/utils'
+import { getGuide } from '@/lib/guide'
 import Reveal from '@/components/Reveal'
 
 // Category cards pull only the listing fields the pricing helpers read.
@@ -47,6 +48,7 @@ export default async function CategoryIndex({ category, title, singular, descrip
   }, {})
 
   const routePrefix = CATEGORY_ROUTES[category] ?? category + 's'
+  const guide = getGuide(category)
 
   // Single source of truth for the card "from £X": defaultSegment() then cheapest
   // in that segment, in-stock only (helpers exclude price_gbp = 0). The ItemList
@@ -108,6 +110,13 @@ export default async function CategoryIndex({ category, title, singular, descrip
             </h1>
           )}
           <p className="text-[var(--ink-dim)] text-lg mt-5 max-w-xl leading-relaxed">{description}</p>
+          {guide && (
+            <div className="mt-5">
+              <Link href={guide.guidePath} className="meta text-[var(--slice-text)] hover:underline">
+                Read the Best &amp; Cheapest {guide.label} UK 2026 guide &rarr;
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="space-y-10">

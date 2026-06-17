@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import Nav from '@/components/layout/Nav'
 import PriceTable from '@/components/product/PriceTable'
 import SaleTiming from '@/components/product/SaleTiming'
@@ -21,6 +22,7 @@ import {
   SEGMENT_LABELS,
 } from '@/lib/conditionSlices'
 import { formatSpec } from '@/lib/specs'
+import { getGuide } from '@/lib/guide'
 
 const CATEGORY_ROUTES: Record<string, string> = {
   laptop: 'laptops',
@@ -110,6 +112,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
 
   const routePrefix = CATEGORY_ROUTES[product.category] ?? product.category + 's'
   const categoryLabel = CATEGORY_LABELS[product.category] ?? product.category
+  const guide = getGuide(product.category)
 
   // Category-relevant sale events, capped at 4 (full calendar is on /sale-timing).
   const relevantSaleEvents = saleEvents
@@ -221,6 +224,13 @@ export default async function ProductPage({ slug }: { slug: string }) {
               <h1 className="heading-section text-[var(--ink)] mb-5">
                 {product.name}
               </h1>
+              {guide && (
+                <div className="mb-5">
+                  <Link href={guide.guidePath} className="meta text-[var(--slice-text)] hover:underline">
+                    Best &amp; Cheapest {guide.label} UK 2026 &rarr;
+                  </Link>
+                </div>
+              )}
               {product.specs && Object.keys(product.specs).length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {Object.entries(product.specs)
