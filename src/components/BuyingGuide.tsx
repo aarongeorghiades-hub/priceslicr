@@ -31,14 +31,17 @@ export default async function BuyingGuide({ category }: { category: string }) {
   const cheapest = d.cheapest!
   const lowStr = d.low != null ? formatGBP(Math.round(d.low)) : ''
   const highStr = d.high != null ? formatGBP(Math.round(d.high)) : ''
-  const segWords = d.segmentsPresent.map(s => SEGMENT_LABELS[s].toLowerCase()).join(', ')
+  const segLabels = d.segmentsPresent.map(s => SEGMENT_LABELS[s].toLowerCase())
+  const segWords = segLabels.length > 1
+    ? `${segLabels.slice(0, -1).join(', ')} and ${segLabels[segLabels.length - 1]}`
+    : segLabels.join('')
   const pricedEntries = d.entries.filter(e => e.fromPrice != null)
 
   // ── FAQ (rendered + FAQPage schema, same source) ──
   const faqs: { q: string; a: string }[] = [
     {
       q: `What's the cheapest ${g.singular} right now?`,
-      a: `The cheapest ${g.label.toLowerCase()} we currently track is the ${cheapest.product.name} from ${formatGBP(Math.round(cheapest.fromPrice!))} (${SEGMENT_LABELS[cheapest.segment!].toLowerCase()}). Live prices are refreshed daily, so the leader can change — check the guide for today's figure.`,
+      a: `The cheapest ${g.singular} we currently track is the ${cheapest.product.name} from ${formatGBP(Math.round(cheapest.fromPrice!))} (${SEGMENT_LABELS[cheapest.segment!].toLowerCase()}). Live prices are refreshed daily, so the leader can change — check the guide for today's figure.`,
     },
     {
       q: `How much do ${g.label.toLowerCase()} cost in the UK?`,
@@ -122,7 +125,7 @@ export default async function BuyingGuide({ category }: { category: string }) {
             <span className="text-[var(--slice-text)]">in the UK.</span>
           </h1>
           <p className="text-[var(--ink-dim)] text-lg mt-5 max-w-2xl leading-relaxed">
-            The cheapest {g.label.toLowerCase()} we track right now is the{' '}
+            The cheapest {g.singular} we track right now is the{' '}
             <Link href={`/${g.route}/${cheapest.product.slug}`} className="text-[var(--slice-text)] hover:underline">
               {cheapest.product.name}
             </Link>{' '}
@@ -145,7 +148,7 @@ export default async function BuyingGuide({ category }: { category: string }) {
           <h2 className="font-display text-xl md:text-2xl font-semibold text-[var(--ink)] mb-2">
             Cheapest {g.label.toLowerCase()} ranked
           </h2>
-          <p className="meta text-[var(--ink-dim)] mb-5">Every {g.label.toLowerCase()} we hold a live price on, lowest first.</p>
+          <p className="meta text-[var(--ink-dim)] mb-5">Every {g.singular} we hold a live price on, lowest first.</p>
           <div className="space-y-2">
             {pricedEntries.map((e, i) => (
               <Link
