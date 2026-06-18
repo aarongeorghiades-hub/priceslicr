@@ -1,11 +1,10 @@
+import type { Metadata } from 'next'
 import CategoryIndex from '@/components/CategoryIndex'
-import { pageMetadata } from '@/lib/seo'
+import { buildCategoryMetadata } from '@/lib/seoMeta'
 
-export const metadata = pageMetadata({
-  title: 'Monitor Price Comparison UK',
-  description: 'Compare monitor prices across every UK retailer. 4K, ultrawide, OLED gaming — every saving layer surfaced.',
-  path: '/monitors',
-})
+export async function generateMetadata(): Promise<Metadata> {
+  return buildCategoryMetadata({ category: 'monitor', label: 'Monitors', path: '/monitors' })
+}
 
 export default function MonitorsPage() {
   return <CategoryIndex category="monitor" title="Monitors" singular="monitor" description="Compare monitor prices across every UK retailer. 4K, ultrawide, OLED gaming — every saving layer surfaced." />

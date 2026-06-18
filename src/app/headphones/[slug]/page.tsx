@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import ProductPage from '@/components/ProductPage'
-import { getProductBySlug, getProductSlugsForCategory } from '@/lib/product'
-import { pageMetadata } from '@/lib/seo'
+import { getProductBySlug, getProductSlugsForCategory, getListingsForProduct } from '@/lib/product'
+import { buildProductMetadata } from '@/lib/seoMeta'
 
 export async function generateStaticParams() {
   const slugs = await getProductSlugsForCategory('headphones')
@@ -16,11 +16,8 @@ export async function generateMetadata({
   const { slug } = await params
   const product = await getProductBySlug(slug)
   if (!product) return {}
-  return pageMetadata({
-    title: `${product.name} — Price Comparison UK`,
-    description: `Compare ${product.name} prices across every UK retailer — new, refurbished, and used. Find every available saving: cashback, trade-in, student discounts, price matching, and sale timing. Updated daily.`,
-    path: `/headphones/${slug}`,
-  })
+  const listings = await getListingsForProduct(product.id)
+  return buildProductMetadata({ name: product.name, path: `/headphones/${slug}`, listings })
 }
 
 export default async function HeadphonesProductPage({
