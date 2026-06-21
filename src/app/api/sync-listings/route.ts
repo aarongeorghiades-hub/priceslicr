@@ -14,6 +14,13 @@ const EBAY_EXCLUSION_KEYWORDS = [
   'parts', 'for parts', 'spares', 'faulty', 'broken', 'cracked', 'damaged',
   'replacement', 'battery', 'cable', 'charger', 'adapter', 'dock', 'stand',
   'skin', 'sticker', 'dummy', 'display model', 'read description',
+  // S21 Fix 1 — watch/audio accessory nouns. CEX closes these via stable boxId
+  // prefixes (SAWS/SACC); eBay has no boxId, so a watch strap/band or earbud
+  // tips/pouch listing (cheap, "new" condition) was anchoring the headline. Only
+  // unambiguous-accessory terms — none of these appear in a genuine device title.
+  'strap', 'band', 'bands', 'bracelet', 'loop', 'link bracelet', 'mount',
+  'tips', 'ear tips', 'eartips', 'pouch', 'glass', 'protector film',
+  'charging cable',
 ]
 const EBAY_EXCLUSION_RE = new RegExp(
   '\\b(' + EBAY_EXCLUSION_KEYWORDS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')\\b',
