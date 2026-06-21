@@ -21,6 +21,16 @@ const EBAY_EXCLUSION_KEYWORDS = [
   'strap', 'band', 'bands', 'bracelet', 'loop', 'link bracelet', 'mount',
   'tips', 'ear tips', 'eartips', 'pouch', 'glass', 'protector film',
   'charging cable',
+  // S22 guard 1 — clone/counterfeit tells. These phrases never appear in a
+  // genuine first-party device title; "inspired by" is the £53.39 Buds3 Pro
+  // counterfeit ("…Inspired by Samsung"). Multi-word, so low false-positive risk.
+  'inspired by', 'for samsung', 'for apple', 'replica', 'clone', 'compatible with',
+  // S22 guard 3 — screen-replacement PART phrases ("Genuine Apple Watch Series 10
+  // … LCD Display Touch Screen" = a part, not a watch). Anchored on multi-word
+  // PART phrases only — bare "display"/"screen" are deliberately excluded because
+  // genuine titles use them (the genuine LG control reads "…Monitor Display…").
+  'touch screen', 'lcd display', 'lcd assembly', 'digitizer', 'display assembly',
+  'replacement screen', 'screen replacement',
 ]
 const EBAY_EXCLUSION_RE = new RegExp(
   '\\b(' + EBAY_EXCLUSION_KEYWORDS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')\\b',
@@ -38,6 +48,49 @@ export function titleMatchesModelTokens(title: string, productName: string): boo
   const tokens = productName.toLowerCase().match(/[a-z0-9]+/g) ?? []
   const mandatory = tokens.filter(tok => /[0-9]/.test(tok))
   return mandatory.every(tok => t.includes(tok))
+}
+
+// S22 guard 2 — eBay variant guard, ported from the CEX matcher (NOT shared with
+// titleMatchesModelTokens, which stays untouched). The bare digit-token gate lets a
+// plain "Galaxy Buds3" match the "Buds3 Pro" product; this rejects a candidate whose
+// tier-word set differs from the product name's (so non-"Pro" Buds3 / "S25" vs "S25
+// Ultra" / "iPhone 15" vs "15 Pro" never cross-match). Symmetric: the sets must be EQUAL.
+const VARIANT_WORDS = ['pro', 'plus', 'max', 'ultra', 'lite', 'fe', 'mini', 'se', 'neo']
+function variantWordsIn(text: string): Set<string> {
+  // Strip RAM+storage ("8GB+256GB") before +→plus, so a memory "+" is not read as
+  // a "plus" tier; drop Intel "Core Ultra 5/7/9" so the CPU name doesn't trip 'ultra';
+  // drop "+<connectivity>" ("+GPS"/"+LTE") so a feature "+" never injects "plus".
+  const deSpec = (text || '')
+    .replace(/\d+\s*GB\s*\+\s*\d+\s*(?:GB|TB)/gi, ' ')
+    .replace(/\bultra\s*[579]\b/gi, ' ')
+    .replace(/\+\s*(?:GPS|Bluetooth|BT|LTE|Cellular|Cell|Wi-?Fi|WiFi|NFC|Solar)\b/gi, ' ')
+    // eBay-specific: strip condition-grade markers "A+"/"A++"/"B+" so the grade
+    // "+" is not read as a "plus" tier (CEX has no such grades; this is why the
+    // guard is ported, not shared). A genuine model "+" (e.g. "S25+") follows a
+    // digit, never a bare A–C grade letter, so it is preserved.
+    .replace(/\b[A-C]\+{1,3}/g, ' ')
+  const normalised = deSpec.replace(/\+/g, ' plus ')
+  const found = new Set<string>()
+  for (const w of VARIANT_WORDS) {
+    if (new RegExp(`\\b${w}\\b`, 'i').test(normalised)) found.add(w)
+  }
+  return found
+}
+function passesEbayVariantGuard(title: string, name: string, category?: string): boolean {
+  const titleVariants = variantWordsIn(title)
+  const nameVariants = variantWordsIn(name)
+  // Monitor titles are saturated with standalone "Ultra HD" (and would wrongly reject
+  // a genuine monitor whose name has no 'ultra'); no monitor product name carries
+  // 'ultra' as a tier, so drop it from both sets for monitors only. Mirrors CEX.
+  if (category === 'monitor') {
+    titleVariants.delete('ultra')
+    nameVariants.delete('ultra')
+  }
+  if (titleVariants.size !== nameVariants.size) return false
+  for (const w of nameVariants) {
+    if (!titleVariants.has(w)) return false
+  }
+  return true
 }
 
 // Layer (d) cross-condition: reject a New price below this fraction of the
@@ -138,7 +191,9 @@ export async function GET(request: NextRequest) {
         // Layers (a) + (b): drop accessory/parts/broken titles and items that
         // don't match the product's mandatory model/storage tokens.
         const plausible = listings.filter(
-          l => !titleHasExcludedKeyword(l.title) && titleMatchesModelTokens(l.title, product.name)
+          l => !titleHasExcludedKeyword(l.title) &&
+            titleMatchesModelTokens(l.title, product.name) &&
+            passesEbayVariantGuard(l.title, product.name, product.category)
         )
 
         if (plausible.length === 0) {
