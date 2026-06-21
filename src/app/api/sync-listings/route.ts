@@ -215,6 +215,14 @@ export async function GET(request: NextRequest) {
           continue
         }
 
+        // S21 Change 2 — log every ACCEPTED eBay listing (title + conditionId +
+        // itemId + price + condition). Accepted titles were previously invisible;
+        // this closes the verification gap and surfaces the exact identity signal
+        // for any junk that still looks like the genuine product (clone/locked).
+        for (const l of validListings) {
+          console.log(`[ebay-accepted] ${product.slug} | £${l.price} ${l.condition} | condId=${(l as { conditionId?: string }).conditionId ?? '?'} | item=${l.itemId} | ${l.title}`)
+        }
+
         // Upsert to listings table
         const rows = validListings.map(listing => ({
           product_id: product.id,

@@ -55,16 +55,23 @@ export async function searchEbayUK(
   }
 
   const data = await response.json()
-  return (data.itemSummaries ?? []).map((item: any) => ({
+  const mapped: EbayListing[] = (data.itemSummaries ?? []).map((item: any) => ({
     itemId: item.itemId,
     title: item.title,
     price: parseFloat(item.price?.value ?? '0'),
     currency: item.price?.currency ?? 'GBP',
     condition: normaliseCondition(item.condition),
+    conditionId: item.conditionId,
     url: item.itemAffiliateWebUrl ?? item.itemWebUrl,
     imageUrl: item.image?.imageUrl,
     seller: item.seller?.username,
   }))
+  // S21 Change 1 — drop "For parts or not working" (eBay conditionId 7000) at
+  // source. A non-working / parts unit must never surface as a "cheapest" price;
+  // these slip the title-keyword + cross-condition filters because they are
+  // titled like the genuine product (e.g. the £59.99 "used" Apple Watch Series 10).
+  // Identity/condition signal, not a price ratio — applies to all products/categories.
+  return mapped.filter(l => l.conditionId !== '7000')
 }
 
 export interface EbayListing {
@@ -73,6 +80,7 @@ export interface EbayListing {
   price: number
   currency: string
   condition: 'new' | 'refurbished' | 'used'
+  conditionId?: string
   url: string
   imageUrl?: string
   seller?: string
