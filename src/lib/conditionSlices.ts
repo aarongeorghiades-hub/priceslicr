@@ -19,11 +19,32 @@ export function conditionToSegment(condition: Condition): ConditionSegment {
   return 'refurbished' // refurbished | certified_refurbished
 }
 
+// S21 Fix 3 — "new can't be below used" backstop. A genuine NEW unit cannot be
+// cheaper than the SAME product in used/refurbished condition; a `new` row that
+// is means the matcher attached an accessory or a wrong item (e.g. the eBay
+// £77.58 "new" Apple Watch Ultra 2 against a £315 used market). Drop any priced
+// `new` listing below the cheapest priced second-hand price for that product, so
+// it can neither set the from-price nor force defaultSegment='new'. Applied
+// inside the shared helpers below → every surface (cards, product pages, meta,
+// guides) is protected by one path. Filters by item-identity/condition logic,
+// never a raw price ratio, so genuine-but-cheap used units are untouched.
+function dropInvalidNewListings(listings: Listing[]): Listing[] {
+  const secondhand = listings.filter(
+    l => l.price_gbp > 0 && conditionToSegment(l.condition) !== 'new'
+  )
+  if (secondhand.length === 0) return listings // nothing to anchor against
+  const cheapestSecondhand = Math.min(...secondhand.map(l => l.price_gbp))
+  return listings.filter(
+    l => !(conditionToSegment(l.condition) === 'new' && l.price_gbp > 0 && l.price_gbp < cheapestSecondhand)
+  )
+}
+
 // A listing counts toward a segment's toggle presence only if it is PRICED
 // (price_gbp > 0). Search-link rows (price 0) never define a segment.
 export function availableSegments(listings: Listing[]): ConditionSegment[] {
+  const valid = dropInvalidNewListings(listings)
   const present = new Set<ConditionSegment>()
-  for (const l of listings) {
+  for (const l of valid) {
     if (l.price_gbp > 0) present.add(conditionToSegment(l.condition))
   }
   return SEGMENT_ORDER.filter(s => present.has(s))
@@ -35,7 +56,7 @@ export function cheapestForSegment(
   segment: ConditionSegment
 ): Listing | null {
   return (
-    listings
+    dropInvalidNewListings(listings)
       .filter(l => l.price_gbp > 0 && conditionToSegment(l.condition) === segment)
       .sort((a, b) => a.price_gbp - b.price_gbp)[0] ?? null
   )
