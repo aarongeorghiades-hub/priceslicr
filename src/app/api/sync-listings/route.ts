@@ -31,6 +31,11 @@ const EBAY_EXCLUSION_KEYWORDS = [
   // genuine titles use them (the genuine LG control reads "…Monitor Display…").
   'touch screen', 'lcd display', 'lcd assembly', 'digitizer', 'display assembly',
   'replacement screen', 'screen replacement',
+  // S22b guard 1 — single-side / replacement earbud parts. A genuine sealed PAIR
+  // never carries a single-side marker; these are half-units (e.g. the £39.99
+  // "…AirPods Pro 2nd Gen Left Ear…" that anchored the AirPods second-hand floor).
+  'left ear', 'right ear', 'single earbud', 'single bud', 'one earbud',
+  'earbud only', 'replacement earbud', 'left only', 'right only',
 ]
 const EBAY_EXCLUSION_RE = new RegExp(
   '\\b(' + EBAY_EXCLUSION_KEYWORDS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')\\b',
@@ -91,6 +96,24 @@ function passesEbayVariantGuard(title: string, name: string, category?: string):
     if (!titleVariants.has(w)) return false
   }
   return true
+}
+
+// S22b guard 2 — eBay GENERATION guard. The loose digit-substring gate (Layer b)
+// lets a model code supply a generation digit — "SM-R870" gave the "7" so a Galaxy
+// Watch 4 matched the Watch 7 product. Require every STANDALONE numeric token in the
+// product name (e.g. "Watch 7"→7, "Series 10"→10; size/storage like "44mm"/"64GB"
+// are glued and never match \b\d+\b, so they're naturally excluded) to appear
+// WORD-BOUNDED in the title. A letter/digit split ("Watch7"→"Watch 7") rescues glued
+// genuine titles, while a digit inside a longer run ("R870", "2017") still fails \bN\b.
+// Mirrors the CEX nameTokenGate boundary technique; titleMatchesModelTokens untouched.
+// Names with no standalone numeric generation (Buds3, iPad 10th, iPhone SE) are no-ops.
+function passesEbayGenerationGuard(title: string, name: string): boolean {
+  const genTokens = (name.match(/\b\d+\b/g) ?? [])
+  if (genTokens.length === 0) return true
+  const splitTitle = (title || '')
+    .replace(/([A-Za-z])(\d)/g, '$1 $2')
+    .replace(/(\d)([A-Za-z])/g, '$1 $2')
+  return genTokens.every(tok => new RegExp(`\\b${tok}\\b`).test(splitTitle))
 }
 
 // Layer (d) cross-condition: reject a New price below this fraction of the
@@ -193,7 +216,8 @@ export async function GET(request: NextRequest) {
         const plausible = listings.filter(
           l => !titleHasExcludedKeyword(l.title) &&
             titleMatchesModelTokens(l.title, product.name) &&
-            passesEbayVariantGuard(l.title, product.name, product.category)
+            passesEbayVariantGuard(l.title, product.name, product.category) &&
+            passesEbayGenerationGuard(l.title, product.name)
         )
 
         if (plausible.length === 0) {
