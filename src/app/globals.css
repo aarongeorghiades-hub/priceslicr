@@ -82,6 +82,13 @@ body {
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* S23 — kill horizontal overflow on mobile. The decorative .mist::before halos
+     (position:absolute; inset:-22% -16% … -24%) bleed past the right edge of each
+     panel and add ~58px of scroll width at 390px (a real horizontal-scroll jiggle;
+     page content itself already fits). `clip` removes the scroll WITHOUT creating a
+     scroll container, so position:sticky (desktop SavingsColumn) is unaffected, and
+     clipping the faint halo edge at the viewport boundary is imperceptible on desktop. */
+  overflow-x: clip;
 }
 
 /* Warm ambient depth: fixed red glows travelling behind the panels, plus film grain. */
