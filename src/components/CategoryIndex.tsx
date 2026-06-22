@@ -115,7 +115,7 @@ export default async function CategoryIndex({ category, title, singular, descrip
           {guide && (
             <div className="mt-5">
               <Link href={guide.guidePath} className="meta text-[var(--slice-text)] hover:underline">
-                Read the Best &amp; Cheapest {guide.label} UK 2026 guide &rarr;
+                {`Cheapest ${guide.label} UK 2026 — live prices →`}
               </Link>
             </div>
           )}
