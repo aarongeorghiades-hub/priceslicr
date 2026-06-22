@@ -13,15 +13,6 @@ function conditionNote(e: GuideEntry): string {
   return e.segmentsPresent.map(s => SEGMENT_LABELS[s]).join(' · ')
 }
 
-// Honest, data-grounded price position — derived from the live ranking, not a review.
-function positionLabel(rank: number, pricedCount: number): string {
-  if (rank === 0) return 'Cheapest tracked'
-  const q = rank / pricedCount
-  if (q < 0.34) return 'Among the lowest priced'
-  if (q < 0.67) return 'Mid-range price'
-  return 'Premium end'
-}
-
 export default async function BuyingGuide({ category }: { category: string }) {
   const g = getGuide(category)
   if (!g) notFound()
@@ -36,34 +27,31 @@ export default async function BuyingGuide({ category }: { category: string }) {
     ? `${segLabels.slice(0, -1).join(', ')} and ${segLabels[segLabels.length - 1]}`
     : segLabels.join('')
   const pricedEntries = d.entries.filter(e => e.fromPrice != null)
+  const labelLc = g.label.toLowerCase()
+  // Honest "Last checked" from real data (latest scraped_at) — never an asserted cadence.
+  const lastChecked = d.lastChecked
+    ? new Date(d.lastChecked).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+    : null
+  // One honest, same-sourced sentence carrying BOTH metrics so they can never drift:
+  // tracked (every model on this page) and priced (those with a verified live price).
+  const coverageLine = `Tracking ${d.tracked} ${labelLc}, ${d.priced} with a live price`
+  // Reframed page name reused by H1 / ItemList / breadcrumb (URL unchanged).
+  const pageName = `Cheapest ${g.label} UK — Live Prices (2026)`
 
-  // ── FAQ (rendered + FAQPage schema, same source) ──
+  // ── FAQ: live-data answers + category-real Q&As (no cross-category boilerplate) ──
   const faqs: { q: string; a: string }[] = [
     {
       q: `What's the cheapest ${g.singular} right now?`,
-      a: `The cheapest ${g.singular} we currently track is the ${cheapest.product.name} from ${formatGBP(Math.round(cheapest.fromPrice!))} (${SEGMENT_LABELS[cheapest.segment!].toLowerCase()}). Live prices are refreshed daily, so the leader can change — check the guide for today's figure.`,
+      a: `The cheapest ${g.singular} with a live price is the ${cheapest.product.name} from ${formatGBP(Math.round(cheapest.fromPrice!))} (${SEGMENT_LABELS[cheapest.segment!].toLowerCase()}). Prices move as retailers update stock, so the leader can change between checks${lastChecked ? `; last checked ${lastChecked}` : ''}.`,
     },
     {
-      q: `How much do ${g.label.toLowerCase()} cost in the UK?`,
-      a: `Across the ${d.priced} ${g.label.toLowerCase()} we currently price, live prices run from ${lowStr} to ${highStr}, drawn from ${d.retailerCount} UK retailers in ${segWords} condition.`,
+      q: `How much do ${labelLc} cost in the UK?`,
+      a: `Across the ${d.priced} ${labelLc} we currently hold a live price on, prices run from ${lowStr} to ${highStr}, drawn from ${d.retailerCount} UK retailers in ${segWords} condition.`,
     },
+    ...g.faqs,
     {
-      q: `Is a refurbished ${g.singular} worth it?`,
-      a: d.segmentsPresent.includes('refurbished')
-        ? `Refurbished units are tested and usually come with a warranty, sitting between new and used on price — often a strong middle option. We surface refurbished prices alongside new and used wherever a retailer lists them.`
-        : `Refurbished stock comes and goes; when a retailer lists a refurbished unit we surface it next to the new and used prices so you can compare the trade-off directly.`,
-    },
-    {
-      q: `When do ${g.label.toLowerCase()} prices drop?`,
-      a: `The biggest drops cluster around the major UK sale events — Black Friday, Boxing Day, Prime Day and back-to-school. Our sale-timing guide tracks each event with its typical discount window so you can judge whether to buy now or wait.`,
-    },
-    {
-      q: `How often are these prices updated?`,
-      a: `Every listing is refreshed daily from live UK retailer data, so the prices and the cheapest-option ranking on this page reflect current availability rather than a stale snapshot.`,
-    },
-    {
-      q: `How many ${g.label.toLowerCase()} do you compare?`,
-      a: `We track ${d.tracked} ${g.label.toLowerCase()} and currently hold a live price on ${d.priced} of them across ${d.retailerCount} retailers, comparing ${segWords} condition side by side.`,
+      q: `How many ${labelLc} does this page track?`,
+      a: `We track ${d.tracked} ${labelLc} and currently hold a verified live price on ${d.priced} of them across ${d.retailerCount} retailers. We only headline a price we can verify, so a model without a trusted live price is listed without one rather than shown a guess.`,
     },
   ]
 
@@ -71,7 +59,7 @@ export default async function BuyingGuide({ category }: { category: string }) {
   const itemListSchema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: `Best & Cheapest ${g.label} UK 2026`,
+    name: pageName,
     url: `${BASE}${g.guidePath}`,
     numberOfItems: pricedEntries.length,
     itemListElement: pricedEntries.map((e, i) => ({
@@ -104,7 +92,7 @@ export default async function BuyingGuide({ category }: { category: string }) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: g.label, item: `${BASE}/${g.route}` },
-      { '@type': 'ListItem', position: 2, name: `Best & Cheapest ${g.label} UK 2026`, item: `${BASE}${g.guidePath}` },
+      { '@type': 'ListItem', position: 2, name: pageName, item: `${BASE}${g.guidePath}` },
     ],
   }
 
@@ -117,38 +105,42 @@ export default async function BuyingGuide({ category }: { category: string }) {
       <Nav />
 
       <div className="relative z-10 max-w-[1100px] mx-auto px-6 md:px-12 py-12 md:py-16">
-        {/* Hero — led by live data */}
+        {/* Hero — honest live-price tracker, led by data */}
         <div className="mb-12">
-          <div className="eyebrow mb-4">UK {g.label.toUpperCase()} BUYING GUIDE · 2026</div>
+          <div className="eyebrow mb-4">{`UK ${g.label.toUpperCase()} · LIVE PRICE TRACKER · 2026`}</div>
           <h1 className="heading-section text-[var(--ink)]">
-            Best &amp; Cheapest {g.label}<br />
-            <span className="text-[var(--slice-text)]">in the UK.</span>
+            {`Cheapest ${g.label} UK`}<br />
+            <span className="text-[var(--slice-text)]">Live Prices · 2026.</span>
           </h1>
           <p className="text-[var(--ink-dim)] text-lg mt-5 max-w-2xl leading-relaxed">
-            The cheapest {g.singular} we track right now is the{' '}
+            {`A live price tracker, not a review — we check UK retailer prices for ${labelLc} and rank them cheapest first. Right now the lowest is the `}
             <Link href={`/${g.route}/${cheapest.product.slug}`} className="text-[var(--slice-text)] hover:underline">
               {cheapest.product.name}
-            </Link>{' '}
-            from <span className="price-num text-[var(--ink)]">{formatGBP(Math.round(cheapest.fromPrice!))}</span>{' '}
-            ({SEGMENT_LABELS[cheapest.segment!].toLowerCase()}). Across {d.priced} live-priced{' '}
-            {g.label.toLowerCase()}, prices run from{' '}
-            <span className="price-num text-[var(--ink)]">{lowStr}</span> to{' '}
-            <span className="price-num text-[var(--ink)]">{highStr}</span> across {d.retailerCount} UK retailers,
-            in {segWords} condition. Prices are refreshed daily.
+            </Link>
+            {' from '}
+            <span className="price-num text-[var(--ink)]">{formatGBP(Math.round(cheapest.fromPrice!))}</span>
+            {` (${SEGMENT_LABELS[cheapest.segment!].toLowerCase()}). Across the ${d.priced} ${labelLc} we hold a live price on, prices run from `}
+            <span className="price-num text-[var(--ink)]">{lowStr}</span>
+            {' to '}
+            <span className="price-num text-[var(--ink)]">{highStr}</span>
+            {` across ${d.retailerCount} UK retailers, in ${segWords} condition.`}
+          </p>
+          <p className="meta text-[var(--ink-faint)] mt-4">
+            {lastChecked ? `Last checked: ${lastChecked} · ${coverageLine}.` : `${coverageLine}.`}
           </p>
           <div className="mt-6">
             <Link href={`/${g.route}`} className="meta text-[var(--slice-text)] hover:underline">
-              Compare all {d.tracked} {g.label.toLowerCase()} &rarr;
+              {`See all ${d.tracked} ${labelLc} →`}
             </Link>
           </div>
         </div>
 
-        {/* Rundown — every priced product, cheapest first */}
+        {/* Rundown — every priced product, cheapest first (factual, no quality verdicts) */}
         <Reveal className="mist">
           <h2 className="font-display text-xl md:text-2xl font-semibold text-[var(--ink)] mb-2">
-            Cheapest {g.label.toLowerCase()} ranked
+            {`Cheapest ${labelLc} ranked`}
           </h2>
-          <p className="meta text-[var(--ink-dim)] mb-5">Every {g.singular} we hold a live price on, lowest first.</p>
+          <p className="meta text-[var(--ink-dim)] mb-5">{`Every ${g.singular} we hold a live price on, lowest first.`}</p>
           <div className="space-y-2">
             {pricedEntries.map((e, i) => (
               <Link
@@ -161,7 +153,7 @@ export default async function BuyingGuide({ category }: { category: string }) {
                     {e.product.name}
                   </div>
                   <div className="meta text-[var(--ink-dim)] mt-1">
-                    {positionLabel(i, pricedEntries.length)} · {conditionNote(e)}
+                    {i === 0 ? `Lowest live price · ${conditionNote(e)}` : conditionNote(e)}
                   </div>
                 </div>
                 <div className="shrink-0 text-right">
@@ -173,10 +165,18 @@ export default async function BuyingGuide({ category }: { category: string }) {
           </div>
         </Reveal>
 
-        {/* Buying considerations */}
+        {/* Biggest buying decision — factual, informational (no fabricated testing/picks) */}
         <Reveal className="mist mist-high mt-12">
+          <h2 className="font-display text-xl md:text-2xl font-semibold text-[var(--ink)] mb-3">
+            {g.keyDecision.heading}
+          </h2>
+          <p className="text-[var(--ink-dim)] text-base leading-relaxed max-w-3xl">{g.keyDecision.body}</p>
+        </Reveal>
+
+        {/* Buying considerations */}
+        <Reveal className="mist mist-wide mt-12">
           <h2 className="font-display text-xl md:text-2xl font-semibold text-[var(--ink)] mb-5">
-            What to weigh up when buying a {g.singular}
+            {`What else moves the price on a ${g.singular}`}
           </h2>
           <div className="grid md:grid-cols-2 gap-4">
             {g.considerations.map(c => (
@@ -189,9 +189,9 @@ export default async function BuyingGuide({ category }: { category: string }) {
         </Reveal>
 
         {/* FAQ */}
-        <Reveal className="mist mist-wide mt-12">
+        <Reveal className="mist mt-12">
           <h2 className="font-display text-xl md:text-2xl font-semibold text-[var(--ink)] mb-5">
-            {g.label} price FAQ
+            {`${g.label} price FAQ`}
           </h2>
           <div className="space-y-3">
             {faqs.map(f => (
@@ -205,7 +205,7 @@ export default async function BuyingGuide({ category }: { category: string }) {
 
         <div className="mt-12 pt-8 border-t border-[var(--border)]">
           <Link href={`/${g.route}`} className="meta text-[var(--slice-text)] hover:underline">
-            See all {g.label.toLowerCase()} prices &rarr;
+            {`See all ${labelLc} prices →`}
           </Link>
           <span className="meta text-[var(--ink-dim)]">{'  ·  '}</span>
           <Link href="/sale-timing" className="meta text-[var(--slice-text)] hover:underline">

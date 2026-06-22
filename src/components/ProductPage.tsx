@@ -238,7 +238,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
               {guide && (
                 <div className="mb-5">
                   <Link href={guide.guidePath} className="meta text-[var(--slice-text)] hover:underline">
-                    Best &amp; Cheapest {guide.label} UK 2026 &rarr;
+                    {`Cheapest ${guide.label} UK 2026 — live prices →`}
                   </Link>
                 </div>
               )}
