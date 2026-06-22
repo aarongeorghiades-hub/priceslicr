@@ -98,7 +98,11 @@ export default async function ProductPage({ slug }: { slug: string }) {
   // not headline an (unverifiable) eBay price. Gate ONLY the headline path — the
   // retailer PriceTable / SavingsColumn below keep the full ungated `listings`, so
   // eBay rows still show with their condition labels (data not hidden, just not headlined).
-  const heroListings = trustedForHero(listings, product.category) ? listings : []
+  const heroTrusted = trustedForHero(listings, product.category)
+  const heroListings = heroTrusted ? listings : []
+  // Same single source of truth drives the PriceTable: when the hero is unpriced
+  // (trust-gated), the table must not crown a winner or show a hard price either.
+  const heroUnpriced = !heroTrusted
 
   // Condition segments present on this product (priced rows only).
   const segments = availableSegments(heroListings)
@@ -279,7 +283,7 @@ export default async function ProductPage({ slug }: { slug: string }) {
           {/* Price comparison table */}
           <Reveal as="section">
             <div className="label mb-4">Retailer prices</div>
-            <div className="mist"><PriceTable listings={listings} /></div>
+            <div className="mist"><PriceTable listings={listings} gated={heroUnpriced} /></div>
             <div className="label text-[var(--ink-dim)] mt-3">
               We may earn a commission when you buy through our links &mdash; it never affects the prices you see.
             </div>
