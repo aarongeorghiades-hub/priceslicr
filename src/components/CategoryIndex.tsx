@@ -4,13 +4,13 @@ import Footer from '@/components/layout/Footer'
 import Link from 'next/link'
 import type { Product, Listing } from '@/types'
 import { formatSpec } from '@/lib/specs'
-import { defaultSegment, cheapestForSegment } from '@/lib/conditionSlices'
+import { defaultSegment, cheapestForSegment, trustedForHero } from '@/lib/conditionSlices'
 import { formatGBP } from '@/lib/utils'
 import { getGuide } from '@/lib/guide'
 import Reveal from '@/components/Reveal'
 
 // Category cards pull only the listing fields the pricing helpers read.
-type CardListing = Pick<Listing, 'price_gbp' | 'condition' | 'in_stock'>
+type CardListing = Pick<Listing, 'price_gbp' | 'condition' | 'in_stock' | 'retailer_id'>
 type ProductWithListings = Product & { listings: CardListing[] }
 
 const CATEGORY_ROUTES: Record<string, string> = {
@@ -36,7 +36,7 @@ export default async function CategoryIndex({ category, title, singular, descrip
   const supabase = await createServerSupabaseClient()
   const { data: products } = await supabase
     .from('products')
-    .select('*, listings(price_gbp, condition, in_stock)')
+    .select('*, listings(price_gbp, condition, in_stock, retailer_id)')
     .eq('category', category)
     .order('brand', { ascending: true })
 
@@ -55,6 +55,8 @@ export default async function CategoryIndex({ category, title, singular, descrip
   // schema below and the rendered cards both call this — never two price paths.
   const resolveFromPrice = (product: ProductWithListings): { seg: ReturnType<typeof defaultSegment>; fromPrice: number | null } => {
     const inStockListings = (product.listings ?? []).filter(l => l.in_stock)
+    // S22d trust-gate: headphones without a non-eBay anchor never headline a price.
+    if (!trustedForHero(inStockListings, category)) return { seg: null, fromPrice: null }
     const seg = defaultSegment(inStockListings as Listing[])
     const fromPrice = seg ? cheapestForSegment(inStockListings as Listing[], seg)?.price_gbp ?? null : null
     return { seg, fromPrice }

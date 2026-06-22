@@ -19,6 +19,29 @@ export function conditionToSegment(condition: Condition): ConditionSegment {
   return 'refurbished' // refurbished | certified_refurbished
 }
 
+// eBay UK retailer id — referenced by the S22d headphones trust-gate.
+export const EBAY_RETAILER_ID = '88f4bd85-b743-4750-966f-4a937045fe5e'
+
+// S22d — headphones trust-gate (TRUST/DISPLAY layer, NOT a price test). A
+// counterfeit-as-genuine eBay listing (e.g. the £68 AirPods Pro 2) is uncatchable
+// by any matcher/price signal, and for some headphones there is no CEX/retailer row
+// to anchor against at all. DECISION: in category 'headphones' ONLY, an eBay row may
+// not set a product's hero / headline "from" price unless the product ALSO has a
+// TRUSTED ANCHOR — any priced (price_gbp > 0) listing from a non-eBay retailer (a CEX
+// row counts; a retailer row counts; a price-0 search-link row does NOT). With no such
+// anchor, return [] so all hero/from-price resolution yields unpriced (guides/cards/
+// meta already render unpriced gracefully — never "From £0"). BINARY anchor-EXISTENCE
+// test — no price comparison, ratio, or threshold. Other categories pass through
+// untouched. Call this ONLY at hero/headline resolution sites — never on the product
+// page's own retailer table, where eBay rows must still show with their labels.
+export function trustedForHero(
+  listings: Pick<Listing, 'price_gbp' | 'retailer_id'>[],
+  category: string
+): boolean {
+  if (category !== 'headphones') return true
+  return listings.some(l => l.price_gbp > 0 && l.retailer_id !== EBAY_RETAILER_ID)
+}
+
 // S21 Fix 3 — "new can't be below used" backstop. A genuine NEW unit cannot be
 // cheaper than the SAME product in used/refurbished condition; a `new` row that
 // is means the matcher attached an accessory or a wrong item (e.g. the eBay

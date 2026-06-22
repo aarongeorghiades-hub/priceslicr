@@ -6,6 +6,7 @@ import {
   defaultSegment,
   cheapestForSegment,
   availableSegments,
+  trustedForHero,
   SEGMENT_LABELS,
   type ConditionSegment,
 } from '@/lib/conditionSlices'
@@ -30,12 +31,17 @@ export function buildProductMetadata({
   name,
   path,
   listings,
+  category,
 }: {
   name: string
   path: string
   listings: Listing[] // in-stock listings (as returned by getListingsForProduct)
+  category?: string // pass the product's category so the S22d headphones gate applies
 }): Metadata {
-  const seg = defaultSegment(listings)
+  // S22d trust-gate: a headphones product with no non-eBay anchor never headlines a
+  // "From £X" title/description — falls cleanly to the no-price variant below.
+  const trusted = trustedForHero(listings, category ?? '')
+  const seg = trusted ? defaultSegment(listings) : null
   const fromPrice = seg ? cheapestForSegment(listings, seg)?.price_gbp ?? null : null
   const segWords = conditionWords(availableSegments(listings))
 
