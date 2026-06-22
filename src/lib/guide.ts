@@ -211,7 +211,7 @@ export async function buildGuideMetadata(category: string): Promise<Metadata> {
   const d = await getGuideData(category)
   const cheapestLine = d.cheapest?.fromPrice != null ? `cheapest from ${formatGBP(Math.round(d.cheapest.fromPrice))}, ` : ''
   return pageMetadata({
-    title: `Cheapest ${g.label} UK 2026 — Live Prices | PriceSlicr`,
+    title: `Cheapest ${g.label} UK 2026 — Live Prices`,
     description: `Live UK prices for ${g.label.toLowerCase()}, cheapest first — ${cheapestLine}${d.priced} with a live price across ${d.retailerCount} retailers, new, refurbished and used. A price tracker, not a review.`,
     path: g.guidePath,
   })
