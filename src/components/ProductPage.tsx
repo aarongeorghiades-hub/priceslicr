@@ -260,7 +260,10 @@ export default async function ProductPage({ slug }: { slug: string }) {
               {defaultHero ? (
                 <HeroPrice segments={segmentPrices} />
               ) : (
-                <div className="label text-[var(--ink-dim)]">Prices loading</div>
+                // S22f — server-rendered/no-store, so a null hero is FINAL, not loading.
+                // Honest copy for the deliberately-suppressed (S22d) / genuinely-unpriced
+                // state; retailer search-links still render in the PriceTable below.
+                <div className="label text-[var(--ink-dim)]">No verified price yet</div>
               )}
             </div>
           </div>
