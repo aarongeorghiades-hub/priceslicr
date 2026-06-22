@@ -19,7 +19,11 @@ function formatGBP(n: number) {
   return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-export default function PriceTable({ listings }: { listings: Listing[] }) {
+// `gated` mirrors the hero's trust-gate state (S22d trustedForHero) — passed down
+// from ProductPage so the table and hero can NEVER disagree. When true, the product
+// has no verified (non-eBay-anchored) price: the table must not crown a winner or
+// show a hard figure; every row becomes a neutral "check the listing" pointer.
+export default function PriceTable({ listings, gated = false }: { listings: Listing[]; gated?: boolean }) {
   const { segment } = useCondition()
 
   // Priced rows filter to the selected condition. Search-link rows
@@ -47,6 +51,12 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
       <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
         <div className="heading-card text-[var(--ink)] text-base">Retailer prices</div>
         <div className="label text-[var(--ink-faint)]">{(() => {
+          // Trust-gated: no verified price is presented, so claim none. Every visible
+          // row (the unverifiable eBay row + search-links) is a "to check" pointer.
+          if (gated) {
+            const checkCount = visible.length
+            return <>{checkCount} retailer{checkCount !== 1 ? 's' : ''} to check</>
+          }
           const pricedCount = visible.filter(l => l.price_gbp > 0).length
           const searchCount = visible.filter(l => l.price_gbp === 0).length
           return <>{pricedCount} price{pricedCount !== 1 ? 's' : ''}{searchCount > 0 ? ` · ${searchCount} retailer${searchCount !== 1 ? 's' : ''} to check` : ' · sorted by price'}</>
@@ -64,7 +74,12 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
         return sortedListings.map((listing, i) => {
           const retailer = listing.retailer
           const isSearchLink = listing.price_gbp === 0
-          const isBest = i === 0 && !isSearchLink
+          // On a trust-gated product the priced eBay row(s) are the unverifiable rows
+          // the gate exists to suppress: show them like a search-link (neutral, no
+          // price, no crown), but keep the outbound listing link.
+          const priceSuppressed = gated && !isSearchLink
+          const asCheck = isSearchLink || priceSuppressed
+          const isBest = i === 0 && !isSearchLink && !gated
           return (
             <div key={listing.id}>
               {i === firstUnpricedIndex && firstUnpricedIndex > 0 && (
@@ -98,8 +113,10 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
                       <span className="label text-xs text-[var(--slice-text)]">Best price</span>
                     )}
                   </div>
-                  {isSearchLink ? (
-                    <div className="meta text-[var(--ink-faint)]">Check site for current price</div>
+                  {asCheck ? (
+                    <div className="meta text-[var(--ink-faint)]">
+                      {isSearchLink ? 'Check site for current price' : 'Check the listing for current price'}
+                    </div>
                   ) : (
                     retailer?.warranty_years && listing.condition !== 'used' ? (
                       <div className="meta text-[var(--ink-dim)]">{retailer.warranty_years}-year warranty</div>
@@ -108,14 +125,14 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
                 </div>
 
                 <div className="text-right shrink-0">
-                  {isSearchLink ? (
+                  {asCheck ? (
                     <a
-                      href={listing.url}
+                      href={priceSuppressed ? (listing.affiliate_link ?? listing.url) : listing.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="price-num text-sm text-[var(--ink-dim)] hover:text-[var(--ink)] transition-colors"
                     >
-                      Check price &rarr;
+                      {priceSuppressed ? 'Check the listing' : 'Check price'} &rarr;
                     </a>
                   ) : (
                     <>
@@ -127,7 +144,7 @@ export default function PriceTable({ listings }: { listings: Listing[] }) {
                   )}
                 </div>
 
-                {listing.affiliate_link && !isSearchLink && (
+                {listing.affiliate_link && !asCheck && (
                   <a
                     href={listing.affiliate_link}
                     target="_blank"
