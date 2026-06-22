@@ -17,7 +17,7 @@ export async function generateMetadata({
   const product = await getProductBySlug(slug)
   if (!product) return {}
   const listings = await getListingsForProduct(product.id)
-  return buildProductMetadata({ name: product.name, path: `/headphones/${slug}`, listings })
+  return buildProductMetadata({ name: product.name, path: `/headphones/${slug}`, listings, category: product.category })
 }
 
 export default async function HeadphonesProductPage({

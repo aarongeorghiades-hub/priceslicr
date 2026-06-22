@@ -19,6 +19,7 @@ import {
   cheapestForSegment,
   conditionToSegment,
   defaultSegment as resolveDefaultSegment,
+  trustedForHero,
   SEGMENT_LABELS,
 } from '@/lib/conditionSlices'
 import { formatSpec } from '@/lib/specs'
@@ -93,19 +94,25 @@ export default async function ProductPage({ slug }: { slug: string }) {
     layer => layer.retailer_id === null || retailerIds.has(layer.retailer_id) || listings.length === 0
   )
 
+  // S22d trust-gate: for headphones with no non-eBay anchor, the HERO + JSON-LD must
+  // not headline an (unverifiable) eBay price. Gate ONLY the headline path — the
+  // retailer PriceTable / SavingsColumn below keep the full ungated `listings`, so
+  // eBay rows still show with their condition labels (data not hidden, just not headlined).
+  const heroListings = trustedForHero(listings, product.category) ? listings : []
+
   // Condition segments present on this product (priced rows only).
-  const segments = availableSegments(listings)
-  const defaultSeg = resolveDefaultSegment(listings)
+  const segments = availableSegments(heroListings)
+  const defaultSeg = resolveDefaultSegment(heroListings)
   const segmentPrices: SegmentPrice[] = segments.map(s => ({
     segment: s,
     label: SEGMENT_LABELS[s],
-    price: cheapestForSegment(listings, s)!.price_gbp,
+    price: cheapestForSegment(heroListings, s)!.price_gbp,
   }))
 
   // Default condition fully resolved server-side — drives the hero price and JSON-LD.
-  const defaultHero = defaultSeg ? cheapestForSegment(listings, defaultSeg) : null
+  const defaultHero = defaultSeg ? cheapestForSegment(heroListings, defaultSeg) : null
   const defaultSegListings = defaultSeg
-    ? listings
+    ? heroListings
         .filter(l => l.price_gbp > 0 && conditionToSegment(l.condition) === defaultSeg)
         .sort((a, b) => a.price_gbp - b.price_gbp)
     : []

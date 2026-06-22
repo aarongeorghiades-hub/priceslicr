@@ -7,6 +7,7 @@ import {
   defaultSegment,
   cheapestForSegment,
   availableSegments,
+  trustedForHero,
   SEGMENT_LABELS,
   type ConditionSegment,
 } from '@/lib/conditionSlices'
@@ -98,7 +99,10 @@ export interface GuideData {
 // Same price resolution as the category cards / Pass-1 ItemList — one path only.
 function resolve(product: GuideProduct): GuideEntry {
   const inStock = (product.listings ?? []).filter(l => l.in_stock) as Listing[]
-  const segment = defaultSegment(inStock)
+  // S22d trust-gate: a headphones product with no non-eBay anchor never headlines a
+  // price (hero, ranked list, category meta all read this) — resolves to unpriced.
+  const trusted = trustedForHero(inStock, product.category)
+  const segment = trusted ? defaultSegment(inStock) : null
   const fromPrice = segment ? cheapestForSegment(inStock, segment)?.price_gbp ?? null : null
   return { product, fromPrice, segment, segmentsPresent: availableSegments(inStock) }
 }
