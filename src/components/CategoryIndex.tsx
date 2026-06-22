@@ -153,11 +153,16 @@ export default async function CategoryIndex({ category, title, singular, descrip
                           ))}
                       </div>
                     )}
-                    {fromPrice != null && (
+                    {fromPrice != null ? (
                       <div className="mt-3">
                         <span className="meta">from </span>
                         <span className="price-num text-base text-[var(--ink)]">{formatGBP(Math.round(fromPrice))}</span>
                         {seg && seg !== 'new' && <span className="meta">{' · '}{seg}</span>}
+                      </div>
+                    ) : (
+                      // S22f — honest final copy for the suppressed (S22d) / unpriced case.
+                      <div className="mt-3">
+                        <span className="meta text-[var(--ink-dim)]">No verified price yet</span>
                       </div>
                     )}
                     <div className="meta text-[var(--slice-text)] mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
