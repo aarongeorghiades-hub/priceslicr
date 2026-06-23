@@ -9,6 +9,9 @@ export default function Footer() {
             <span className="text-[var(--ink)]">Price</span><span className="text-[var(--slice-text)]">/Slicr</span>
           </div>
           <nav className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <Link href="/used-refurbished-tech-uk" className="label text-[13px] text-[var(--ink-faint)] hover:text-[var(--ink-dim)] transition-colors">
+              Used &amp; Refurbished
+            </Link>
             <Link href="/privacy" className="label text-[13px] text-[var(--ink-faint)] hover:text-[var(--ink-dim)] transition-colors">
               Privacy
             </Link>
