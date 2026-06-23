@@ -119,6 +119,11 @@ export default async function CategoryIndex({ category, title, singular, descrip
               </Link>
             </div>
           )}
+          <div className="mt-2">
+            <Link href="/used-refurbished-tech-uk" className="meta text-[var(--slice-text)] hover:underline">
+              Buying used or refurbished? UK guide &amp; live prices &rarr;
+            </Link>
+          </div>
         </div>
 
         <div className="space-y-10">

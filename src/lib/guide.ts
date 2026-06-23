@@ -205,6 +205,79 @@ export const getGuideData = cache(async (category: string): Promise<GuideData> =
   }
 })
 
+// ── S24: Used & Refurbished cornerstone hub — live price snapshot ──
+// Cheapest TRUSTED used-or-refurbished price per category, built from the SAME shared
+// resolution primitives (trustedForHero gate + cheapestForSegment), never a parallel
+// price path. Skips products that fail the trust gate (counterfeit-suspect / no
+// non-eBay anchor) and only counts priced (>0) rows, so it can never emit "From £0".
+export interface SnapshotRow {
+  category: string
+  route: string
+  guidePath: string
+  label: string
+  singular: string
+  product: { name: string; slug: string } | null
+  price: number | null
+  segment: 'refurbished' | 'used' | null
+}
+export interface UsedRefurbSnapshot {
+  rows: SnapshotRow[]
+  lastChecked: string | null
+  lowest: { label: string; price: number } | null
+}
+
+export const getUsedRefurbSnapshot = cache(async (): Promise<UsedRefurbSnapshot> => {
+  const supabase = await createServerSupabaseClient()
+  const cats = GUIDES.map(g => g.category)
+  const { data } = await supabase
+    .from('products')
+    .select('id, name, slug, category, listings(price_gbp, condition, in_stock, retailer_id, scraped_at)')
+    .in('category', cats)
+
+  const products = (data ?? []) as GuideProduct[]
+  const best: Record<string, { product: { name: string; slug: string }; price: number; segment: 'refurbished' | 'used' }> = {}
+  let lastChecked: string | null = null
+
+  for (const p of products) {
+    const inStock = (p.listings ?? []).filter(l => l.in_stock) as Listing[]
+    for (const l of inStock) {
+      if (l.price_gbp > 0 && l.scraped_at && (lastChecked == null || l.scraped_at > lastChecked)) lastChecked = l.scraped_at
+    }
+    // Trust gate first — never surface an unverifiable / counterfeit-suspect product.
+    if (!trustedForHero(inStock, p.category)) continue
+    let pick: { price: number; segment: 'refurbished' | 'used' } | null = null
+    for (const seg of ['refurbished', 'used'] as const) {
+      const c = cheapestForSegment(inStock, seg) // shared: priced-only, drops new-below-used
+      if (c && (pick == null || c.price_gbp < pick.price)) pick = { price: c.price_gbp, segment: seg }
+    }
+    if (pick) {
+      const cur = best[p.category]
+      if (!cur || pick.price < cur.price) best[p.category] = { product: { name: p.name, slug: p.slug }, ...pick }
+    }
+  }
+
+  const rows: SnapshotRow[] = GUIDES.map(g => {
+    const b = best[g.category]
+    return {
+      category: g.category, route: g.route, guidePath: g.guidePath, label: g.label, singular: g.singular,
+      product: b?.product ?? null, price: b?.price ?? null, segment: b?.segment ?? null,
+    }
+  })
+  const priced = rows.filter(r => r.price != null) as (SnapshotRow & { price: number })[]
+  const lowestRow = priced.length ? priced.reduce((a, b) => (b.price < a.price ? b : a)) : null
+  return { rows, lastChecked, lowest: lowestRow ? { label: lowestRow.label, price: lowestRow.price } : null }
+})
+
+export async function buildUsedRefurbMetadata(): Promise<Metadata> {
+  const s = await getUsedRefurbSnapshot()
+  const fromLine = s.lowest ? ` Cheapest tracked right now: ${s.lowest.label.toLowerCase()} from ${formatGBP(Math.round(s.lowest.price))}.` : ''
+  return pageMetadata({
+    title: 'Used & Refurbished Tech UK 2026 — Live Prices & Buying Guide',
+    description: `How to buy used and refurbished tech in the UK without overpaying or getting burned — CEX grades, eBay conditions and counterfeit risk, used vs refurbished explained, plus the live cheapest verified second-hand price for phones, laptops, tablets, headphones, smartwatches and monitors.${fromLine}`,
+    path: '/used-refurbished-tech-uk',
+  })
+}
+
 export async function buildGuideMetadata(category: string): Promise<Metadata> {
   const g = getGuide(category)
   if (!g) return {}

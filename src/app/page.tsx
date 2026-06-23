@@ -58,6 +58,11 @@ export default function HomePage() {
               Free to use. No ads, no cookie tricks.
             </span>
           </div>
+          <div className="mt-6">
+            <Link href="/used-refurbished-tech-uk" className="meta text-[var(--slice-text)] hover:underline">
+              Buying used or refurbished? Read our UK live-price guide &rarr;
+            </Link>
+          </div>
         </div>
 
         {/* Demo card — the visual anchor, with the viewport's single soft glow behind it */}
