@@ -117,8 +117,9 @@ export default async function UsedRefurbHub() {
           <div className="grid md:grid-cols-2 gap-4">
             {CONDITIONS.map(c => (
               <div key={c.key} className="card p-5">
-                <div className="font-display font-semibold text-[var(--ink)] text-sm mb-1">{c.term}</div>
-                <div className="meta text-[var(--ink-faint)] mb-2">{c.key}</div>
+                {/* Heading IS the clean human label (New / Certified Refurbished /
+                    Refurbished / Used) — no raw-enum subtitle. */}
+                <div className="font-display font-semibold text-[var(--ink)] text-sm mb-2">{c.term}</div>
                 <p className="text-[var(--ink-dim)] text-sm leading-relaxed">{c.body}</p>
               </div>
             ))}
@@ -186,8 +187,11 @@ export default async function UsedRefurbHub() {
           </div>
         </Reveal>
 
-        {/* 7. LIVE PRICE SNAPSHOT */}
-        <Reveal as="section" className="mist mist-wide mb-4">
+        {/* 7. LIVE PRICE SNAPSHOT — deliberately NOT wrapped in <Reveal>. This is the
+            page's core conversion content; a scroll-reveal can leave a deep section at
+            opacity:0 (reveal-hidden) when its IntersectionObserver doesn't fire, which
+            showed as an empty band (S25). Always-visible plain <section> instead. */}
+        <section className="mist mist-wide mb-4">
           <h2 className="heading-card text-[var(--ink)] mb-2">Live cheapest verified second-hand price</h2>
           <p className="meta text-[var(--ink-dim)] mb-5">The cheapest trusted used or refurbished price we currently hold per category. Counterfeit-suspect and unverified prices are excluded.</p>
           <div className="space-y-2">
@@ -226,7 +230,7 @@ export default async function UsedRefurbHub() {
           <p className="label text-[13px] text-[var(--ink-faint)] mt-2">
             We may earn a commission when you buy through our links — it never affects the prices you see.
           </p>
-        </Reveal>
+        </section>
 
         {/* 9. FAQ */}
         <Reveal as="section" className="mist mt-12">
