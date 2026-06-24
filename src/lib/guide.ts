@@ -268,6 +268,73 @@ export const getUsedRefurbSnapshot = cache(async (): Promise<UsedRefurbSnapshot>
   return { rows, lastChecked, lowest: lowestRow ? { label: lowestRow.label, price: lowestRow.price } : null }
 })
 
+// ── S25 spoke-1: cheapest used/refurbished iPhone — live trusted prices ──
+// Per iPhone model, the cheapest TRUSTED price (any condition, honest raw label) via
+// the SAME shared primitives (trustedForHero gate + cheapestForSegment). Also surfaces
+// the cheapest REFURBISHED iPhone separately, so the article never blurs used vs
+// refurbished. Priced-only, trust-gated, never "From £0".
+export interface IphoneRow {
+  name: string
+  slug: string
+  price: number
+  condition: string // raw DB condition: new | certified_refurbished | refurbished | used
+  retailerId: string | null
+}
+export interface CheapestIphones {
+  rows: IphoneRow[] // cheapest-first; trusted-priced only
+  count: number
+  lastChecked: string | null
+  cheapestOverall: IphoneRow | null
+  cheapestRefurb: { name: string; slug: string; price: number; condition: string } | null
+}
+
+export const getCheapestIphones = cache(async (): Promise<CheapestIphones> => {
+  const supabase = await createServerSupabaseClient()
+  const { data } = await supabase
+    .from('products')
+    .select('name, slug, brand, category, listings(price_gbp, condition, in_stock, retailer_id, scraped_at)')
+    .eq('category', 'phone')
+
+  const products = (data ?? []) as (GuideProduct & { brand?: string })[]
+  const isIphone = (p: { name: string; brand?: string }) => /iphone/i.test(p.name) || p.brand === 'Apple'
+
+  let lastChecked: string | null = null
+  let cheapestRefurb: { name: string; slug: string; price: number; condition: string } | null = null
+  const rows: IphoneRow[] = []
+
+  for (const p of products) {
+    if (!isIphone(p)) continue
+    const inStock = (p.listings ?? []).filter(l => l.in_stock) as Listing[]
+    for (const l of inStock) {
+      if (l.price_gbp > 0 && l.scraped_at && (lastChecked == null || l.scraped_at > lastChecked)) lastChecked = l.scraped_at
+    }
+    if (!trustedForHero(inStock, p.category)) continue
+    let best: Listing | null = null
+    for (const seg of ['new', 'refurbished', 'used'] as ConditionSegment[]) {
+      const c = cheapestForSegment(inStock, seg)
+      if (c && (best == null || c.price_gbp < best.price_gbp)) best = c
+    }
+    if (best) rows.push({ name: p.name, slug: p.slug, price: best.price_gbp, condition: best.condition, retailerId: best.retailer_id ?? null })
+    const refurb = cheapestForSegment(inStock, 'refurbished')
+    if (refurb && (cheapestRefurb == null || refurb.price_gbp < cheapestRefurb.price)) {
+      cheapestRefurb = { name: p.name, slug: p.slug, price: refurb.price_gbp, condition: refurb.condition }
+    }
+  }
+  rows.sort((a, b) => a.price - b.price)
+  return { rows, count: rows.length, lastChecked, cheapestOverall: rows[0] ?? null, cheapestRefurb }
+})
+
+export async function buildCheapestIphoneMetadata(): Promise<Metadata> {
+  const d = await getCheapestIphones()
+  const usedLine = d.cheapestOverall ? `Cheapest right now: ${d.cheapestOverall.name} from ${formatGBP(Math.round(d.cheapestOverall.price))} (${d.cheapestOverall.condition === 'used' ? 'used' : d.cheapestOverall.condition.replace('_', ' ')}).` : ''
+  const refurbLine = d.cheapestRefurb ? ` Cheapest refurbished: ${d.cheapestRefurb.name} from ${formatGBP(Math.round(d.cheapestRefurb.price))}.` : ''
+  return pageMetadata({
+    title: 'Cheapest Used or Refurbished iPhone UK 2026 — Live Prices',
+    description: `Live UK prices for used and refurbished iPhones, cheapest first, with the used-vs-refurbished difference explained honestly. ${usedLine}${refurbLine}`.trim(),
+    path: '/cheapest-used-refurbished-iphone-uk',
+  })
+}
+
 export async function buildUsedRefurbMetadata(): Promise<Metadata> {
   const s = await getUsedRefurbSnapshot()
   const fromLine = s.lowest ? ` Cheapest tracked right now: ${s.lowest.label.toLowerCase()} from ${formatGBP(Math.round(s.lowest.price))}.` : ''
