@@ -277,18 +277,18 @@ export interface IphoneRow {
   name: string
   slug: string
   price: number
-  condition: string // raw DB condition of the cheapest-overall listing
+  condition: string // raw DB condition of this model's cheapest-overall listing
   retailerId: string | null
-  refurbPrice: number | null // this model's cheapest refurbished (incl. certified) price, if any
-  refurbCondition: string | null
 }
-type IphoneAnchor = { name: string; slug: string; price: number; condition: string }
+// Every prose figure must be one of these rendered rows — anchors are picked FROM `rows`,
+// never recomputed from a looser/segment query, so the copy and the table can never diverge.
+const isRefurbCondition = (c: string) => c === 'refurbished' || c === 'certified_refurbished'
 export interface CheapestIphones {
-  rows: IphoneRow[] // cheapest-first; trusted-priced only
+  rows: IphoneRow[] // cheapest-first; one trusted cheapest-overall row per model
   count: number
   lastChecked: string | null
-  cheapestUsed: IphoneAnchor | null // intro anchor (1a) — must be a visible row
-  cheapestRefurb: IphoneAnchor | null // intro anchor (1b) — must be visible & condition-labelled
+  cheapestOverall: IphoneRow | null // = rows[0]
+  cheapestRefurb: IphoneRow | null // = cheapest row whose condition is refurbished/certified
 }
 
 export const getCheapestIphones = cache(async (): Promise<CheapestIphones> => {
@@ -302,8 +302,6 @@ export const getCheapestIphones = cache(async (): Promise<CheapestIphones> => {
   const isIphone = (p: { name: string; brand?: string }) => /iphone/i.test(p.name) || p.brand === 'Apple'
 
   let lastChecked: string | null = null
-  let cheapestUsed: IphoneAnchor | null = null
-  let cheapestRefurb: IphoneAnchor | null = null
   const rows: IphoneRow[] = []
 
   for (const p of products) {
@@ -318,30 +316,24 @@ export const getCheapestIphones = cache(async (): Promise<CheapestIphones> => {
       const c = cheapestForSegment(inStock, seg)
       if (c && (best == null || c.price_gbp < best.price_gbp)) best = c
     }
-    const usedL = cheapestForSegment(inStock, 'used')
-    const refurbL = cheapestForSegment(inStock, 'refurbished') // covers refurbished + certified_refurbished
-    if (best) rows.push({
-      name: p.name, slug: p.slug, price: best.price_gbp, condition: best.condition, retailerId: best.retailer_id ?? null,
-      refurbPrice: refurbL?.price_gbp ?? null, refurbCondition: refurbL?.condition ?? null,
-    })
-    if (usedL && (cheapestUsed == null || usedL.price_gbp < cheapestUsed.price)) {
-      cheapestUsed = { name: p.name, slug: p.slug, price: usedL.price_gbp, condition: usedL.condition }
-    }
-    if (refurbL && (cheapestRefurb == null || refurbL.price_gbp < cheapestRefurb.price)) {
-      cheapestRefurb = { name: p.name, slug: p.slug, price: refurbL.price_gbp, condition: refurbL.condition }
-    }
+    if (best) rows.push({ name: p.name, slug: p.slug, price: best.price_gbp, condition: best.condition, retailerId: best.retailer_id ?? null })
   }
   rows.sort((a, b) => a.price - b.price)
-  return { rows, count: rows.length, lastChecked, cheapestUsed, cheapestRefurb }
+  // Anchors are picked FROM the rendered rows, so every prose figure is always a visible row.
+  const cheapestRefurb = rows
+    .filter(r => isRefurbCondition(r.condition))
+    .reduce<IphoneRow | null>((acc, r) => (acc == null || r.price < acc.price ? r : acc), null)
+  return { rows, count: rows.length, lastChecked, cheapestOverall: rows[0] ?? null, cheapestRefurb }
 })
 
 export async function buildCheapestIphoneMetadata(): Promise<Metadata> {
   const d = await getCheapestIphones()
-  const usedLine = d.cheapestUsed ? `Cheapest used: ${d.cheapestUsed.name} from ${formatGBP(Math.round(d.cheapestUsed.price))}.` : ''
-  const refurbLine = d.cheapestRefurb ? ` Cheapest refurbished: ${d.cheapestRefurb.name} from ${formatGBP(Math.round(d.cheapestRefurb.price))}.` : ''
+  const o = d.cheapestOverall
+  const overallLine = o ? `Cheapest right now: ${o.name} from ${formatGBP(Math.round(o.price))} (${o.condition.replace('_', ' ')}).` : ''
+  const refurbLine = d.cheapestRefurb && d.cheapestRefurb.slug !== o?.slug ? ` Cheapest refurbished: ${d.cheapestRefurb.name} from ${formatGBP(Math.round(d.cheapestRefurb.price))}.` : ''
   return pageMetadata({
     title: 'Cheapest Used or Refurbished iPhone UK 2026 — Live Prices',
-    description: `Live UK prices for used and refurbished iPhones, cheapest first, with the used-vs-refurbished difference explained honestly. ${usedLine}${refurbLine}`.trim(),
+    description: `Live UK prices for used and refurbished iPhones, cheapest first, with the used-vs-refurbished difference explained honestly. ${overallLine}${refurbLine}`.trim(),
     path: '/cheapest-used-refurbished-iphone-uk',
   })
 }
