@@ -277,15 +277,18 @@ export interface IphoneRow {
   name: string
   slug: string
   price: number
-  condition: string // raw DB condition: new | certified_refurbished | refurbished | used
+  condition: string // raw DB condition of the cheapest-overall listing
   retailerId: string | null
+  refurbPrice: number | null // this model's cheapest refurbished (incl. certified) price, if any
+  refurbCondition: string | null
 }
+type IphoneAnchor = { name: string; slug: string; price: number; condition: string }
 export interface CheapestIphones {
   rows: IphoneRow[] // cheapest-first; trusted-priced only
   count: number
   lastChecked: string | null
-  cheapestOverall: IphoneRow | null
-  cheapestRefurb: { name: string; slug: string; price: number; condition: string } | null
+  cheapestUsed: IphoneAnchor | null // intro anchor (1a) — must be a visible row
+  cheapestRefurb: IphoneAnchor | null // intro anchor (1b) — must be visible & condition-labelled
 }
 
 export const getCheapestIphones = cache(async (): Promise<CheapestIphones> => {
@@ -299,7 +302,8 @@ export const getCheapestIphones = cache(async (): Promise<CheapestIphones> => {
   const isIphone = (p: { name: string; brand?: string }) => /iphone/i.test(p.name) || p.brand === 'Apple'
 
   let lastChecked: string | null = null
-  let cheapestRefurb: { name: string; slug: string; price: number; condition: string } | null = null
+  let cheapestUsed: IphoneAnchor | null = null
+  let cheapestRefurb: IphoneAnchor | null = null
   const rows: IphoneRow[] = []
 
   for (const p of products) {
@@ -314,19 +318,26 @@ export const getCheapestIphones = cache(async (): Promise<CheapestIphones> => {
       const c = cheapestForSegment(inStock, seg)
       if (c && (best == null || c.price_gbp < best.price_gbp)) best = c
     }
-    if (best) rows.push({ name: p.name, slug: p.slug, price: best.price_gbp, condition: best.condition, retailerId: best.retailer_id ?? null })
-    const refurb = cheapestForSegment(inStock, 'refurbished')
-    if (refurb && (cheapestRefurb == null || refurb.price_gbp < cheapestRefurb.price)) {
-      cheapestRefurb = { name: p.name, slug: p.slug, price: refurb.price_gbp, condition: refurb.condition }
+    const usedL = cheapestForSegment(inStock, 'used')
+    const refurbL = cheapestForSegment(inStock, 'refurbished') // covers refurbished + certified_refurbished
+    if (best) rows.push({
+      name: p.name, slug: p.slug, price: best.price_gbp, condition: best.condition, retailerId: best.retailer_id ?? null,
+      refurbPrice: refurbL?.price_gbp ?? null, refurbCondition: refurbL?.condition ?? null,
+    })
+    if (usedL && (cheapestUsed == null || usedL.price_gbp < cheapestUsed.price)) {
+      cheapestUsed = { name: p.name, slug: p.slug, price: usedL.price_gbp, condition: usedL.condition }
+    }
+    if (refurbL && (cheapestRefurb == null || refurbL.price_gbp < cheapestRefurb.price)) {
+      cheapestRefurb = { name: p.name, slug: p.slug, price: refurbL.price_gbp, condition: refurbL.condition }
     }
   }
   rows.sort((a, b) => a.price - b.price)
-  return { rows, count: rows.length, lastChecked, cheapestOverall: rows[0] ?? null, cheapestRefurb }
+  return { rows, count: rows.length, lastChecked, cheapestUsed, cheapestRefurb }
 })
 
 export async function buildCheapestIphoneMetadata(): Promise<Metadata> {
   const d = await getCheapestIphones()
-  const usedLine = d.cheapestOverall ? `Cheapest right now: ${d.cheapestOverall.name} from ${formatGBP(Math.round(d.cheapestOverall.price))} (${d.cheapestOverall.condition === 'used' ? 'used' : d.cheapestOverall.condition.replace('_', ' ')}).` : ''
+  const usedLine = d.cheapestUsed ? `Cheapest used: ${d.cheapestUsed.name} from ${formatGBP(Math.round(d.cheapestUsed.price))}.` : ''
   const refurbLine = d.cheapestRefurb ? ` Cheapest refurbished: ${d.cheapestRefurb.name} from ${formatGBP(Math.round(d.cheapestRefurb.price))}.` : ''
   return pageMetadata({
     title: 'Cheapest Used or Refurbished iPhone UK 2026 — Live Prices',
