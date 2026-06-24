@@ -25,11 +25,16 @@ export default async function CheapestIphoneArticle() {
   const lastChecked = d.lastChecked
     ? new Date(d.lastChecked).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
     : null
-  const used = d.cheapestUsed
+  const overall = d.cheapestOverall
   const refurb = d.cheapestRefurb
-  const usedStr = used ? formatGBP(Math.round(used.price)) : null
+  const overallStr = overall ? formatGBP(Math.round(overall.price)) : null
   const refurbStr = refurb ? formatGBP(Math.round(refurb.price)) : null
   const isRefurbCondition = (c: string) => c === 'refurbished' || c === 'certified_refurbished'
+  // Both anchors are rows from the table (cheapestOverall = rows[0]; cheapestRefurb =
+  // cheapest refurbished row). When the cheapest overall is itself refurbished, it IS
+  // the cheapest refurbished too — so we don't cite a second (phantom) figure.
+  const overallIsRefurb = overall ? isRefurbCondition(overall.condition) : false
+  const refurbIsDistinct = !!(refurb && overall && refurb.slug !== overall.slug)
 
   const faqs: { q: string; a: string }[] = [
     {
@@ -46,7 +51,7 @@ export default async function CheapestIphoneArticle() {
     },
     {
       q: 'Where is the cheapest place to buy a used iPhone in the UK?',
-      a: `It depends on how much assurance you want. CEX is strong for graded, warrantied used and refurbished stock with easy returns; eBay often has the lowest outright price and the widest model choice, but assurance varies by seller. This page tracks the live cheapest verified price across both${usedStr ? ` — used from ${usedStr}` : ''}, and we leave out listings that look too cheap to be real.`,
+      a: `It depends on how much assurance you want. CEX is strong for graded, warrantied used and refurbished stock with easy returns; eBay often has the lowest outright price and the widest model choice, but assurance varies by seller. This page tracks the live cheapest verified price across both${overallStr ? ` — currently from ${overallStr}` : ''}, and we leave out listings that look too cheap to be real.`,
     },
   ]
 
@@ -93,22 +98,24 @@ export default async function CheapestIphoneArticle() {
             <span className="text-[var(--slice-text)]">in the UK, right now.</span>
           </h1>
           <p className="text-[var(--ink-dim)] text-lg mt-5 max-w-2xl leading-relaxed">
-            {used ? (
+            {overall ? (
               <>
-                {`The cheapest used iPhone we hold a verified price on is the `}
-                <Link href={`/phones/${used.slug}`} className="text-[var(--slice-text)] hover:underline">{used.name}</Link>
+                {`The cheapest iPhone we hold a verified price on is the `}
+                <Link href={`/phones/${overall.slug}`} className="text-[var(--slice-text)] hover:underline">{overall.name}</Link>
                 {` from `}
-                <span className="price-num text-[var(--ink)]">{usedStr}</span>
-                {` (used). `}
-                {refurb ? (
+                <span className="price-num text-[var(--ink)]">{overallStr}</span>
+                {` (${(CONDITION_LABEL[overall.condition] ?? overall.condition).toLowerCase()}). `}
+                {overallIsRefurb ? (
+                  <>{`As that listing is `}<span className="text-[var(--ink)]">refurbished</span>{` — tested and usually warrantied — it is currently both the cheapest iPhone and the cheapest refurbished one we hold. We still keep used and refurbished clearly apart in the list below.`}</>
+                ) : refurbIsDistinct ? (
                   <>
                     {`The cheapest `}<span className="text-[var(--ink)]">refurbished</span>{` iPhone — tested and usually warrantied — is the `}
-                    <Link href={`/phones/${refurb.slug}`} className="text-[var(--slice-text)] hover:underline">{refurb.name}</Link>
+                    <Link href={`/phones/${refurb!.slug}`} className="text-[var(--slice-text)] hover:underline">{refurb!.name}</Link>
                     {` from `}<span className="price-num text-[var(--ink)]">{refurbStr}</span>
-                    {`. Both figures are in the list below; we keep used and refurbished clearly apart so you know exactly what you are buying.`}
+                    {`. Both figures are rows in the list below; we keep used and refurbished clearly apart so you know exactly what you are buying.`}
                   </>
                 ) : (
-                  <>{`We don’t currently hold a verified refurbished iPhone price — every figure in the list below is a used listing.`}</>
+                  <>{`We don’t currently hold a verified refurbished iPhone price below it — every other figure in the list is a used listing.`}</>
                 )}
               </>
             ) : (
@@ -133,24 +140,14 @@ export default async function CheapestIphoneArticle() {
               >
                 <div className="min-w-0">
                   <div className="font-display font-semibold text-[var(--ink)] text-sm group-hover:text-[var(--slice-text)] transition-colors truncate">{r.name}</div>
-                  {r.retailerId && RETAILER[r.retailerId] && (
-                    <div className="meta text-[var(--ink-faint)] mt-1">{RETAILER[r.retailerId]}</div>
-                  )}
+                  <div className="meta text-[var(--ink-dim)] mt-1">
+                    {CONDITION_LABEL[r.condition] ?? r.condition}
+                    {r.retailerId && RETAILER[r.retailerId] ? ` · ${RETAILER[r.retailerId]}` : ''}
+                  </div>
                 </div>
                 <div className="shrink-0 text-right">
-                  <div>
-                    <span className="meta">{`${CONDITION_LABEL[r.condition] ?? r.condition} from `}</span>
-                    <span className="price-num text-base text-[var(--ink)]">{formatGBP(Math.round(r.price))}</span>
-                  </div>
-                  {/* Surface this model's refurbished price too, so the intro's
-                      cheapest-refurbished figure is always a visible, correctly-labelled
-                      row — even when the model's cheapest overall is a used listing. */}
-                  {r.refurbPrice != null && !isRefurbCondition(r.condition) && (
-                    <div className="mt-0.5">
-                      <span className="meta">Refurbished from </span>
-                      <span className="price-num text-sm text-[var(--ink-dim)]">{formatGBP(Math.round(r.refurbPrice))}</span>
-                    </div>
-                  )}
+                  <span className="meta">from </span>
+                  <span className="price-num text-base text-[var(--ink)]">{formatGBP(Math.round(r.price))}</span>
                 </div>
               </Link>
             ))}
