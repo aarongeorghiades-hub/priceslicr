@@ -245,8 +245,18 @@ export default async function UsedRefurbHub() {
           </div>
         </Reveal>
 
-        {/* Internal links out to the live-price guides */}
+        {/* Deep-dive spoke articles (topical cluster) */}
         <div className="mt-12 pt-8 border-t border-[var(--border)]">
+          <div className="label text-[var(--ink-dim)] mb-3">In depth</div>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link href="/cheapest-used-refurbished-iphone-uk" className="meta text-[var(--slice-text)] hover:underline">
+              Cheapest used or refurbished iPhone UK &rarr;
+            </Link>
+          </div>
+        </div>
+
+        {/* Internal links out to the live-price guides */}
+        <div className="mt-8 pt-8 border-t border-[var(--border)]">
           <div className="label text-[var(--ink-dim)] mb-3">Live cheapest-price guides</div>
           <div className="flex flex-wrap gap-x-5 gap-y-2">
             {snap.rows.map(r => (
