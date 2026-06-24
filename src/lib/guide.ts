@@ -268,44 +268,46 @@ export const getUsedRefurbSnapshot = cache(async (): Promise<UsedRefurbSnapshot>
   return { rows, lastChecked, lowest: lowestRow ? { label: lowestRow.label, price: lowestRow.price } : null }
 })
 
-// ── S25 spoke-1: cheapest used/refurbished iPhone — live trusted prices ──
-// Per iPhone model, the cheapest TRUSTED price (any condition, honest raw label) via
-// the SAME shared primitives (trustedForHero gate + cheapestForSegment). Also surfaces
-// the cheapest REFURBISHED iPhone separately, so the article never blurs used vs
-// refurbished. Priced-only, trust-gated, never "From £0".
-export interface IphoneRow {
+// ── S25 spoke resolver (generic): cheapest trusted price per product in a category ──
+// One cheapest-overall TRUSTED row per product, via the SAME shared primitives
+// (trustedForHero gate + cheapestForSegment). Anchors (cheapestOverall / cheapestRefurb)
+// are picked FROM the rendered rows, never a looser query — so every prose figure on a
+// spoke page is, by construction, a visible table row. Priced/trusted only; never "From £0".
+export interface CategoryProductRow {
   name: string
   slug: string
   price: number
-  condition: string // raw DB condition of this model's cheapest-overall listing
+  condition: string // raw DB condition of this product's cheapest-overall listing
   retailerId: string | null
 }
-// Every prose figure must be one of these rendered rows — anchors are picked FROM `rows`,
-// never recomputed from a looser/segment query, so the copy and the table can never diverge.
 const isRefurbCondition = (c: string) => c === 'refurbished' || c === 'certified_refurbished'
-export interface CheapestIphones {
-  rows: IphoneRow[] // cheapest-first; one trusted cheapest-overall row per model
+export interface CheapestForCategory {
+  rows: CategoryProductRow[] // cheapest-first; one trusted cheapest-overall row per product
   count: number
   lastChecked: string | null
-  cheapestOverall: IphoneRow | null // = rows[0]
-  cheapestRefurb: IphoneRow | null // = cheapest row whose condition is refurbished/certified
+  cheapestOverall: CategoryProductRow | null // = rows[0]
+  cheapestRefurb: CategoryProductRow | null // = cheapest row whose condition is refurbished/certified
 }
+// Back-compat aliases for the iPhone spoke (unchanged shape).
+export type IphoneRow = CategoryProductRow
+export type CheapestIphones = CheapestForCategory
 
-export const getCheapestIphones = cache(async (): Promise<CheapestIphones> => {
+export const getCheapestForCategory = cache(async (
+  category: string,
+  nameFilter?: (p: { name: string; brand?: string }) => boolean
+): Promise<CheapestForCategory> => {
   const supabase = await createServerSupabaseClient()
   const { data } = await supabase
     .from('products')
     .select('name, slug, brand, category, listings(price_gbp, condition, in_stock, retailer_id, scraped_at)')
-    .eq('category', 'phone')
+    .eq('category', category)
 
   const products = (data ?? []) as (GuideProduct & { brand?: string })[]
-  const isIphone = (p: { name: string; brand?: string }) => /iphone/i.test(p.name) || p.brand === 'Apple'
-
   let lastChecked: string | null = null
-  const rows: IphoneRow[] = []
+  const rows: CategoryProductRow[] = []
 
   for (const p of products) {
-    if (!isIphone(p)) continue
+    if (nameFilter && !nameFilter(p)) continue
     const inStock = (p.listings ?? []).filter(l => l.in_stock) as Listing[]
     for (const l of inStock) {
       if (l.price_gbp > 0 && l.scraped_at && (lastChecked == null || l.scraped_at > lastChecked)) lastChecked = l.scraped_at
@@ -319,12 +321,16 @@ export const getCheapestIphones = cache(async (): Promise<CheapestIphones> => {
     if (best) rows.push({ name: p.name, slug: p.slug, price: best.price_gbp, condition: best.condition, retailerId: best.retailer_id ?? null })
   }
   rows.sort((a, b) => a.price - b.price)
-  // Anchors are picked FROM the rendered rows, so every prose figure is always a visible row.
   const cheapestRefurb = rows
     .filter(r => isRefurbCondition(r.condition))
-    .reduce<IphoneRow | null>((acc, r) => (acc == null || r.price < acc.price ? r : acc), null)
+    .reduce<CategoryProductRow | null>((acc, r) => (acc == null || r.price < acc.price ? r : acc), null)
   return { rows, count: rows.length, lastChecked, cheapestOverall: rows[0] ?? null, cheapestRefurb }
 })
+
+// iPhone spoke = phones category filtered to Apple/iPhone. Stable module-level filter so the
+// React cache() key is identical across calls (metadata builder + page) → one query.
+const IPHONE_FILTER = (p: { name: string; brand?: string }) => /iphone/i.test(p.name) || p.brand === 'Apple'
+export const getCheapestIphones = (): Promise<CheapestForCategory> => getCheapestForCategory('phone', IPHONE_FILTER)
 
 export async function buildCheapestIphoneMetadata(): Promise<Metadata> {
   const d = await getCheapestIphones()
@@ -335,6 +341,19 @@ export async function buildCheapestIphoneMetadata(): Promise<Metadata> {
     title: 'Cheapest Used or Refurbished iPhone UK 2026 — Live Prices',
     description: `Live UK prices for used and refurbished iPhones, cheapest first, with the used-vs-refurbished difference explained honestly. ${overallLine}${refurbLine}`.trim(),
     path: '/cheapest-used-refurbished-iphone-uk',
+  })
+}
+
+// ── S25 spoke-2: cheapest refurbished laptop UK ──
+export async function buildCheapestLaptopMetadata(): Promise<Metadata> {
+  const d = await getCheapestForCategory('laptop')
+  const o = d.cheapestOverall
+  const overallLine = o ? `Cheapest right now: ${o.name} from ${formatGBP(Math.round(o.price))} (${o.condition.replace('_', ' ')}).` : ''
+  const refurbLine = d.cheapestRefurb && d.cheapestRefurb.slug !== o?.slug ? ` Cheapest refurbished: ${d.cheapestRefurb.name} from ${formatGBP(Math.round(d.cheapestRefurb.price))}.` : ''
+  return pageMetadata({
+    title: 'Cheapest Refurbished Laptop UK 2026 — Live Prices',
+    description: `Live UK prices for refurbished and used laptops, cheapest first, with the used-vs-refurbished difference explained honestly. ${overallLine}${refurbLine}`.trim(),
+    path: '/cheapest-refurbished-laptop-uk',
   })
 }
 
