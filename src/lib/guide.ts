@@ -394,6 +394,25 @@ export async function buildCheapestHeadphonesMetadata(): Promise<Metadata> {
   })
 }
 
+// ── S25 spoke-5: cheapest refurbished Apple Watch UK ──
+// Smartwatch category is Apple-Watch-heavy but mixed; the page leads on Apple Watch, so
+// anchors here are the cheapest Apple Watch ROW and cheapest refurbished Apple Watch ROW
+// (filtered FROM the rendered rows — still rendered rows, never a parallel price path).
+// The on-page list shows all tracked smartwatches under their real names.
+export async function buildCheapestAppleWatchMetadata(): Promise<Metadata> {
+  const d = await getCheapestForCategory('smartwatch')
+  const watches = d.rows.filter(r => /apple watch/i.test(r.name))
+  const o = watches[0] ?? null
+  const overallLine = o ? `Cheapest Apple Watch right now: ${o.name} from ${formatGBP(Math.round(o.price))} (${o.condition.replace('_', ' ')}).` : ''
+  const refurbWatch = watches.find(r => isRefurbCondition(r.condition)) ?? null
+  const refurbLine = refurbWatch && refurbWatch.slug !== o?.slug ? ` Cheapest refurbished Apple Watch: ${refurbWatch.name} from ${formatGBP(Math.round(refurbWatch.price))}.` : ''
+  return pageMetadata({
+    title: 'Cheapest Refurbished Apple Watch UK 2026 — Live Prices',
+    description: `Live UK prices for refurbished and used Apple Watches, cheapest first, with the used-vs-refurbished difference and Activation Lock and battery-health checks explained honestly. ${overallLine}${refurbLine}`.trim(),
+    path: '/cheapest-refurbished-apple-watch-uk',
+  })
+}
+
 export async function buildUsedRefurbMetadata(): Promise<Metadata> {
   const s = await getUsedRefurbSnapshot()
   const fromLine = s.lowest ? ` Cheapest tracked right now: ${s.lowest.label.toLowerCase()} from ${formatGBP(Math.round(s.lowest.price))}.` : ''
