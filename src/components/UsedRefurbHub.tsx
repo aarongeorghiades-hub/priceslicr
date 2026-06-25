@@ -10,6 +10,10 @@ const BASE = 'https://www.priceslicr.com'
 const PATH = '/used-refurbished-tech-uk'
 const PUBLISHED = '2026-06-23'
 
+// Short en-GB date for the per-tile "as of {date}" freshness signal.
+const fmtDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+
 // Condition enum → plain-language definition (mirrors the DB enum exactly).
 const CONDITIONS: { key: string; term: string; body: string }[] = [
   { key: 'new', term: 'New', body: 'Sealed, unused stock with the full manufacturer warranty. The benchmark price the second-hand market discounts from — rarely the cheapest, always the safest.' },
@@ -43,7 +47,7 @@ export default async function UsedRefurbHub() {
     },
     {
       q: 'Why are some eBay prices so cheap — are they fake?',
-      a: 'Sometimes. A “new and sealed” flagship at a fraction of its normal price is a classic counterfeit or scam pattern, and a single earbud or a spares/parts unit can look like a whole device in a list. We take a precision-over-recall stance: where a second-hand price is unverifiable or counterfeit-suspect, we suppress it rather than show it, so a “too cheap” listing never becomes our headline price.',
+      a: 'Sometimes. A “new and sealed” flagship at a fraction of its normal price is a classic counterfeit or scam pattern, and a single earbud or a spares/parts unit can look like a whole device in a list. We’d rather show no price than a wrong one: where a second-hand price can’t be verified, or it looks too good to be true and is likely a fake, we leave it out rather than let it become our headline price.',
     },
     {
       q: 'Is it cheaper to buy refurbished or used?',
@@ -108,6 +112,9 @@ export default async function UsedRefurbHub() {
           {lastChecked && (
             <p className="meta text-[var(--ink-faint)] mt-4">{`Last checked: ${lastChecked} · live prices from CEX and eBay`}</p>
           )}
+          <p className="meta text-[var(--ink-faint)] mt-2 max-w-2xl">
+            We track live used and refurbished prices from CEX and eBay across phones, laptops, tablets, headphones, smartwatches and monitors. We re-check them regularly and stamp every price with the date we last verified it, so you can see for yourself how current it is.
+          </p>
         </div>
 
         {/* 2. Used vs Refurbished vs Certified Refurbished */}
@@ -145,7 +152,7 @@ export default async function UsedRefurbHub() {
           <h2 className="heading-card text-[var(--ink)] mb-3">Reading eBay listings (and spotting fakes)</h2>
           <div className="space-y-3 text-[var(--ink-dim)] text-sm leading-relaxed max-w-3xl">
             <p>eBay condition labels run from <span className="text-[var(--ink)]">Brand New</span> and <span className="text-[var(--ink)]">Open Box</span> through <span className="text-[var(--ink)]">Certified Refurbished</span>, <span className="text-[var(--ink)]">Excellent/Very Good/Good Refurbished</span>, down to <span className="text-[var(--ink)]">Used</span> and <span className="text-[var(--ink)]">For parts or not working</span>. Read the title and the condition together: a low price next to “for parts”, “spares”, “cracked”, “single earbud” or “case only” is honest about being a partial or broken unit.</p>
-            <p>The trap is the listing that looks whole and genuine but is priced like junk. A “brand new, sealed” current flagship at a fraction of its normal price is a classic counterfeit or scam pattern. Our matcher takes <span className="text-[var(--ink)]">precision over recall</span>: where a second-hand price is unverifiable or counterfeit-suspect — no trusted retailer anchor, a clone tell in the title, a wrong-generation model code — we <span className="text-[var(--ink)]">suppress it rather than show it</span>. A “too cheap to be true” listing never becomes the headline price on this site.</p>
+            <p>The trap is the listing that looks whole and genuine but is priced like junk. A “brand new, sealed” current flagship at a fraction of its normal price is a classic counterfeit or scam pattern. We’d rather miss a price than show a wrong one: where a second-hand price <span className="text-[var(--ink)]">can’t be backed up by a trusted shop</span>, or the listing has the <span className="text-[var(--ink)]">hallmarks of a fake</span> (a clone passed off as genuine, or the wrong model dressed up as the one you searched for), we <span className="text-[var(--ink)]">leave it out rather than show it</span>. A “too cheap to be true” listing never becomes the headline price on this site.</p>
           </div>
         </Reveal>
 
@@ -204,7 +211,11 @@ export default async function UsedRefurbHub() {
                       {r.product.name} &rarr;
                     </Link>
                   ) : (
-                    <span className="meta text-[var(--ink-faint)]">No verified second-hand price yet</span>
+                    <span className="meta text-[var(--ink-faint)]">No verified price yet</span>
+                  )}
+                  {/* Freshness signal from the SAME resolved row's scraped_at. */}
+                  {r.checkedAt && (
+                    <div className="meta text-[var(--ink-faint)] mt-0.5">{`as of ${fmtDate(r.checkedAt)}`}</div>
                   )}
                 </div>
                 <div className="shrink-0 text-right flex items-baseline gap-3">
@@ -212,7 +223,9 @@ export default async function UsedRefurbHub() {
                     <span>
                       <span className="meta">from </span>
                       <span className="price-num text-base text-[var(--ink)]">{formatGBP(Math.round(r.price))}</span>
+                      {/* Honest condition label + the source retailer that price came from. */}
                       <span className="meta">{' · '}{SEGMENT_LABELS[r.segment].toLowerCase()}</span>
+                      {r.retailerName && <span className="meta">{' · '}{r.retailerName}</span>}
                     </span>
                   ) : (
                     <span className="meta text-[var(--ink-faint)]">&mdash;</span>
@@ -230,6 +243,28 @@ export default async function UsedRefurbHub() {
           <p className="label text-[13px] text-[var(--ink-faint)] mt-2">
             We may earn a commission when you buy through our links — it never affects the prices you see.
           </p>
+        </section>
+
+        {/* 8. BUYING SAFELY — plain <section> (always-visible, no reveal-gating): the
+            checks and protections a normal buyer needs before paying. Hub-level; the
+            spokes carry the per-category detail. */}
+        <section className="mist mist-high mt-12 mb-12">
+          <h2 className="heading-card text-[var(--ink)] mb-2">Buying safely — checks before you pay</h2>
+          <p className="meta text-[var(--ink-dim)] mb-5">A few minutes of checks save the two ways second-hand buys go wrong: a blocked or locked device, and a payment with no protection.</p>
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="card p-5">
+              <div className="font-display font-semibold text-[var(--ink)] text-sm mb-2">Check the device isn’t blocked or locked</div>
+              <p className="text-[var(--ink-dim)] text-sm leading-relaxed">For a phone, ask for the <span className="text-[var(--ink)]">IMEI</span> and check it isn’t reported lost or stolen (blocklisted) before you pay — a blocklisted phone can’t make calls on UK networks. Make sure activation locks are off: <span className="text-[var(--ink)]">iCloud Activation Lock</span> on iPhone and iPad, and <span className="text-[var(--ink)]">Google Factory Reset Protection (FRP)</span> on Android. A locked device you can’t sign into is unusable.</p>
+            </div>
+            <div className="card p-5">
+              <div className="font-display font-semibold text-[var(--ink)] text-sm mb-2">Never pay by bank transfer</div>
+              <p className="text-[var(--ink-dim)] text-sm leading-relaxed">Never pay a private seller by <span className="text-[var(--ink)]">bank transfer</span>. A transfer is like handing over cash — if the item never arrives or isn’t as described, there’s nothing to claw the money back through. Pay by a method that comes with buyer protection instead.</p>
+            </div>
+            <div className="card p-5">
+              <div className="font-display font-semibold text-[var(--ink)] text-sm mb-2">Know what your protection covers</div>
+              <p className="text-[var(--ink-dim)] text-sm leading-relaxed">On eBay, the <span className="text-[var(--ink)]">eBay Money Back Guarantee</span> covers eligible purchases if an item doesn’t arrive or doesn’t match the listing — keep it on-platform to stay covered. From CEX, used kit comes with their <span className="text-[var(--ink)]">stated warranty</span> (commonly up to 24 months) and returns, so you have recourse if it fails.</p>
+            </div>
+          </div>
         </section>
 
         {/* 9. FAQ */}

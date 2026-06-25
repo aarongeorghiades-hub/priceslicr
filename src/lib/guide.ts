@@ -219,6 +219,12 @@ export interface SnapshotRow {
   product: { name: string; slug: string } | null
   price: number | null
   segment: 'refurbished' | 'used' | null
+  // S26: proof fields, all read FROM the same resolved cheapest listing — never a looser
+  // query. retailerName is mapped from retailer_id via the retailers table (not hardcoded);
+  // checkedAt is that listing's own scraped_at so each tile carries its own freshness.
+  retailerId: string | null
+  retailerName: string | null
+  checkedAt: string | null
 }
 export interface UsedRefurbSnapshot {
   rows: SnapshotRow[]
@@ -229,13 +235,20 @@ export interface UsedRefurbSnapshot {
 export const getUsedRefurbSnapshot = cache(async (): Promise<UsedRefurbSnapshot> => {
   const supabase = await createServerSupabaseClient()
   const cats = GUIDES.map(g => g.category)
-  const { data } = await supabase
-    .from('products')
-    .select('id, name, slug, category, listings(price_gbp, condition, in_stock, retailer_id, scraped_at)')
-    .in('category', cats)
+  const [{ data }, { data: retailerRows }] = await Promise.all([
+    supabase
+      .from('products')
+      .select('id, name, slug, category, listings(price_gbp, condition, in_stock, retailer_id, scraped_at)')
+      .in('category', cats),
+    // retailer_id → display name, straight from the retailers table (no hardcoded map).
+    supabase.from('retailers').select('id, name'),
+  ])
+  const retailerName: Record<string, string> = {}
+  for (const r of (retailerRows ?? []) as { id: string; name: string }[]) retailerName[r.id] = r.name
 
   const products = (data ?? []) as GuideProduct[]
-  const best: Record<string, { product: { name: string; slug: string }; price: number; segment: 'refurbished' | 'used' }> = {}
+  // `pick` now holds the WHOLE chosen listing, so source + freshness come from the same row.
+  const best: Record<string, { product: { name: string; slug: string }; price: number; segment: 'refurbished' | 'used'; listing: Listing }> = {}
   let lastChecked: string | null = null
 
   for (const p of products) {
@@ -245,10 +258,10 @@ export const getUsedRefurbSnapshot = cache(async (): Promise<UsedRefurbSnapshot>
     }
     // Trust gate first — never surface an unverifiable / counterfeit-suspect product.
     if (!trustedForHero(inStock, p.category)) continue
-    let pick: { price: number; segment: 'refurbished' | 'used' } | null = null
+    let pick: { price: number; segment: 'refurbished' | 'used'; listing: Listing } | null = null
     for (const seg of ['refurbished', 'used'] as const) {
       const c = cheapestForSegment(inStock, seg) // shared: priced-only, drops new-below-used
-      if (c && (pick == null || c.price_gbp < pick.price)) pick = { price: c.price_gbp, segment: seg }
+      if (c && (pick == null || c.price_gbp < pick.price)) pick = { price: c.price_gbp, segment: seg, listing: c }
     }
     if (pick) {
       const cur = best[p.category]
@@ -258,9 +271,11 @@ export const getUsedRefurbSnapshot = cache(async (): Promise<UsedRefurbSnapshot>
 
   const rows: SnapshotRow[] = GUIDES.map(g => {
     const b = best[g.category]
+    const rid = b?.listing.retailer_id ?? null
     return {
       category: g.category, route: g.route, guidePath: g.guidePath, label: g.label, singular: g.singular,
       product: b?.product ?? null, price: b?.price ?? null, segment: b?.segment ?? null,
+      retailerId: rid, retailerName: rid ? retailerName[rid] ?? null : null, checkedAt: b?.listing.scraped_at ?? null,
     }
   })
   const priced = rows.filter(r => r.price != null) as (SnapshotRow & { price: number })[]
