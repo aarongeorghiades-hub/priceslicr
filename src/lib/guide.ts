@@ -413,6 +413,19 @@ export async function buildCheapestAppleWatchMetadata(): Promise<Metadata> {
   })
 }
 
+// ── S25 spoke-6: cheapest used monitor UK ──
+export async function buildCheapestMonitorMetadata(): Promise<Metadata> {
+  const d = await getCheapestForCategory('monitor')
+  const o = d.cheapestOverall
+  const overallLine = o ? `Cheapest right now: ${o.name} from ${formatGBP(Math.round(o.price))} (${o.condition.replace('_', ' ')}).` : ''
+  const refurbLine = d.cheapestRefurb && d.cheapestRefurb.slug !== o?.slug ? ` Cheapest refurbished: ${d.cheapestRefurb.name} from ${formatGBP(Math.round(d.cheapestRefurb.price))}.` : ''
+  return pageMetadata({
+    title: 'Cheapest Used Monitor UK 2026 — Live Prices',
+    description: `Live UK prices for used and refurbished monitors, cheapest first, with the dead-pixel, backlight-bleed and panel checks that decide a good buy explained honestly. ${overallLine}${refurbLine}`.trim(),
+    path: '/cheapest-used-monitor-uk',
+  })
+}
+
 export async function buildUsedRefurbMetadata(): Promise<Metadata> {
   const s = await getUsedRefurbSnapshot()
   const fromLine = s.lowest ? ` Cheapest tracked right now: ${s.lowest.label.toLowerCase()} from ${formatGBP(Math.round(s.lowest.price))}.` : ''
