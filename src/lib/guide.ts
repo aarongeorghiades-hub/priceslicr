@@ -375,6 +375,25 @@ export async function buildCheapestIpadMetadata(): Promise<Metadata> {
   })
 }
 
+// ── S25 spoke-4: cheapest refurbished headphones UK ──
+// Headphones is the trust-gated category: eBay rows can't headline without a non-eBay
+// anchor, so expect fewer rows and possibly NO trusted refurbished price at all. Anchors
+// come straight from the rendered rows; when no refurbished row exists we say so honestly
+// rather than imply one.
+export async function buildCheapestHeadphonesMetadata(): Promise<Metadata> {
+  const d = await getCheapestForCategory('headphones')
+  const o = d.cheapestOverall
+  const overallLine = o ? `Cheapest right now: ${o.name} from ${formatGBP(Math.round(o.price))} (${o.condition.replace('_', ' ')}).` : ''
+  const refurbLine = d.cheapestRefurb && d.cheapestRefurb.slug !== o?.slug
+    ? ` Cheapest refurbished: ${d.cheapestRefurb.name} from ${formatGBP(Math.round(d.cheapestRefurb.price))}.`
+    : o ? ' We only headline prices we can verify, so counterfeit-suspect listings are left out.' : ''
+  return pageMetadata({
+    title: 'Cheapest Refurbished Headphones UK 2026 — Live Prices',
+    description: `Live UK prices for refurbished and used headphones and wireless earbuds, cheapest first, with the used-vs-refurbished difference and counterfeit risk explained honestly. ${overallLine}${refurbLine}`.trim(),
+    path: '/cheapest-refurbished-headphones-uk',
+  })
+}
+
 export async function buildUsedRefurbMetadata(): Promise<Metadata> {
   const s = await getUsedRefurbSnapshot()
   const fromLine = s.lowest ? ` Cheapest tracked right now: ${s.lowest.label.toLowerCase()} from ${formatGBP(Math.round(s.lowest.price))}.` : ''
