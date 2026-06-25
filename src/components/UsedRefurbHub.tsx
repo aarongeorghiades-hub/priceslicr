@@ -120,7 +120,7 @@ export default async function UsedRefurbHub() {
         {/* 2. Used vs Refurbished vs Certified Refurbished */}
         <Reveal as="section" className="mist mb-12">
           <h2 className="heading-card text-[var(--ink)] mb-2">Used vs refurbished vs certified refurbished</h2>
-          <p className="meta text-[var(--ink-dim)] mb-5">The four conditions we track, cheapest assurance last.</p>
+          <p className="meta text-[var(--ink-dim)] mb-5">The four conditions we track, ordered safest first and cheapest last.</p>
           <div className="grid md:grid-cols-2 gap-4">
             {CONDITIONS.map(c => (
               <div key={c.key} className="card p-5">
@@ -292,6 +292,15 @@ export default async function UsedRefurbHub() {
             </Link>
             <Link href="/cheapest-refurbished-ipad-uk" className="meta text-[var(--slice-text)] hover:underline">
               Cheapest refurbished iPad UK &rarr;
+            </Link>
+            <Link href="/cheapest-refurbished-headphones-uk" className="meta text-[var(--slice-text)] hover:underline">
+              Cheapest refurbished headphones UK &rarr;
+            </Link>
+            <Link href="/cheapest-refurbished-apple-watch-uk" className="meta text-[var(--slice-text)] hover:underline">
+              Cheapest refurbished Apple Watch UK &rarr;
+            </Link>
+            <Link href="/cheapest-used-monitor-uk" className="meta text-[var(--slice-text)] hover:underline">
+              Cheapest used monitor UK &rarr;
             </Link>
           </div>
         </div>
