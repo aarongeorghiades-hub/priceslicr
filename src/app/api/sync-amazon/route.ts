@@ -148,11 +148,19 @@ async function handle(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
   }
 
+  const slugsParam = request.nextUrl.searchParams.get('slugs')
   const category = request.nextUrl.searchParams.get('category')
 
   try {
     let query = supabase.from('products').select('id, name, category, slug, specs').order('category')
-    if (category) query = query.eq('category', category)
+    // ?slugs= bounds a run to a small batch (mirrors the CEX route) so each request
+    // finishes under Railway's ~100s gateway limit; takes precedence over ?category=.
+    if (slugsParam) {
+      const slugs = slugsParam.split(',').map(s => s.trim()).filter(Boolean)
+      query = query.in('slug', slugs)
+    } else if (category) {
+      query = query.eq('category', category)
+    }
     const { data: products, error } = await query
     if (error || !products) {
       return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
@@ -283,7 +291,7 @@ async function handle(request: NextRequest) {
       success: true,
       amazonAvailable: true,
       aborted,
-      category: category ?? 'all',
+      scope: slugsParam ? `slugs(${(products as ProductRow[]).length})` : (category ?? 'all'),
       products: products.length,
       matchedProducts,
       listingsUpserted: totalUpserted,

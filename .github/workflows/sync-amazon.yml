@@ -1,84 +1,134 @@
 name: Sync Amazon
 
-# Amazon Creators API (catalog/searchItems) live-price refresh, all categories.
-# Additive listings source only — never touches the shared resolver/matcher. Each
-# category is its own ~1 req/sec chunk so every HTTP request stays under Cloudflare's
-# ~100s origin limit (phones ~24 products ≈ 24s; others smaller). Mirrors the CEX
-# soft-warn pattern: every chunk warns on failure and the job stays green — if Amazon
-# is unavailable (eligibility/auth/network) the route no-ops cleanly and eBay/CEX
-# listings render exactly as before. Daily run keeps Amazon prices ≤24h fresh.
-# Schedule offset from eBay (00/06/12/18) and CEX (03:00) crons.
+# Amazon Creators API (catalog/searchItems) live-price refresh. Additive listings
+# source only — never touches the shared resolver/matcher. Each request is bounded to
+# a <=8-slug batch (via ?slugs=) so it finishes well under Cloudflare/Railway's ~100s
+# origin limit; a full-category run (phones = 24) 502s mid-run, hence the batching
+# (proven CEX ?slugs= pattern). Mirrors the CEX soft-warn pattern: every batch warns
+# on failure and the job stays green — if Amazon is unavailable (eligibility/auth/
+# network) the route no-ops cleanly and eBay/CEX listings render exactly as before.
+# Daily run keeps Amazon prices <=24h fresh. Schedule offset from eBay (00/06/12/18)
+# and CEX (03:00). New products must be added to the batch lists below for coverage.
 
 on:
   schedule:
     - cron: '0 4 * * *'
   workflow_dispatch:
 
+env:
+  SYNC: "https://www.priceslicr.com/api/sync-amazon?secret=priceslicr-sync-2026"
+
 jobs:
   sync-amazon:
     runs-on: ubuntu-latest
     steps:
-      - name: Amazon — phones (soft — warn only)
+      - name: Phones A (soft — warn only)
         run: |
-          HTTP=$(curl -s -o /tmp/amz_phone.json -w "%{http_code}" --max-time 120 \
-            "https://www.priceslicr.com/api/sync-amazon?secret=priceslicr-sync-2026&category=phone")
-          BODY=$(cat /tmp/amz_phone.json 2>/dev/null)
-          echo "HTTP status: $HTTP"; echo "Response: $BODY"
-          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
-            echo "::warning::Amazon phones chunk failed (HTTP $HTTP) — non-critical, continuing"
-          fi
+          SLUGS="google-pixel-8-pro-128gb,google-pixel-8a-128gb,google-pixel-9-128gb,google-pixel-9-pro-128gb,google-pixel-9-pro-fold-256gb,iphone-14-128gb,iphone-15-128gb,iphone-15-pro-128gb"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon phones-A failed (HTTP $HTTP) — non-critical"; fi
 
-      - name: Amazon — laptops (soft — warn only)
+      - name: Phones B (soft — warn only)
         if: ${{ always() }}
         run: |
-          HTTP=$(curl -s -o /tmp/amz_laptop.json -w "%{http_code}" --max-time 120 \
-            "https://www.priceslicr.com/api/sync-amazon?secret=priceslicr-sync-2026&category=laptop")
-          BODY=$(cat /tmp/amz_laptop.json 2>/dev/null)
-          echo "HTTP status: $HTTP"; echo "Response: $BODY"
-          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
-            echo "::warning::Amazon laptops chunk failed (HTTP $HTTP) — non-critical, continuing"
-          fi
+          SLUGS="iphone-16-128gb,iphone-16-pro-128gb,iphone-16-pro-max-256gb,iphone-se-3rd-gen-64gb,motorola-edge-50-pro-256gb,nothing-phone-3a-128gb,oneplus-13-256gb,samsung-galaxy-a55-128gb"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon phones-B failed (HTTP $HTTP) — non-critical"; fi
 
-      - name: Amazon — tablets (soft — warn only)
+      - name: Phones C (soft — warn only)
         if: ${{ always() }}
         run: |
-          HTTP=$(curl -s -o /tmp/amz_tablet.json -w "%{http_code}" --max-time 120 \
-            "https://www.priceslicr.com/api/sync-amazon?secret=priceslicr-sync-2026&category=tablet")
-          BODY=$(cat /tmp/amz_tablet.json 2>/dev/null)
-          echo "HTTP status: $HTTP"; echo "Response: $BODY"
-          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
-            echo "::warning::Amazon tablets chunk failed (HTTP $HTTP) — non-critical, continuing"
-          fi
+          SLUGS="samsung-galaxy-s24-128gb,samsung-galaxy-s25-128gb,samsung-galaxy-s25-plus-256gb,samsung-galaxy-z-flip-4-128gb,samsung-galaxy-z-flip-5-256gb,samsung-galaxy-z-flip-6-256gb,samsung-galaxy-z-fold-5-256gb,samsung-galaxy-z-fold-6-256gb"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon phones-C failed (HTTP $HTTP) — non-critical"; fi
 
-      - name: Amazon — headphones (soft — warn only)
+      - name: Laptops A (soft — warn only)
         if: ${{ always() }}
         run: |
-          HTTP=$(curl -s -o /tmp/amz_hp.json -w "%{http_code}" --max-time 120 \
-            "https://www.priceslicr.com/api/sync-amazon?secret=priceslicr-sync-2026&category=headphones")
-          BODY=$(cat /tmp/amz_hp.json 2>/dev/null)
-          echo "HTTP status: $HTTP"; echo "Response: $BODY"
-          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
-            echo "::warning::Amazon headphones chunk failed (HTTP $HTTP) — non-critical, continuing"
-          fi
+          SLUGS="acer-swift-go-14,asus-zenbook-14-oled,dell-xps-13-9340,dell-xps-15-9530,framework-laptop-13-amd,hp-envy-x360-15,hp-spectre-x360-14,huawei-matebook-x-pro"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon laptops-A failed (HTTP $HTTP) — non-critical"; fi
 
-      - name: Amazon — smartwatches (soft — warn only)
+      - name: Laptops B (soft — warn only)
         if: ${{ always() }}
         run: |
-          HTTP=$(curl -s -o /tmp/amz_sw.json -w "%{http_code}" --max-time 120 \
-            "https://www.priceslicr.com/api/sync-amazon?secret=priceslicr-sync-2026&category=smartwatch")
-          BODY=$(cat /tmp/amz_sw.json 2>/dev/null)
-          echo "HTTP status: $HTTP"; echo "Response: $BODY"
-          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
-            echo "::warning::Amazon smartwatches chunk failed (HTTP $HTTP) — non-critical, continuing"
-          fi
+          SLUGS="lenovo-ideapad-5-pro-16,lenovo-thinkpad-x1-carbon-gen-12,lg-gram-16,macbook-air-13-m2-8gb-256gb,macbook-air-13-m3-8gb-256gb,macbook-air-13-m3-8gb-512gb,macbook-air-15-m3,macbook-pro-14-m3"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon laptops-B failed (HTTP $HTTP) — non-critical"; fi
 
-      - name: Amazon — monitors (soft — warn only)
+      - name: Laptops C (soft — warn only)
         if: ${{ always() }}
         run: |
-          HTTP=$(curl -s -o /tmp/amz_mon.json -w "%{http_code}" --max-time 120 \
-            "https://www.priceslicr.com/api/sync-amazon?secret=priceslicr-sync-2026&category=monitor")
-          BODY=$(cat /tmp/amz_mon.json 2>/dev/null)
-          echo "HTTP status: $HTTP"; echo "Response: $BODY"
-          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
-            echo "::warning::Amazon monitors chunk failed (HTTP $HTTP) — non-critical, continuing"
-          fi
+          SLUGS="microsoft-surface-laptop-6-13,microsoft-surface-pro-11,razer-blade-14,samsung-galaxy-book4-pro-14"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon laptops-C failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Tablets A (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="google-pixel-tablet-128gb,ipad-10th-gen-64gb-wifi,ipad-air-m2-11-inch-128gb-wifi,ipad-air-m2-13-inch-128gb-wifi,ipad-mini-7th-gen-128gb-wifi,ipad-pro-m4-11-inch-256gb-wifi,ipad-pro-m4-13-inch-256gb-wifi,lenovo-tab-p12-pro-256gb"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon tablets-A failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Tablets B (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="samsung-galaxy-tab-s10-256gb,samsung-galaxy-tab-s10-fe-128gb,samsung-galaxy-tab-s10-plus-256gb"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon tablets-B failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Headphones A (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="apple-airpods-max-usbc,apple-airpods-pro-2nd-gen,bang-olufsen-beoplay-h95,bose-quietcomfort-45,bose-quietcomfort-earbuds-ii,bose-quietcomfort-ultra-headphones,jabra-evolve2-85,samsung-galaxy-buds3-pro"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon headphones-A failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Headphones B (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="sennheiser-momentum-4-wireless,sonos-ace,sony-wh-1000xm4,sony-wh-1000xm5"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon headphones-B failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Smartwatches A (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="apple-watch-se-2nd-gen-40mm,apple-watch-series-10-42mm-gps,apple-watch-series-10-46mm-gps,apple-watch-ultra-2,fitbit-sense-2,garmin-fenix-8-47mm,garmin-venu-3,google-pixel-watch-3-45mm"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon smartwatches-A failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Smartwatches B (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="samsung-galaxy-watch-7-44mm,samsung-galaxy-watch-ultra-47mm"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon smartwatches-B failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Monitors A (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="alienware-aw3423dwf-34-oled,asus-proart-pa279crv-27-4k,benq-pd3220u-32-4k,dell-s3222dgm-32-curved-gaming,dell-u2723qe-27-4k-usbc,lg-27gp850p-b-27-gaming,lg-27uk850-w-27-4k,lg-45gr95qe-45-oled-gaming"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon monitors-A failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Monitors B (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="samsung-odyssey-g7-32-curved,samsung-viewfinity-s9-27-5k"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon monitors-B failed (HTTP $HTTP) — non-critical"; fi
