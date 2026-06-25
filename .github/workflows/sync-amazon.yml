@@ -1,0 +1,84 @@
+name: Sync Amazon
+
+# Amazon Creators API (catalog/searchItems) live-price refresh, all categories.
+# Additive listings source only — never touches the shared resolver/matcher. Each
+# category is its own ~1 req/sec chunk so every HTTP request stays under Cloudflare's
+# ~100s origin limit (phones ~24 products ≈ 24s; others smaller). Mirrors the CEX
+# soft-warn pattern: every chunk warns on failure and the job stays green — if Amazon
+# is unavailable (eligibility/auth/network) the route no-ops cleanly and eBay/CEX
+# listings render exactly as before. Daily run keeps Amazon prices ≤24h fresh.
+# Schedule offset from eBay (00/06/12/18) and CEX (03:00) crons.
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync-amazon:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Amazon — phones (soft — warn only)
+        run: |
+          HTTP=$(curl -s -o /tmp/amz_phone.json -w "%{http_code}" --max-time 120 \
+            "https://www.priceslicr.com/api/sync-amazon?secret=priceslicr-sync-2026&category=phone")
+          BODY=$(cat /tmp/amz_phone.json 2>/dev/null)
+          echo "HTTP status: $HTTP"; echo "Response: $BODY"
+          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
+            echo "::warning::Amazon phones chunk failed (HTTP $HTTP) — non-critical, continuing"
+          fi
+
+      - name: Amazon — laptops (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          HTTP=$(curl -s -o /tmp/amz_laptop.json -w "%{http_code}" --max-time 120 \
+            "https://www.priceslicr.com/api/sync-amazon?secret=priceslicr-sync-2026&category=laptop")
+          BODY=$(cat /tmp/amz_laptop.json 2>/dev/null)
+          echo "HTTP status: $HTTP"; echo "Response: $BODY"
+          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
+            echo "::warning::Amazon laptops chunk failed (HTTP $HTTP) — non-critical, continuing"
+          fi
+
+      - name: Amazon — tablets (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          HTTP=$(curl -s -o /tmp/amz_tablet.json -w "%{http_code}" --max-time 120 \
+            "https://www.priceslicr.com/api/sync-amazon?secret=priceslicr-sync-2026&category=tablet")
+          BODY=$(cat /tmp/amz_tablet.json 2>/dev/null)
+          echo "HTTP status: $HTTP"; echo "Response: $BODY"
+          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
+            echo "::warning::Amazon tablets chunk failed (HTTP $HTTP) — non-critical, continuing"
+          fi
+
+      - name: Amazon — headphones (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          HTTP=$(curl -s -o /tmp/amz_hp.json -w "%{http_code}" --max-time 120 \
+            "https://www.priceslicr.com/api/sync-amazon?secret=priceslicr-sync-2026&category=headphones")
+          BODY=$(cat /tmp/amz_hp.json 2>/dev/null)
+          echo "HTTP status: $HTTP"; echo "Response: $BODY"
+          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
+            echo "::warning::Amazon headphones chunk failed (HTTP $HTTP) — non-critical, continuing"
+          fi
+
+      - name: Amazon — smartwatches (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          HTTP=$(curl -s -o /tmp/amz_sw.json -w "%{http_code}" --max-time 120 \
+            "https://www.priceslicr.com/api/sync-amazon?secret=priceslicr-sync-2026&category=smartwatch")
+          BODY=$(cat /tmp/amz_sw.json 2>/dev/null)
+          echo "HTTP status: $HTTP"; echo "Response: $BODY"
+          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
+            echo "::warning::Amazon smartwatches chunk failed (HTTP $HTTP) — non-critical, continuing"
+          fi
+
+      - name: Amazon — monitors (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          HTTP=$(curl -s -o /tmp/amz_mon.json -w "%{http_code}" --max-time 120 \
+            "https://www.priceslicr.com/api/sync-amazon?secret=priceslicr-sync-2026&category=monitor")
+          BODY=$(cat /tmp/amz_mon.json 2>/dev/null)
+          echo "HTTP status: $HTTP"; echo "Response: $BODY"
+          if [ "$HTTP" != "200" ] || ! echo "$BODY" | grep -q '"success":true'; then
+            echo "::warning::Amazon monitors chunk failed (HTTP $HTTP) — non-critical, continuing"
+          fi
