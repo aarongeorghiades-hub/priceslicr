@@ -357,6 +357,24 @@ export async function buildCheapestLaptopMetadata(): Promise<Metadata> {
   })
 }
 
+// ── S25 spoke-3: cheapest refurbished iPad UK ──
+// Tablet category is iPad-heavy but mixed; the page leads on iPads, so anchors here are
+// the cheapest iPad ROW and cheapest refurbished iPad ROW (filtered from the rendered
+// rows — still rendered rows, never a parallel price path). The on-page list shows all tablets.
+export async function buildCheapestIpadMetadata(): Promise<Metadata> {
+  const d = await getCheapestForCategory('tablet')
+  const ipads = d.rows.filter(r => /ipad/i.test(r.name))
+  const o = ipads[0] ?? null
+  const overallLine = o ? `Cheapest iPad right now: ${o.name} from ${formatGBP(Math.round(o.price))} (${o.condition.replace('_', ' ')}).` : ''
+  const refurbIpad = ipads.find(r => isRefurbCondition(r.condition)) ?? null
+  const refurbLine = refurbIpad && refurbIpad.slug !== o?.slug ? ` Cheapest refurbished iPad: ${refurbIpad.name} from ${formatGBP(Math.round(refurbIpad.price))}.` : ''
+  return pageMetadata({
+    title: 'Cheapest Refurbished iPad UK 2026 — Live Prices',
+    description: `Live UK prices for refurbished and used iPads, cheapest first, with the used-vs-refurbished difference explained honestly. ${overallLine}${refurbLine}`.trim(),
+    path: '/cheapest-refurbished-ipad-uk',
+  })
+}
+
 export async function buildUsedRefurbMetadata(): Promise<Metadata> {
   const s = await getUsedRefurbSnapshot()
   const fromLine = s.lowest ? ` Cheapest tracked right now: ${s.lowest.label.toLowerCase()} from ${formatGBP(Math.round(s.lowest.price))}.` : ''

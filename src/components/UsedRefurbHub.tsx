@@ -255,6 +255,9 @@ export default async function UsedRefurbHub() {
             <Link href="/cheapest-refurbished-laptop-uk" className="meta text-[var(--slice-text)] hover:underline">
               Cheapest refurbished laptop UK &rarr;
             </Link>
+            <Link href="/cheapest-refurbished-ipad-uk" className="meta text-[var(--slice-text)] hover:underline">
+              Cheapest refurbished iPad UK &rarr;
+            </Link>
           </div>
         </div>
 
