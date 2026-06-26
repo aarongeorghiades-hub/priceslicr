@@ -27,10 +27,19 @@ const AMAZON_EXCLUSION_RE = new RegExp(
   'i'
 )
 
+// Strip OS-version tokens ("Windows 11", "Win 10") so an operating-system number can
+// never be read as a model generation. This is the laptop analogue of the Z Fold "5G"
+// leak: a "Surface Pro 11" product was binding a "Surface Pro … (12th Edition)" listing
+// because "Windows 11 Home" supplied the "11". Amazon-LOCAL; no product we track carries
+// a genuine generation 10/11, so removing these is safe. Applied to every guard's title.
+function stripOsTokens(s: string): string {
+  return (s || '').replace(/\bwindows\s*1[01]\b/gi, ' ').replace(/\bwin\s*1[01]\b/gi, ' ')
+}
+
 // Amazon titles write storage spaced ("256 GB") and verbose. Glue "<n> GB/TB" so the
 // shared matcher's "256gb" name-token can substring-match, and lowercase for guards.
 function normaliseAmazonTitle(title: string): string {
-  return (title || '').toLowerCase().replace(/(\d+)\s*(gb|tb)\b/g, '$1$2')
+  return stripOsTokens((title || '').toLowerCase()).replace(/(\d+)\s*(gb|tb)\b/g, '$1$2')
 }
 
 // Amazon storage/capacity guard — the product's own storage token MUST be in the title,
@@ -84,7 +93,7 @@ function passesAmazonVariantGuard(title: string, name: string, category?: string
 function passesAmazonGenerationGuard(title: string, name: string): boolean {
   const genTokens = (name.match(/\b\d+\b/g) ?? [])
   if (genTokens.length === 0) return true
-  const splitTitle = (title || '')
+  const splitTitle = stripOsTokens(title || '')
     .replace(/([A-Za-z])(\d)/g, '$1 $2')
     .replace(/(\d)([A-Za-z])/g, '$1 $2')
   return genTokens.every(tok => new RegExp(`\\b${tok}\\b`).test(splitTitle))
@@ -95,9 +104,10 @@ function passesAmazonGenerationGuard(title: string, name: string): boolean {
 // "16e" either. Checks the ORIGINAL title for "<gen><letter>" the name doesn't have.
 function passesAmazonModelExactness(title: string, name: string): boolean {
   const genTokens = (name.match(/\b\d+\b/g) ?? [])
+  const cleanTitle = stripOsTokens(title)
   for (const n of genTokens) {
     const suffixed = new RegExp(`\\b${n}[a-z]`, 'i')
-    if (suffixed.test(title) && !suffixed.test(name)) return false
+    if (suffixed.test(cleanTitle) && !suffixed.test(name)) return false
   }
   return true
 }
