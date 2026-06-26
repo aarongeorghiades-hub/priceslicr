@@ -240,16 +240,28 @@ async function handle(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorised' }, { status: 401 })
   }
 
+  const hasSlugsParam = request.nextUrl.searchParams.has('slugs')
   const slugsParam = request.nextUrl.searchParams.get('slugs')
   const category = request.nextUrl.searchParams.get('category')
+
+  // Empty-slug HARD FAIL: if ?slugs= is PRESENT but parses to an empty/whitespace-only
+  // list, reject with 400 and write NOTHING — never fall through to a full-category
+  // sync. (A blank ?slugs= once silently triggered a full sync that re-populated frozen
+  // categories and threw 429s.) Absent ?slugs= entirely keeps the full/category path.
+  const parsedSlugs = (slugsParam ?? '').split(',').map(s => s.trim()).filter(Boolean)
+  if (hasSlugsParam && parsedSlugs.length === 0) {
+    return NextResponse.json(
+      { error: 'Empty slugs parameter — refusing to fall through to a full sync. Provide a non-empty ?slugs= list or omit it.' },
+      { status: 400 }
+    )
+  }
 
   try {
     let query = supabase.from('products').select('id, name, category, slug, specs, brand, model_identifier').order('category')
     // ?slugs= bounds a run to a small batch (mirrors the CEX route) so each request
     // finishes under Railway's ~100s gateway limit; takes precedence over ?category=.
-    if (slugsParam) {
-      const slugs = slugsParam.split(',').map(s => s.trim()).filter(Boolean)
-      query = query.in('slug', slugs)
+    if (parsedSlugs.length > 0) {
+      query = query.in('slug', parsedSlugs)
     } else if (category) {
       query = query.eq('category', category)
     }
