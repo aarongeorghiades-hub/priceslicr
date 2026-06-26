@@ -102,6 +102,90 @@ function passesAmazonModelExactness(title: string, name: string): boolean {
   return true
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// AMAZON-LOCAL PRECISION GUARD (S26)
+// Runs ONLY on the Amazon matching path, in the same layer as the variant guards.
+// It does NOT touch the shared titleMatchesModelTokens, the eBay path, the CEX path,
+// or phone matching behaviour. A candidate is ACCEPTED only if it passes ALL guards;
+// a reject just SKIPS the candidate (no row written — never "From £0").
+// Motivation: an audit found the loose token matcher binding accessories/parts/wrong
+// devices to non-phone products (Sonos Ace headphone STAND £41, AirPods Max charging
+// stand, Sony ULT WEAR matched to WH-1000XM5 via a "same processor as" mention,
+// Razer Blade → ASUS Vivobook, "Swift Go" → "Aspire Go", MateBook → MatePad, Pixel
+// Tablet → a generic no-name tablet, grey imports, 2-packs). Case-insensitive; reuses
+// the glued letter↔digit split so model codes/tier words fused to digits are seen.
+
+// (1) ACCESSORY / PART / RELATIONAL / GREY-IMPORT / BUNDLE reject. Our products are
+// DEVICES, so a stand/case/pad/part — or a title that merely *references* our model
+// ("same processor as", "designed for") rather than being it — is never a valid match.
+// "compatible with" is deliberately NOT listed: genuine device titles use it
+// (e.g. Fitbit "Compatible with iOS 15"). Single words are word-bounded; phrases are literal.
+const AMAZON_REJECT_WORDS = [
+  'stand', 'case', 'cover', 'sleeve', 'pouch', 'bag', 'cushion', 'earpad', 'eartip',
+  'replacement', 'dock', 'mount', 'holder', 'digitizer', 'lcd', 'skin', 'decal', 'bundle',
+]
+const AMAZON_REJECT_PHRASES = [
+  'ear pad', 'ear tip', 'ear cushion', 'screen protector', 'tempered glass',
+  'display assembly', 'touch screen', 'screen replacement', 'charging stand',
+  // relational mentions — the listing is an accessory/alternative referencing our model
+  'same processor', 'same chip', 'designed for', 'compatible for', 'replacement for', 'for use with',
+  // (5) grey-import / multi-unit bundle tells
+  'non-uk', 'not certified uk', 'grey import', '2-pack', '2 pack', 'twin pack', 'dual monitor',
+]
+const esc = (k: string) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+const AMAZON_REJECT_RE = new RegExp(
+  '(' + [
+    ...AMAZON_REJECT_WORDS.map(w => `\\b${esc(w)}\\b`),
+    ...AMAZON_REJECT_PHRASES.map(esc),
+  ].join('|') + ')',
+  'i'
+)
+function passesAmazonAccessoryGuard(title: string): boolean {
+  return !AMAZON_REJECT_RE.test(title || '')
+}
+
+// (2) BRAND GATE — every significant brand token (products.brand) must be in the title.
+// Rejects cross-brand binds (Razer↔ASUS, Framework↔HP, MateBook product vs non-Huawei).
+function passesAmazonBrandGate(normTitle: string, brand: string | null): boolean {
+  const toks = (brand || '').toLowerCase().match(/[a-z0-9]+/g) ?? []
+  const sig = toks.filter(t => t.length >= 2) // drops "&"-style noise; e.g. Bang, Olufsen
+  if (sig.length === 0) return true
+  return sig.every(t => normTitle.includes(t))
+}
+
+// (3) MODEL-IDENTITY GATE — every distinctive series/model token from the product NAME
+// must be in the title. Brand tokens and generic spec/connectivity words are stripped so
+// the gate keys on identity (Blade, Spectre, Swift, Zenbook, MacBook, MateBook, Buds3,
+// Momentum, QuietComfort, Earbuds, Ace, WH-1000XM5…) and on generation tokens (incl. the
+// roman "II"/"III" — see (4)). A long token may match a title word as a PREFIX so
+// "Gen" satisfies "generation". Rejects WH-1000XM5→ULT WEAR (no WH/1000/XM/5 — and the
+// "same processor" mention is already killed by (1)), Spectre→Envy, Swift→Aspire,
+// MateBook→MatePad, Pixel Tablet→generic "Tablet".
+const IDENTITY_STOP = new Set([
+  'usb', 'c', 'wifi', 'wi', 'fi', '5g', '4g', 'lte', 'gps', 'cellular', 'bluetooth',
+  'wireless', 'gb', 'tb', 'inch', 'uk', 'version', 'edition', 'the', 'with', 'for', 'and',
+])
+const splitLD = (s: string) => (s || '').toLowerCase()
+  .replace(/([a-z])(\d)/g, '$1 $2').replace(/(\d)([a-z])/g, '$1 $2')
+function identityTokens(product: ProductRow): string[] {
+  const brandToks = new Set((product.brand || '').toLowerCase().match(/[a-z0-9]+/g) ?? [])
+  const toks = splitLD(product.name).match(/[a-z0-9]+/g) ?? []
+  return toks.filter(t => !brandToks.has(t) && !IDENTITY_STOP.has(t))
+}
+function passesAmazonModelIdentity(normTitle: string, product: ProductRow): boolean {
+  const tWords = splitLD(normTitle).match(/[a-z0-9]+/g) ?? []
+  const tset = new Set(tWords)
+  for (const tok of identityTokens(product)) {
+    const ok = tset.has(tok) || (tok.length >= 3 && tWords.some(w => w.startsWith(tok)))
+    if (!ok) return false
+  }
+  return true
+}
+
+// (4) GENERATION GUARD — arabic generations are enforced by passesAmazonGenerationGuard
+// (existing). Roman-numeral generations ("II"/"III") are carried as mandatory identity
+// tokens by (3), so "Earbuds II" cannot bind a newer-gen "Earbuds" title (no "ii").
+
 // ── Honest condition mapping ──
 // "(Renewed)" in the TITLE is Amazon Renewed → certified_refurbished, even when the
 // condition field reads "New". The title tell overrides the field. Used (Warehouse) →
@@ -145,6 +229,8 @@ interface ProductRow {
   category: string
   slug: string
   specs: Record<string, string | number> | null
+  brand: string | null
+  model_identifier: string | null
 }
 
 async function handle(request: NextRequest) {
@@ -158,7 +244,7 @@ async function handle(request: NextRequest) {
   const category = request.nextUrl.searchParams.get('category')
 
   try {
-    let query = supabase.from('products').select('id, name, category, slug, specs').order('category')
+    let query = supabase.from('products').select('id, name, category, slug, specs, brand, model_identifier').order('category')
     // ?slugs= bounds a run to a small batch (mirrors the CEX route) so each request
     // finishes under Railway's ~100s gateway limit; takes precedence over ?category=.
     if (slugsParam) {
@@ -222,11 +308,14 @@ async function handle(request: NextRequest) {
       for (const item of items) {
         const normTitle = normaliseAmazonTitle(item.title)
         const ok =
-          !AMAZON_EXCLUSION_RE.test(item.title) &&
-          titleMatchesModelTokens(normTitle, product.name) &&
+          passesAmazonAccessoryGuard(item.title) &&            // (1) accessory/part/relational/grey/bundle
+          !AMAZON_EXCLUSION_RE.test(item.title) &&             // existing backstop list
+          titleMatchesModelTokens(normTitle, product.name) &&  // shared matcher (unmodified)
           passesAmazonStorageGuard(normTitle, product) &&
+          passesAmazonBrandGate(normTitle, product.brand) &&   // (2) brand gate
+          passesAmazonModelIdentity(normTitle, product) &&     // (3) model-identity gate
           passesAmazonVariantGuard(item.title, product.name, product.category) &&
-          passesAmazonGenerationGuard(item.title, product.name) &&
+          passesAmazonGenerationGuard(item.title, product.name) && // (4) arabic generation
           passesAmazonModelExactness(item.title, product.name)
         if (!ok) continue
 
