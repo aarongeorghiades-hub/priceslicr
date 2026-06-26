@@ -80,5 +80,23 @@ jobs:
           echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
           if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon laptops-C failed (HTTP $HTTP) — non-critical"; fi
 
+      # ── HEADPHONES — signed off on-page S27 (precision guard proven; 17 genuine rows,
+      # zero accessories). Added to the daily run S28 so prices stay <=24h fresh.
+      - name: Headphones A (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="apple-airpods-max-usbc,apple-airpods-pro-2nd-gen,bang-olufsen-beoplay-h95,bose-quietcomfort-45,bose-quietcomfort-earbuds-ii,bose-quietcomfort-ultra-headphones,jabra-evolve2-85,samsung-galaxy-buds3-pro"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon headphones-A failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Headphones B (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="sennheiser-momentum-4-wireless,sonos-ace,sony-wh-1000xm4,sony-wh-1000xm5"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon headphones-B failed (HTTP $HTTP) — non-critical"; fi
+
       # ── STILL FROZEN pending per-category sign-off: Tablets, Smartwatches, Monitors, TV.
       # Re-add each category's batches here only after its S28 audit + on-page sign-off.
