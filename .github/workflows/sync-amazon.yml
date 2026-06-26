@@ -54,6 +54,31 @@ jobs:
           echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
           if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon phones-C failed (HTTP $HTTP) — non-critical"; fi
 
-      # ── NON-PHONE BATCHES FROZEN (S26) — removed pending the matcher precision guard.
-      # Previously: Laptops A/B/C, Tablets A/B, Headphones A/B, Smartwatches A/B,
-      # Monitors A/B. Re-add here only after the non-phone guard ships and is verified.
+      # ── LAPTOPS — signed off S28 (precision guard + OS-token-strip + chip-tier guard
+      # all verified; audit clean, no survivor cross-binds). Live in the daily run.
+      - name: Laptops A (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="acer-swift-go-14,asus-zenbook-14-oled,dell-xps-13-9340,dell-xps-15-9530,framework-laptop-13-amd,hp-envy-x360-15,hp-spectre-x360-14,huawei-matebook-x-pro"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon laptops-A failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Laptops B (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="lenovo-ideapad-5-pro-16,lenovo-thinkpad-x1-carbon-gen-12,lg-gram-16,macbook-air-13-m2-8gb-256gb,macbook-air-13-m3-8gb-256gb,macbook-air-13-m3-8gb-512gb,macbook-air-15-m3,macbook-pro-14-m3"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon laptops-B failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Laptops C (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="microsoft-surface-laptop-6-13,microsoft-surface-pro-11,razer-blade-14,samsung-galaxy-book4-pro-14"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon laptops-C failed (HTTP $HTTP) — non-critical"; fi
+
+      # ── STILL FROZEN pending per-category sign-off: Tablets, Smartwatches, Monitors, TV.
+      # Re-add each category's batches here only after its S28 audit + on-page sign-off.
