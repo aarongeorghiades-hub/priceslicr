@@ -50,14 +50,20 @@ function passesAmazonStorageGuard(normTitle: string, product: ProductRow): boole
 
 // Amazon variant-word guard (ported from the eBay guard; shared fn untouched). Tier
 // words must match as a SET so "iPhone 17" never binds "iPhone 17 Pro", "S25" never
-// binds "S25 Ultra", etc.
-const VARIANT_WORDS = ['pro', 'plus', 'max', 'ultra', 'lite', 'fe', 'mini', 'se', 'neo']
+// binds "S25 Ultra", etc. `fold`/`flip` are mutually-exclusive foldable form factors —
+// a "Z Fold 6" product must never bind a "Z Flip6" listing (and vice-versa).
+const VARIANT_WORDS = ['pro', 'plus', 'max', 'ultra', 'lite', 'fe', 'mini', 'se', 'neo', 'fold', 'flip']
 function variantWordsIn(text: string): Set<string> {
   const deSpec = (text || '')
     .replace(/\d+\s*GB\s*\+\s*\d+\s*(?:GB|TB)/gi, ' ')
     .replace(/\bultra\s*[579]\b/gi, ' ')
     .replace(/\+\s*(?:GPS|Bluetooth|BT|LTE|Cellular|Cell|Wi-?Fi|WiFi|NFC|Solar)\b/gi, ' ')
+  // Split glued letter↔digit runs ("Flip6"→"Flip 6", "Fold6"→"Fold 6") so a tier word
+  // fused to a generation number is still detected word-bounded below. Strictly additive
+  // — it can only reveal a variant word, never hide one.
   const normalised = deSpec.replace(/\+/g, ' plus ')
+    .replace(/([A-Za-z])(\d)/g, '$1 $2')
+    .replace(/(\d)([A-Za-z])/g, '$1 $2')
   const found = new Set<string>()
   for (const w of VARIANT_WORDS) {
     if (new RegExp(`\\b${w}\\b`, 'i').test(normalised)) found.add(w)
