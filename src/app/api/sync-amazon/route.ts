@@ -112,6 +112,35 @@ function passesAmazonModelExactness(title: string, name: string): boolean {
   return true
 }
 
+// Apple-silicon CHIP-TIER guard (Amazon-LOCAL). Chip tier (Pro/Max/Ultra vs bare) is a
+// mutually-exclusive variant just like pro/plus/max: a base-"M3" product must NOT bind
+// an "M3 Pro"/"M3 Max"/"M3 Ultra" listing (and vice-versa). The shared model-identity /
+// generation guards already pin the chip NUMBER (the "3" in M3); this pins the TIER.
+// Chip read from specs.processor (e.g. "Apple M3") with a name fallback; products with no
+// Apple-silicon chip are a no-op, so non-Apple laptops are untouched. Caught in S28:
+// MacBook Pro 14 M3 was binding an "M3 Pro chip" unit (£1899) beside the genuine base-M3.
+const CHIP_RE = /\bm\s*([1-9])\s*(pro|max|ultra)?\b/i
+function productChip(product: ProductRow): { n: string; tier: string } | null {
+  const src = `${product.specs?.processor ?? ''} ${product.name ?? ''}`
+  const m = src.match(CHIP_RE)
+  return m ? { n: m[1], tier: (m[2] ?? '').toLowerCase() } : null
+}
+// The chip TIER a title carries for a given chip number: tier word if "M<n> <tier>",
+// '' if bare "M<n>" appears, or null if the title never mentions M<n>.
+function titleChipTier(title: string, n: string): string | null {
+  const tiered = new RegExp(`\\bm${n}\\s*(pro|max|ultra)\\b`, 'i').exec(title || '')
+  if (tiered) return tiered[1].toLowerCase()
+  if (new RegExp(`\\bm${n}\\b`, 'i').test(title || '')) return ''
+  return null
+}
+function passesAmazonChipGuard(title: string, product: ProductRow): boolean {
+  const pc = productChip(product)
+  if (!pc) return true // not an Apple-silicon product → no-op
+  const tt = titleChipTier(title, pc.n)
+  if (tt === null) return true // chip number absent → identity/generation guards own that
+  return tt === pc.tier // tiers must match exactly (bare↔bare, pro↔pro, …)
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // AMAZON-LOCAL PRECISION GUARD (S26)
 // Runs ONLY on the Amazon matching path, in the same layer as the variant guards.
@@ -338,7 +367,8 @@ async function handle(request: NextRequest) {
           passesAmazonModelIdentity(normTitle, product) &&     // (3) model-identity gate
           passesAmazonVariantGuard(item.title, product.name, product.category) &&
           passesAmazonGenerationGuard(item.title, product.name) && // (4) arabic generation
-          passesAmazonModelExactness(item.title, product.name)
+          passesAmazonModelExactness(item.title, product.name) &&
+          passesAmazonChipGuard(item.title, product)               // Apple-silicon chip tier
         if (!ok) continue
 
         for (const l of item.listings) {
