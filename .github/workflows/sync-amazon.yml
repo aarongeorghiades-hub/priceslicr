@@ -98,5 +98,23 @@ jobs:
           echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
           if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon headphones-B failed (HTTP $HTTP) — non-critical"; fi
 
-      # ── STILL FROZEN pending per-category sign-off: Tablets, Smartwatches, Monitors, TV.
+      # ── TABLETS — signed off S28 (precision guard clean first-time; Pixel→generic,
+      # iPad variant & generation traps all PASS, no survivor binds). Live in the daily run.
+      - name: Tablets A (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="google-pixel-tablet-128gb,ipad-10th-gen-64gb-wifi,ipad-air-m2-11-inch-128gb-wifi,ipad-air-m2-13-inch-128gb-wifi,ipad-mini-7th-gen-128gb-wifi,ipad-pro-m4-11-inch-256gb-wifi,ipad-pro-m4-13-inch-256gb-wifi,lenovo-tab-p12-pro-256gb"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon tablets-A failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Tablets B (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="samsung-galaxy-tab-s10-256gb,samsung-galaxy-tab-s10-fe-128gb,samsung-galaxy-tab-s10-plus-256gb"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon tablets-B failed (HTTP $HTTP) — non-critical"; fi
+
+      # ── STILL FROZEN pending per-category sign-off: Smartwatches, Monitors, TV.
       # Re-add each category's batches here only after its S28 audit + on-page sign-off.
