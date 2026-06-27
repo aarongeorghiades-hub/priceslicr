@@ -283,6 +283,18 @@ export const getUsedRefurbSnapshot = cache(async (): Promise<UsedRefurbSnapshot>
   return { rows, lastChecked, lowest: lowestRow ? { label: lowestRow.label, price: lowestRow.price } : null }
 })
 
+// ── Shared read-only retailer_id → display-name map ──
+// Single source of truth for retailer labels: the `retailers` table, exactly as the
+// hub's getUsedRefurbSnapshot resolves them (NOT a hardcoded id→name map). Read-only;
+// callers look up names[retailer_id]. cache() de-dupes the query within a request.
+export const getRetailerNames = cache(async (): Promise<Record<string, string>> => {
+  const supabase = await createServerSupabaseClient()
+  const { data } = await supabase.from('retailers').select('id, name')
+  const names: Record<string, string> = {}
+  for (const r of (data ?? []) as { id: string; name: string }[]) names[r.id] = r.name
+  return names
+})
+
 // ── S25 spoke resolver (generic): cheapest trusted price per product in a category ──
 // One cheapest-overall TRUSTED row per product, via the SAME shared primitives
 // (trustedForHero gate + cheapestForSegment). Anchors (cheapestOverall / cheapestRefurb)
