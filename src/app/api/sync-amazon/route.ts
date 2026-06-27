@@ -183,6 +183,53 @@ function passesAmazonAccessoryGuard(title: string): boolean {
   return !AMAZON_REJECT_RE.test(title || '')
 }
 
+// ── SMARTWATCH-AWARE accessory reject (Amazon-LOCAL, category 'smartwatch' ONLY) ──
+// Apple names the genuine watch BODY "... Aluminium Case with Sport Band" and Garmin
+// Fenix 8 reads "47 mm ... Band", so the bare case/cover/band/bands/strap tells in
+// AMAZON_REJECT_RE / AMAZON_EXCLUSION_RE wrongly kill the whole genuine premium watch
+// line (Apple Watch SE 2 / Series 10 / Ultra 2, Garmin Fenix 8, Pixel Watch 3). For
+// smartwatches we therefore DROP those bare tokens and reject only genuine accessory-
+// CONTEXT: "<part> for", "replacement/spare <band|strap|case|cover>", "<part> only",
+// protectors/glass, charging cable/dock/stand — plus accessory nouns and relational /
+// grey-import / bundle tells that never appear in a genuine watch body. Every OTHER
+// category keeps the existing two regexes byte-for-byte (see passesAmazonAccessoryGuards).
+const SMARTWATCH_ACCESSORY_PATTERNS = [
+  // "<part> for <device>" — band/strap/case/cover/charger/cable made FOR a watch
+  '\\b(?:case|cover|band|strap|charger|cable)\\s+for\\b',
+  '\\b(?:replacement|spare)\\s+(?:band|strap|case|cover)\\b',
+  '\\b(?:band|strap|case|cover)\\s+only\\b',
+  '\\bcharging\\s+(?:cable|dock|stand|station|pad|puck)\\b',
+  '\\bcharger\\s+(?:cable|dock|stand)\\b',
+]
+// Bare accessory nouns + literal phrases that never occur in a genuine watch BODY title.
+const SMARTWATCH_ACCESSORY_WORDS = [
+  'stand', 'dock', 'mount', 'holder', 'cradle', 'sleeve', 'pouch', 'bag', 'digitizer',
+  'lcd', 'decal', 'stylus', 'skin', 'bundle', 'protector', 'adapter', 'spares',
+]
+const SMARTWATCH_ACCESSORY_PHRASES = [
+  'screen protector', 'tempered glass', 'for parts',
+  // relational mentions — the listing references our model rather than being it
+  'same processor', 'same chip', 'designed for', 'compatible for', 'replacement for', 'for use with',
+  // grey-import / multi-unit bundle tells
+  'non-uk', 'not certified uk', 'grey import', '2-pack', '2 pack', 'twin pack',
+]
+const SMARTWATCH_ACCESSORY_RE = new RegExp(
+  '(' + [
+    ...SMARTWATCH_ACCESSORY_PATTERNS,
+    ...SMARTWATCH_ACCESSORY_WORDS.map(w => `\\b${esc(w)}\\b`),
+    ...SMARTWATCH_ACCESSORY_PHRASES.map(esc),
+  ].join('|') + ')',
+  'i'
+)
+
+// Category-aware accessory gate. For 'smartwatch' use the smartwatch-aware rule; for
+// EVERY other category preserve the exact prior behaviour (AMAZON_REJECT_RE AND
+// AMAZON_EXCLUSION_RE) byte-for-byte — phone/laptop/headphones/tablet/monitor/tv unchanged.
+function passesAmazonAccessoryGuards(title: string, category: string): boolean {
+  if (category === 'smartwatch') return !SMARTWATCH_ACCESSORY_RE.test(title || '')
+  return passesAmazonAccessoryGuard(title) && !AMAZON_EXCLUSION_RE.test(title || '')
+}
+
 // (2) BRAND GATE — every significant brand token (products.brand) must be in the title.
 // Rejects cross-brand binds (Razer↔ASUS, Framework↔HP, MateBook product vs non-Huawei).
 function passesAmazonBrandGate(normTitle: string, brand: string | null): boolean {
@@ -359,8 +406,7 @@ async function handle(request: NextRequest) {
       for (const item of items) {
         const normTitle = normaliseAmazonTitle(item.title)
         const ok =
-          passesAmazonAccessoryGuard(item.title) &&            // (1) accessory/part/relational/grey/bundle
-          !AMAZON_EXCLUSION_RE.test(item.title) &&             // existing backstop list
+          passesAmazonAccessoryGuards(item.title, product.category) && // (1) accessory/part/relational/grey/bundle (smartwatch-aware)
           titleMatchesModelTokens(normTitle, product.name) &&  // shared matcher (unmodified)
           passesAmazonStorageGuard(normTitle, product) &&
           passesAmazonBrandGate(normTitle, product.brand) &&   // (2) brand gate
