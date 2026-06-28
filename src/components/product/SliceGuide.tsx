@@ -170,7 +170,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
       {bestPrice !== null && (
         <button
           onClick={openGuide}
-          className="btn-secondary w-full px-6 py-4 text-sm flex items-center justify-center gap-2"
+          className="btn-primary w-full px-6 py-4 text-sm flex items-center justify-center gap-2"
         >
           Start Slicing &rarr;
         </button>
