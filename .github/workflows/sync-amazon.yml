@@ -116,5 +116,25 @@ jobs:
           echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
           if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon tablets-B failed (HTTP $HTTP) — non-critical"; fi
 
-      # ── STILL FROZEN pending per-category sign-off: Smartwatches, Monitors, TV.
+      # ── SMARTWATCHES — signed off S28 (smartwatch-aware accessory guard: genuine
+      # Apple/Garmin/Pixel watch bodies whose titles carry case/band tokens now bind,
+      # accessory/charger/protector context rejects; tier/generation/case-size traps
+      # PASS, no survivor cross-binds). Added to the daily run so prices stay <=24h fresh.
+      - name: Smartwatches A (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="apple-watch-se-2nd-gen-40mm,apple-watch-series-10-42mm-gps,apple-watch-series-10-46mm-gps,apple-watch-ultra-2,fitbit-sense-2,garmin-fenix-8-47mm,garmin-venu-3,google-pixel-watch-3-45mm"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon smartwatches-A failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Smartwatches B (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="samsung-galaxy-watch-7-44mm,samsung-galaxy-watch-ultra-47mm"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon smartwatches-B failed (HTTP $HTTP) — non-critical"; fi
+
+      # ── STILL FROZEN pending per-category sign-off: Monitors, TV.
       # Re-add each category's batches here only after its S28 audit + on-page sign-off.

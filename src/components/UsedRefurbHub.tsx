@@ -105,15 +105,15 @@ export default async function UsedRefurbHub() {
             <span className="text-[var(--slice-text)]">without overpaying — or getting burned.</span>
           </h1>
           <p className="text-[var(--ink-dim)] text-lg mt-5 max-w-2xl leading-relaxed">
-            {`An honest, live-price guide to buying second-hand tech. We track real UK prices from CEX and eBay, explain what the grades and conditions actually mean, and show the cheapest verified price for each category${lowestStr ? `, currently from ` : '.'}`}
+            {`An honest, live-price guide to buying second-hand tech. We track real UK prices from the retailers we cover, explain what the grades and conditions actually mean, and show the cheapest verified price for each category${lowestStr ? `, currently from ` : '.'}`}
             {lowestStr && <><span className="price-num text-[var(--ink)]">{lowestStr}</span>{`.`}</>}
             {' '}Where a price looks too cheap to be real, we leave it out rather than mislead you.
           </p>
           {lastChecked && (
-            <p className="meta text-[var(--ink-faint)] mt-4">{`Last checked: ${lastChecked} · live prices from CEX and eBay`}</p>
+            <p className="meta text-[var(--ink-faint)] mt-4">{`Last checked: ${lastChecked} · live prices from the UK retailers we track`}</p>
           )}
           <p className="meta text-[var(--ink-faint)] mt-2 max-w-2xl">
-            We track live used and refurbished prices from CEX and eBay across phones, laptops, tablets, headphones, smartwatches and monitors. We re-check them regularly and stamp every price with the date we last verified it, so you can see for yourself how current it is.
+            We track live used and refurbished prices from the UK retailers we cover across phones, laptops, tablets, headphones, smartwatches and monitors. We re-check them regularly and stamp every price with the date we last verified it, so you can see for yourself how current it is.
           </p>
         </div>
 
@@ -238,7 +238,7 @@ export default async function UsedRefurbHub() {
             ))}
           </div>
           {lastChecked && (
-            <p className="meta text-[var(--ink-faint)] mt-4">{`Last checked: ${lastChecked}. Live prices from CEX and eBay; they change as stock moves.`}</p>
+            <p className="meta text-[var(--ink-faint)] mt-4">{`Last checked: ${lastChecked}. Live prices from the UK retailers we track; they change as stock moves.`}</p>
           )}
           <p className="label text-[13px] text-[var(--ink-faint)] mt-2">
             We may earn a commission when you buy through our links — it never affects the prices you see.
