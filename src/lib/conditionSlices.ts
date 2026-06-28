@@ -115,11 +115,11 @@ export const SLICE_APPLICABILITY: Record<string, SliceApplicability> = {
   cashback:      { conditions: NEW_ONLY, flagged: false }, // + retailer New-presence check
   price_match:   { conditions: NEW_ONLY, flagged: false },
   student:       { conditions: NEW_ONLY, flagged: false }, // student/intro/voucher
-  signup:        { conditions: NEW_ONLY, flagged: false }, // intro / new-customer
+  signup:        { conditions: ALL,      flagged: false }, // intro / new-customer — applies on used/refurb too
   email:         { conditions: NEW_ONLY, flagged: false }, // voucher / email signup
   credit_card:   { conditions: NEW_ONLY, flagged: false }, // card offer (e.g. Amex intro)
   card_linked:   { conditions: NEW_ONLY, flagged: false }, // card offer
-  card_cashback: { conditions: NEW_ONLY, flagged: false }, // card offer
+  card_cashback: { conditions: ALL,      flagged: false }, // card offer — your card earns on any condition
   // Eligibility discounts behave like student discount → New-only
   nhs:           { conditions: NEW_ONLY, flagged: false },
   armed_forces:  { conditions: NEW_ONLY, flagged: false },

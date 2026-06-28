@@ -20,6 +20,14 @@ function calcSaving(layer: DiscountLayer, price: number | null): number {
   return 0
 }
 
+// Trade-in is credit for handing in an old device toward a FUTURE purchase — it is NOT
+// a reduction in what THIS item costs. It renders as a standalone conditional-credit
+// step but contributes £0 to the price math (never reduces slicedPrice / totalSaving).
+const isTradeIn = (layer: DiscountLayer) => layer.discount_type === 'trade_in'
+function priceSaving(layer: DiscountLayer, price: number | null): number {
+  return isTradeIn(layer) ? 0 : calcSaving(layer, price)
+}
+
 function bestLayerForType(layers: DiscountLayer[], type: string, price: number | null): DiscountLayer | null {
   const typed = layers.filter(l => l.discount_type === type)
   if (typed.length === 0) return null
@@ -84,7 +92,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
     layer: bestLayerForType(layers, step.type, bestPrice)!,
   })).filter(s => s.layer !== null)
 
-  const totalSaving = stepLayers.reduce((sum, { layer }) => sum + calcSaving(layer, bestPrice), 0)
+  const totalSaving = stepLayers.reduce((sum, { layer }) => sum + priceSaving(layer, bestPrice), 0)
   const slicedPrice = bestPrice ? bestPrice - totalSaving : null
 
   // Entrance animation
@@ -153,7 +161,7 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
 
   // Saved so far (for running total)
   const savedSoFar = currentSliceIndex !== null
-    ? stepLayers.slice(0, currentSliceIndex + 1).reduce((sum, { layer }) => sum + calcSaving(layer, bestPrice), 0)
+    ? stepLayers.slice(0, currentSliceIndex + 1).reduce((sum, { layer }) => sum + priceSaving(layer, bestPrice), 0)
     : 0
 
   return (
@@ -243,9 +251,15 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                       <span className="text-sm text-[var(--ink)] flex-1 text-left">
                         {step.label}
                       </span>
-                      <span className="font-mono text-sm text-[var(--slice-text)] shrink-0">
-                        ~&pound;{saving}
-                      </span>
+                      {step.type === 'trade_in' ? (
+                        <span className="font-mono text-sm text-[var(--ink-faint)] shrink-0">
+                          separate credit
+                        </span>
+                      ) : (
+                        <span className="font-mono text-sm text-[var(--slice-text)] shrink-0">
+                          ~&pound;{saving}
+                        </span>
+                      )}
                     </div>
                   )
                 })}
@@ -305,9 +319,15 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                     <h3 className="font-display text-2xl font-semibold text-[var(--ink)] mb-2">
                       {step.label}
                     </h3>
-                    <div className="font-mono text-3xl font-medium text-[var(--slice-text)] savings-glow mb-8">
-                      Save ~&pound;{saving}
-                    </div>
+                    {step.type === 'trade_in' ? (
+                      <div className="font-mono text-lg font-medium text-[var(--ink-dim)] mb-8">
+                        Separate credit toward a future purchase &mdash; not a discount on this item
+                      </div>
+                    ) : (
+                      <div className="font-mono text-3xl font-medium text-[var(--slice-text)] savings-glow mb-8">
+                        Save ~&pound;{saving}
+                      </div>
+                    )}
 
                     {/* WHAT YOU NEED */}
                     <div className="mb-6">
@@ -407,7 +427,11 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                           return (
                             <div key={i} className="flex justify-between text-xs">
                               <span className="text-[var(--ink-faint)] font-medium">{s.label}</span>
-                              <span className="font-mono font-medium text-[var(--slice-text)]">&minus;&pound;{sv}</span>
+                              {s.type === 'trade_in' ? (
+                                <span className="font-mono font-medium text-[var(--ink-faint)]">credit</span>
+                              ) : (
+                                <span className="font-mono font-medium text-[var(--slice-text)]">&minus;&pound;{sv}</span>
+                              )}
                             </div>
                           )
                         })}
@@ -474,7 +498,11 @@ export default function SliceGuide({ layers, productName, bestPrice }: SliceGuid
                           <span className="font-mono font-medium text-xs text-[var(--slice-text)] w-6">{String(i + 1).padStart(2, '0')}</span>
                           <span className="text-sm text-[var(--ink)]">{step.label}</span>
                         </div>
-                        <span className="font-mono text-sm text-[var(--slice-text)]">&minus;&pound;{saving}</span>
+                        {step.type === 'trade_in' ? (
+                          <span className="font-mono text-sm text-[var(--ink-faint)]">separate credit</span>
+                        ) : (
+                          <span className="font-mono text-sm text-[var(--slice-text)]">&minus;&pound;{saving}</span>
+                        )}
                       </div>
                     )
                   })}

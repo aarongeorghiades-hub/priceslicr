@@ -68,8 +68,8 @@ export const SLICE_ORDER: SliceStep[] = [
     type: 'trade_in',
     order: 6,
     label: 'Trade-In',
-    whyNow: 'Arrange this separately \u2014 your trade-in value is independent of how you pay. It stacks with everything above.',
-    prerequisites: 'Your old device, in the condition you\'ll quote. Get a live quote from MusicMagpie, Currys or Back Market before committing.',
+    whyNow: 'This is separate credit, not a discount on this item. You trade in an old device for voucher credit toward a future purchase \u2014 it does not reduce what this item costs. A CeX voucher is typically worth more than their cash offer, so take the voucher if you\u2019ll buy from them again.',
+    prerequisites: 'Your old device, in the condition you\'ll quote. The value depends on the device and is arranged separately from this purchase \u2014 get a live quote from CeX, MusicMagpie, Currys or Back Market before you buy.',
     actionVerb: 'Arrange',
   },
 ]
