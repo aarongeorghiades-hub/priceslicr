@@ -136,5 +136,25 @@ jobs:
           echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
           if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon smartwatches-B failed (HTTP $HTTP) — non-critical"; fi
 
-      # ── STILL FROZEN pending per-category sign-off: Monitors, TV.
+      # ── MONITORS — signed off S28 (precision guard audited clean: exact model-variant
+      # binds only — LG 27GP850P-B / Dell U2723QE bound their true models; 2-pack/dual
+      # bundles reject, 27↔32 size cross rejects, no survivor mis-binds). Added to the
+      # daily run so prices stay <=24h fresh.
+      - name: Monitors A (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="alienware-aw3423dwf-34-oled,asus-proart-pa279crv-27-4k,benq-pd3220u-32-4k,dell-s3222dgm-32-curved-gaming,dell-u2723qe-27-4k-usbc,lg-27gp850p-b-27-gaming,lg-27uk850-w-27-4k,lg-45gr95qe-45-oled-gaming"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon monitors-A failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Monitors B (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          SLUGS="samsung-odyssey-g7-32-curved,samsung-viewfinity-s9-27-5k"
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&slugs=$SLUGS")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Amazon monitors-B failed (HTTP $HTTP) — non-critical"; fi
+
+      # ── STILL FROZEN pending per-category sign-off: TV.
       # Re-add each category's batches here only after its S28 audit + on-page sign-off.
