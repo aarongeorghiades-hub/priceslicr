@@ -15,6 +15,7 @@ import {
   getUpcomingSaleEvents,
 } from '@/lib/product'
 import {
+  applicableLayers,
   availableSegments,
   cheapestForSegment,
   conditionToSegment,
@@ -120,6 +121,25 @@ export default async function ProductPage({ slug }: { slug: string }) {
         .filter(l => l.price_gbp > 0 && conditionToSegment(l.condition) === defaultSeg)
         .sort((a, b) => a.price_gbp - b.price_gbp)
     : []
+
+  // ── Hero Slice Spotlight (display-only invitation) ──
+  // Honest hook computed from the SAME shared engine the Slice Guide uses (applicableLayers
+  // for the default segment) — never client slice math lifted into the hero, never a
+  // hardcoded figure. The CTA only invites slicing when slices actually apply on this
+  // product's default segment AND a price exists to slice.
+  const heroSliceLayers = defaultSeg ? applicableLayers(relevantLayers, defaultSeg, listings) : []
+  const showSliceCta = defaultHero != null && heroSliceLayers.length > 0
+  // "save up to X%" is allowed ONLY for an UNCONDITIONAL price-cut slice (no per-user
+  // eligibility caveat): cashback portal / gift-card bonus. card_cashback (Amex/new-
+  // cardmember), signup (new-customer), student/key_worker (verified eligibility),
+  // price_match (conditional) and trade_in are all excluded — those fall back to neutral.
+  const UNCONDITIONAL_SLICE_TYPES = new Set(['cashback', 'gift_card'])
+  const heroSlicePct = heroSliceLayers
+    .filter(l => UNCONDITIONAL_SLICE_TYPES.has(l.discount_type) && l.value_type === 'percentage' && l.value > 0)
+    .reduce<number | null>((max, l) => (max == null || l.value > max ? l.value : max), null)
+  const heroSliceHook = heroSlicePct != null
+    ? `Save up to ${Math.round(heroSlicePct)}% by layering savings.`
+    : 'Layer savings to push this price lower.'
 
   const routePrefix = CATEGORY_ROUTES[product.category] ?? product.category + 's'
   const categoryLabel = CATEGORY_LABELS[product.category] ?? product.category
@@ -269,6 +289,21 @@ export default async function ProductPage({ slug }: { slug: string }) {
                 // state; retailer search-links still render in the PriceTable below.
                 <div className="label text-[var(--ink-dim)]">No verified price yet</div>
               )}
+
+              {/* Hero Slice Spotlight — honest invitation to the Slice Guide below */}
+              {showSliceCta && (
+                <div className="mt-5">
+                  <a
+                    href="#slice-guide"
+                    className="btn-primary inline-flex items-center justify-center gap-2 px-6 py-3 text-sm w-full md:w-auto"
+                  >
+                    Slice this price &darr;
+                  </a>
+                  <p className="meta text-[var(--ink-dim)] mt-2 max-w-[280px]">
+                    {heroSliceHook}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -314,8 +349,9 @@ export default async function ProductPage({ slug }: { slug: string }) {
           </div></Reveal>
         </div>
 
-        {/* Right column — Savings Stack */}
-        <aside className="space-y-5 lg:sticky lg:top-24">
+        {/* Right column — Savings Stack (Slice Guide). Anchor target for the hero CTA;
+            scroll-mt clears the sticky Nav so the section isn't hidden under it. */}
+        <aside id="slice-guide" className="space-y-5 scroll-mt-24 lg:sticky lg:top-24">
           <SavingsColumn
             layers={relevantLayers}
             listings={listings}
