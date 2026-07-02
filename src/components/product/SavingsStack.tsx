@@ -106,34 +106,44 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
     )
   }
 
+  // Relevance-filter the stacking rules to the discount types actually applicable on this
+  // product/condition (layers is already applicableLayers()-filtered upstream). A rule shows
+  // only when EVERY slice type it references is present — so NEW_ONLY-type rules drop off
+  // used/refurb pages. `types` is string[] because the DB carries discount_type values
+  // (card_cashback, key_worker) that are not in the DiscountType union.
+  const presentTypes = new Set<string>(layers.map(l => l.discount_type))
+  const stackingRules: { rule: string; result: string; ok: boolean; types: string[] }[] = [
+    { rule: 'Cashback portal + credit card', result: 'YES — can stack', ok: true, types: ['cashback', 'credit_card'] },
+    { rule: 'Gift card discount + cashback portal', result: 'NO — use one or the other per purchase', ok: false, types: ['gift_card', 'cashback'] },
+    { rule: 'Gift card discount + card rewards', result: 'YES — your card still earns on gift card purchases', ok: true, types: ['gift_card', 'card_cashback'] },
+    { rule: 'Card-linked offer + cashback portal', result: 'YES — they track separately', ok: true, types: ['card_linked', 'cashback'] },
+    { rule: 'Trade-in + everything else', result: 'YES — always stacks', ok: true, types: ['trade_in'] },
+    { rule: 'Key worker discount + student discount', result: 'NO — retailers only accept one discount code', ok: false, types: ['key_worker', 'student'] },
+  ].filter(r => r.types.every(t => presentTypes.has(t)))
+
   return (
     <div className="space-y-3">
 
-      {/* Stacking guide */}
-      <div className="card p-5">
-        <div className="text-xs uppercase tracking-widest text-[var(--ink-dim)] mb-4 font-medium">Key stacking rules</div>
-        <div className="space-y-2">
-          {[
-            { rule: 'Cashback portal + credit card', result: 'YES \u2014 can stack', ok: true },
-            { rule: 'Gift card discount + cashback portal', result: 'NO \u2014 use one or the other per purchase', ok: false },
-            { rule: 'Gift card discount + card rewards', result: 'YES \u2014 your card still earns on gift card purchases', ok: true },
-            { rule: 'Card-linked offer + cashback portal', result: 'YES \u2014 they track separately', ok: true },
-            { rule: 'Trade-in + everything else', result: 'YES \u2014 always stacks', ok: true },
-            { rule: 'Key worker discount + student discount', result: 'NO \u2014 retailers only accept one discount code', ok: false },
-          ].map((item, i) => (
-            <div key={i} className="flex items-center justify-between gap-4">
-              <span className="text-xs font-medium text-[var(--ink-dim)]">{item.rule}</span>
-              <span className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
-                item.ok
-                  ? 'bg-[var(--slice-dim)] text-[var(--slice-text)] border border-[rgba(224,32,32,0.2)]'
-                  : 'bg-[var(--risk-dim)] text-[var(--risk)] border border-[rgba(255,181,32,0.2)]'
-              }`}>
-                {item.result}
-              </span>
-            </div>
-          ))}
+      {/* Stacking guide \u2014 only rules whose referenced slice types are all applicable here */}
+      {stackingRules.length > 0 && (
+        <div className="card p-5">
+          <div className="text-xs uppercase tracking-widest text-[var(--ink-dim)] mb-4 font-medium">Key stacking rules</div>
+          <div className="space-y-2">
+            {stackingRules.map((item, i) => (
+              <div key={i} className="flex items-center justify-between gap-4">
+                <span className="text-xs font-medium text-[var(--ink-dim)]">{item.rule}</span>
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded shrink-0 ${
+                  item.ok
+                    ? 'bg-[var(--slice-dim)] text-[var(--slice-text)] border border-[rgba(224,32,32,0.2)]'
+                    : 'bg-[var(--risk-dim)] text-[var(--risk)] border border-[rgba(255,181,32,0.2)]'
+                }`}>
+                  {item.result}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Layers by type */}
       {sortedTypes.map(type => {
