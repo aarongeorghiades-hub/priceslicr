@@ -36,10 +36,21 @@ function stripOsTokens(s: string): string {
   return (s || '').replace(/\bwindows\s*1[01]\b/gi, ' ').replace(/\bwin\s*1[01]\b/gi, ' ')
 }
 
-// Amazon titles write storage spaced ("256 GB") and verbose. Glue "<n> GB/TB" so the
-// shared matcher's "256gb" name-token can substring-match, and lowercase for guards.
+// FIX 2 (Amazon-LOCAL): fold accented characters to ASCII (NFD normalize + strip combining
+// marks) so Amazon's accented model spellings tokenize like the product name — e.g. Garmin
+// "fēnix" → "fenix", which otherwise splits to "f"+"nix" and fails passesAmazonModelIdentity.
+// Amazon title side ONLY; product-side names and the shared matcher are untouched.
+function foldAccents(s: string): string {
+  return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+}
+
+// Amazon titles write storage spaced ("256 GB"), sizes spaced ("46 mm"), and use accented
+// model names ("fēnix"). Fold accents, then glue "<n> GB/TB/mm" so the shared matcher's
+// "256gb"/"46mm" name-token can substring-match, and lowercase for guards. FIX 1 adds the
+// "mm" glue (mirrors the GB/TB approach) so watch sizes written "45 mm"/"46 mm"/"47 mm" no
+// longer defeat the mandatory "45mm"/"46mm"/"47mm" size token.
 function normaliseAmazonTitle(title: string): string {
-  return stripOsTokens((title || '').toLowerCase()).replace(/(\d+)\s*(gb|tb)\b/g, '$1$2')
+  return foldAccents(stripOsTokens((title || '').toLowerCase())).replace(/(\d+)\s*(gb|tb|mm)\b/g, '$1$2')
 }
 
 // Amazon storage/capacity guard — the product's own storage token MUST be in the title,
