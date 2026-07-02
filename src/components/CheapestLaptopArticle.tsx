@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Nav from '@/components/layout/Nav'
 import Footer from '@/components/layout/Footer'
 import { formatGBP } from '@/lib/utils'
-import { getCheapestForCategory } from '@/lib/guide'
+import { getCheapestForCategory, getRetailerNames } from '@/lib/guide'
 
 const BASE = 'https://www.priceslicr.com'
 const PATH = '/cheapest-refurbished-laptop-uk'
@@ -15,14 +15,10 @@ const CONDITION_LABEL: Record<string, string> = {
   refurbished: 'Refurbished',
   used: 'Used',
 }
-const RETAILER: Record<string, string> = {
-  'c3ed9435-2a3e-40e1-a84a-b14830ece774': 'CEX',
-  '88f4bd85-b743-4750-966f-4a937045fe5e': 'eBay',
-}
 const isRefurbCondition = (c: string) => c === 'refurbished' || c === 'certified_refurbished'
 
 export default async function CheapestLaptopArticle() {
-  const d = await getCheapestForCategory('laptop')
+  const [d, retailerNames] = await Promise.all([getCheapestForCategory('laptop'), getRetailerNames()])
   const lastChecked = d.lastChecked
     ? new Date(d.lastChecked).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
     : null
@@ -143,7 +139,7 @@ export default async function CheapestLaptopArticle() {
                   <div className="font-display font-semibold text-[var(--ink)] text-sm group-hover:text-[var(--slice-text)] transition-colors truncate">{r.name}</div>
                   <div className="meta text-[var(--ink-dim)] mt-1">
                     {CONDITION_LABEL[r.condition] ?? r.condition}
-                    {r.retailerId && RETAILER[r.retailerId] ? ` · ${RETAILER[r.retailerId]}` : ''}
+                    {r.retailerId && retailerNames[r.retailerId] ? ` · ${retailerNames[r.retailerId]}` : ''}
                   </div>
                 </div>
                 <div className="shrink-0 text-right">
