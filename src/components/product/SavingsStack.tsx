@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { DiscountLayer } from '@/types'
+import type { DiscountLayer, DiscountType } from '@/types'
 
 const TYPE_LABELS: Record<string, string> = {
   cashback:        'Cashback portal',
@@ -109,17 +109,19 @@ export default function SavingsStack({ layers }: { layers: DiscountLayer[] }) {
   // Relevance-filter the stacking rules to the discount types actually applicable on this
   // product/condition (layers is already applicableLayers()-filtered upstream). A rule shows
   // only when EVERY slice type it references is present — so NEW_ONLY-type rules drop off
-  // used/refurb pages. `types` is string[] because the DB carries discount_type values
-  // (card_cashback, key_worker) that are not in the DiscountType union.
+  // used/refurb pages. `types` is DiscountType[] so tsc catches any tag typo.
   const presentTypes = new Set<string>(layers.map(l => l.discount_type))
-  const stackingRules: { rule: string; result: string; ok: boolean; types: string[] }[] = [
-    { rule: 'Cashback portal + credit card', result: 'YES — can stack', ok: true, types: ['cashback', 'credit_card'] },
+  // Annotate the literal directly (not the post-.filter result) so tsc contextually checks
+  // every tag against DiscountType and flags typos.
+  const STACKING_RULES: { rule: string; result: string; ok: boolean; types: DiscountType[] }[] = [
+    { rule: 'Cashback portal + credit card', result: 'YES — can stack', ok: true, types: ['cashback', 'card_cashback'] },
     { rule: 'Gift card discount + cashback portal', result: 'NO — use one or the other per purchase', ok: false, types: ['gift_card', 'cashback'] },
     { rule: 'Gift card discount + card rewards', result: 'YES — your card still earns on gift card purchases', ok: true, types: ['gift_card', 'card_cashback'] },
-    { rule: 'Card-linked offer + cashback portal', result: 'YES — they track separately', ok: true, types: ['card_linked', 'cashback'] },
+    { rule: 'Card-linked offer + cashback portal', result: 'YES — they track separately', ok: true, types: ['card_cashback', 'cashback'] },
     { rule: 'Trade-in + everything else', result: 'YES — always stacks', ok: true, types: ['trade_in'] },
     { rule: 'Key worker discount + student discount', result: 'NO — retailers only accept one discount code', ok: false, types: ['key_worker', 'student'] },
-  ].filter(r => r.types.every(t => presentTypes.has(t)))
+  ]
+  const stackingRules = STACKING_RULES.filter(r => r.types.every(t => presentTypes.has(t)))
 
   return (
     <div className="space-y-3">

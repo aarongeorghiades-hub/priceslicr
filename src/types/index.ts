@@ -3,9 +3,12 @@ export type ConditionGrade = 'excellent' | 'very_good' | 'good' | 'fair' | null
 export type AffiliateNetwork = 'awin' | 'amazon_pa' | 'ebay_pn' | 'none'
 export type DiscountType =
   | 'cashback'
+  | 'card_cashback'
+  | 'price_match'
   | 'bnpl'
   | 'signup'
   | 'student'
+  | 'key_worker'
   | 'nhs'
   | 'armed_forces'
   | 'email'
