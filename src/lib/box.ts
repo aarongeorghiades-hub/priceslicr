@@ -197,6 +197,64 @@ export function passesBoxCpuGuard(normTitle: string, product: BoxProduct): boole
   return true
 }
 
+// ── Box-LOCAL MONITOR exactness — present-then-enforce on specs.screen (inches),
+// specs.resolution and specs.refresh_rate. For each field present in specs, parse the feed
+// title: a PARSED value that MISMATCHES the spec → skip (wrong config); a value ABSENT from
+// the title → not enforced (feed titles routinely omit refresh, sometimes resolution). This
+// is a no-op for products without these keys (laptops carry display_inches, not screen), so
+// it is safe in the shared stack. Model-code identity (shared matcher + brand/model-identity
+// guards) stays the PRIMARY gate; this only rejects a title that CONTRADICTS the spec.
+const RES_SYNONYMS: [RegExp, string][] = [
+  [/\b5k\b|\b5120\b/, '5k'],
+  [/\b4k\b|\buhd\b|\b3840\b|\b2160p?\b/, '4k'],
+  [/\b1440p\b|\bqhd\b|\bwqhd\b|quad\s*hd|\b2560\b|\b3440\b/, '1440p'],
+  [/\b1080p\b|\bfhd\b|full\s*hd|\b1920\b/, '1080p'],
+]
+function resolutionClassFromTitle(nt: string): string | null {
+  for (const [re, cls] of RES_SYNONYMS) if (re.test(nt)) return cls
+  return null
+}
+function resolutionClassFromSpec(res: string): string | null {
+  const r = (res || '').toLowerCase()
+  if (r.includes('5k')) return '5k'
+  if (r.includes('4k')) return '4k'
+  if (r.includes('1440')) return '1440p'
+  if (r.includes('1080')) return '1080p'
+  return null
+}
+function feedInches(nt: string): number | null {
+  const m = nt.match(/\b(\d{2}(?:\.\d)?)\s*(?:"|inch|-inch)/)
+  const v = m ? Number(m[1]) : null
+  return v != null && v >= 17 && v <= 60 ? v : null   // sane monitor range; else treat as absent
+}
+function feedHz(nt: string): number | null {
+  const m = nt.match(/\b(\d{2,3})\s*hz\b/)
+  return m ? Number(m[1]) : null
+}
+export function passesBoxMonitorGuard(normTitle: string, product: BoxProduct): boolean {
+  const s = product.specs
+  if (!s) return true
+  // Screen inches
+  if (s.screen != null && /^\d+(?:\.\d+)?$/.test(String(s.screen))) {
+    const fi = feedInches(normTitle)
+    if (fi != null && Math.round(fi) !== Math.round(Number(s.screen))) return false
+  }
+  // Resolution class
+  if (typeof s.resolution === 'string' && s.resolution.trim()) {
+    const spec = resolutionClassFromSpec(s.resolution)
+    const feed = resolutionClassFromTitle(normTitle)
+    if (spec && feed && spec !== feed) return false
+  }
+  // Refresh rate (Hz)
+  if (s.refresh_rate != null && String(s.refresh_rate).trim()) {
+    const m = String(s.refresh_rate).match(/(\d+)/)
+    const specHz = m ? Number(m[1]) : null
+    const fh = feedHz(normTitle)
+    if (specHz && fh && fh !== specHz) return false
+  }
+  return true
+}
+
 // Condition map: feed 'new' → 'new'; 'refurbished' → 'refurbished'; anything else → null (skip).
 export function mapBoxCondition(condition: string): 'new' | 'refurbished' | null {
   const c = (condition || '').trim().toLowerCase()
