@@ -32,8 +32,22 @@ const AMAZON_EXCLUSION_RE = new RegExp(
 // leak: a "Surface Pro 11" product was binding a "Surface Pro … (12th Edition)" listing
 // because "Windows 11 Home" supplied the "11". Amazon-LOCAL; no product we track carries
 // a genuine generation 10/11, so removing these is safe. Applied to every guard's title.
+//
+// S33 — also strip STANDALONE network-band tokens ("5G"/"4G"/"LTE"). Amazon Z Fold 5
+// titles carry a trailing "5G" band that the model-exactness guard misread as a
+// letter-suffixed model ("5"+"g", like the real "16e" case), costing the Z Fold 5 match.
+// The strip is WORD-BOUNDED and standalone-only, so it is safe:
+//   • a genuine generation digit is never "5g" ("Fold 5", "Pixel 5" keep their bare "5");
+//   • a band GLUED into a model name has no boundary before the digit ("X5G" → \b5g\b
+//     cannot match), so real model names are untouched;
+//   • storage/freq keep their trailing letters ("5GB" → g→b has no boundary; "5GHz" → g→h
+//     has no boundary), so \b5g\b matches neither.
 function stripOsTokens(s: string): string {
-  return (s || '').replace(/\bwindows\s*1[01]\b/gi, ' ').replace(/\bwin\s*1[01]\b/gi, ' ')
+  return (s || '')
+    .replace(/\bwindows\s*1[01]\b/gi, ' ')
+    .replace(/\bwin\s*1[01]\b/gi, ' ')
+    .replace(/\b[45]g\b/gi, ' ')   // standalone 5G / 4G network band
+    .replace(/\blte\b/gi, ' ')     // standalone LTE band
 }
 
 // FIX 2 (Amazon-LOCAL): fold accented characters to ASCII (NFD normalize + strip combining
