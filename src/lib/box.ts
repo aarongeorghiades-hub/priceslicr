@@ -109,9 +109,10 @@ export function passesBoxStorageGuard(normTitle: string, product: BoxProduct): b
   return toks.some(t => normTitle.includes(t))
 }
 
-// ── Box-LOCAL RAM guard — enforced ONLY where the product NAME or model_identifier itself
-// specifies the RAM size (e.g. "MacBook Air … 8GB 256GB"). If RAM is not named, no-op
-// (we don't invent a constraint from specs alone). ──
+// ── Box-LOCAL RAM guard — SPEC-AUTHORITATIVE. When specs.ram_gb is present (the truth for
+// the config we track), the feed row's own RAM (parsed from its title) MUST equal it, else
+// skip — even if RAM is not in the product name. If specs.ram_gb is ABSENT, the previous
+// behaviour stands (enforce only a RAM size the product NAME/model_identifier itself names).
 export function boxRamToken(product: BoxProduct): string | null {
   const ram = product.specs?.ram_gb
   if (ram == null || !/^\d+$/.test(String(ram))) return null
@@ -119,10 +120,81 @@ export function boxRamToken(product: BoxProduct): string | null {
   const named = `${product.name} ${product.model_identifier ?? ''}`.toLowerCase().replace(/(\d+)\s*(gb|tb)\b/g, '$1$2')
   return named.includes(tok) ? tok : null
 }
+// Feed RAM, parsed from the (normalised) feed title's "<n>GB RAM" pattern. null if absent.
+export function feedRamGb(normTitle: string): number | null {
+  const m = normTitle.match(/(\d+)\s*gb\s+ram\b/) || normTitle.match(/\bram\s+(\d+)\s*gb\b/)
+  return m ? Number(m[1]) : null
+}
 export function passesBoxRamGuard(normTitle: string, product: BoxProduct): boolean {
+  const ram = product.specs?.ram_gb
+  if (ram != null && /^\d+$/.test(String(ram))) {
+    const feed = feedRamGb(normTitle)
+    if (feed == null) return false          // can't confirm the feed RAM → precision skip
+    return feed === Number(ram)             // authoritative: must equal our tracked config
+  }
+  // specs.ram_gb absent → previous behaviour (only enforce a NAME-specified RAM token).
   const tok = boxRamToken(product)
   if (!tok) return true
   return normTitle.includes(tok)
+}
+
+// ── Box-LOCAL CPU-identity guard — SPEC-AUTHORITATIVE via specs.processor (present for
+// every laptop we track). Present-then-enforce, mirroring the RAM guard:
+//   1) CPU FAMILY exclusivity — if the feed title clearly indicates a different silicon
+//      family than the product (Intel vs AMD vs Apple vs Snapdragon), skip. This catches
+//      the flagged Intel-config-vs-AMD-listing over-binds.
+//   2) Apple chip generation + TIER — M3 must not bind M4/M5, and bare M3 must not bind
+//      "M3 Pro/Max/Ultra" (and vice-versa).
+//   3) Intel/AMD model code — the product's chip code (e.g. 155h, 13700h, 165u, 7840u,
+//      8945hx) must appear in the title when we can extract one from specs.processor.
+// If specs.processor is absent, this is a no-op.
+type CpuFamily = 'apple' | 'intel' | 'amd' | 'snapdragon' | null
+function cpuFamily(s: string): CpuFamily {
+  const t = (s || '').toLowerCase()
+  if (/\bsnapdragon\b/.test(t)) return 'snapdragon'
+  if (/\bamd\b|\bryzen\b/.test(t)) return 'amd'
+  if (/\bintel\b/.test(t) || /\bcore\s+(?:ultra|i[3579])\b/.test(t)) return 'intel'
+  if (/\bapple\b/.test(t) || /\bm[1-9]\b/.test(t)) return 'apple'
+  return null
+}
+function appleChip(s: string): { n: string; tier: string } | null {
+  const t = (s || '').toLowerCase()
+  const m = t.match(/\bm([1-9])\b/)
+  if (!m) return null
+  const tier = new RegExp(`\\bm${m[1]}\\s*(pro|max|ultra)\\b`, 'i').exec(t)
+  return { n: m[1], tier: tier ? tier[1].toLowerCase() : '' }
+}
+// The Apple tier a title carries for chip number n: 'pro'/'max'/'ultra', '' if bare Mn, null if absent.
+function titleAppleTier(normTitle: string, n: string): string | null {
+  const tiered = new RegExp(`\\bm${n}\\s*(pro|max|ultra)\\b`, 'i').exec(normTitle)
+  if (tiered) return tiered[1].toLowerCase()
+  if (new RegExp(`\\bm${n}\\b`, 'i').test(normTitle)) return ''
+  return null
+}
+// Intel/AMD mobile chip code: 3–5 digits + a mobile suffix (h/u/hx/hs/hk/p/k/x). Excludes
+// storage/RAM ("512gb"/"16gb"/"1tb") by construction (those suffixes aren't in the set).
+function cpuModelCode(s: string): string | null {
+  const m = (s || '').toLowerCase().match(/\b(\d{3,5}(?:hx|hs|hk|h|u|p|k|x))\b/)
+  return m ? m[1] : null
+}
+export function passesBoxCpuGuard(normTitle: string, product: BoxProduct): boolean {
+  const proc = product.specs?.processor
+  if (typeof proc !== 'string' || !proc.trim()) return true   // no CPU field → no-op
+  const pf = cpuFamily(proc)
+  if (!pf) return true
+  const tf = cpuFamily(normTitle)
+  if (tf && tf !== pf) return false                           // (1) family conflict → skip
+  if (pf === 'apple') {                                       // (2) Apple gen + tier
+    const chip = appleChip(proc)
+    if (chip) {
+      const tt = titleAppleTier(normTitle, chip.n)
+      if (tt === null || tt !== chip.tier) return false
+    }
+    return true
+  }
+  const code = cpuModelCode(proc)                             // (3) Intel/AMD exact chip code
+  if (code) return normTitle.includes(code)
+  return true
 }
 
 // Condition map: feed 'new' → 'new'; 'refurbished' → 'refurbished'; anything else → null (skip).

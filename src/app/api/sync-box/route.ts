@@ -10,6 +10,7 @@ import {
   passesBoxModelIdentity,
   passesBoxStorageGuard,
   passesBoxRamGuard,
+  passesBoxCpuGuard,
   mapBoxCondition,
   BOX_RETAILER_ID,
   type BoxProduct,
@@ -94,7 +95,8 @@ async function handle(request: NextRequest) {
         if (!passesBoxBrandGate(x.nt, product.brand)) continue        // Box-LOCAL brand gate
         if (!passesBoxModelIdentity(x.nt, product)) continue          // Box-LOCAL model-identity gate
         if (!passesBoxStorageGuard(x.nt, product)) continue           // Box-LOCAL storage GB/TB guard
-        if (!passesBoxRamGuard(x.nt, product)) continue               // Box-LOCAL RAM guard (name-specified only)
+        if (!passesBoxRamGuard(x.nt, product)) continue               // Box-LOCAL RAM guard (spec-authoritative)
+        if (!passesBoxCpuGuard(x.nt, product)) continue               // Box-LOCAL CPU-identity guard (spec-authoritative)
         const c = x.cond as string
         if (!cands[c] || x.price < cands[c].price) {
           cands[c] = { price: x.price, url: x.raw.merchant_deep_link, affiliate: x.raw.aw_deep_link, feedTitle: x.raw.product_name }
