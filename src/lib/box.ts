@@ -56,11 +56,28 @@ function foldAccents(s: string): string {
   return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
 }
 // Strip the feed's leading "Refurbished - " marketing prefix (condition comes from the
-// `condition` column, never the title), then lowercase, strip OS tokens, fold accents, and
-// glue "<n> GB/TB" so storage/RAM tokens substring-match the product name.
+// `condition` column, never the title), then lowercase, strip OS tokens, fold accents, strip
+// standalone network-band tokens, and glue "<n> GB/TB" so storage/RAM tokens substring-match
+// the product name.
+//
+// Band strip mirrors the Amazon S33 fix: 40/52 Box phone titles carry a trailing "5G"/"4G"/
+// "LTE" band. The strip is WORD-BOUNDED and standalone-only, so it is safe — a generation
+// digit is never "5g" (Fold 5 / Pixel 5 keep their bare "5"); a band glued into a model has
+// no boundary before the digit ("X5G" untouched); and storage/RAM keep their trailing letters
+// ("4GB" → g·b, "5GHz" → g·h have no boundary), so \b[45]g\b matches neither.
 export function normaliseBoxTitle(title: string): string {
   const stripped = (title || '').replace(/^\s*refurbished\s*-\s*/i, '')
-  return foldAccents(stripOsTokens(stripped.toLowerCase())).replace(/(\d+)\s*(gb|tb)\b/g, '$1$2')
+  return foldAccents(stripOsTokens(stripped.toLowerCase()))
+    .replace(/\b[45]g\b/gi, ' ')   // standalone 5G / 4G network band
+    .replace(/\blte\b/gi, ' ')     // standalone LTE band
+    // Apple A-series chip tokens ("A16 Chip", "A16 Bionic Chip", "A18 Chip") collide with
+    // iPhone model numbers (A16→"16"), which the shared matcher would read as the generation
+    // — mis-binding iPhone 16 to an iPhone 15 (A16) listing. Strip the "A1x …chip/bionic"
+    // phrase (only when a chip/bionic word follows, so Samsung Galaxy A16/A36/A55 models —
+    // never followed by "chip" — are untouched, and A2x/A3x/A5x are outside the A1x range).
+    .replace(/\ba1[0-9]\s+(?:pro\s+|bionic\s+)*chip\b/gi, ' ')
+    .replace(/\ba1[0-9]\s+bionic\b/gi, ' ')
+    .replace(/(\d+)\s*(gb|tb)\b/g, '$1$2')
 }
 
 // ── Box-LOCAL brand gate (copy of the Amazon brand gate) ──
@@ -253,6 +270,51 @@ export function passesBoxMonitorGuard(normTitle: string, product: BoxProduct): b
     if (specHz && fh && fh !== specHz) return false
   }
   return true
+}
+
+// ── Box-LOCAL PHONE variant guard — tier words (pro/plus/max/ultra/fe/mini/se/fold/flip …)
+// must match as a SET, so a base "Galaxy S25" never binds "S25 Ultra"/"S25+", "iPhone 15"
+// never binds "15 Pro", etc. (model-identity alone lets the base tokens pass a variant title).
+// "+" is read as "plus" (S25+ → plus). Category-scoped to phones so laptop/monitor behaviour
+// is untouched (laptop OS-edition words like "…11 Pro" would otherwise be misread as a tier).
+const PHONE_VARIANT_WORDS = ['pro', 'plus', 'max', 'ultra', 'lite', 'fe', 'mini', 'se', 'neo', 'fold', 'flip']
+function phoneVariantWords(text: string): Set<string> {
+  const t = (text || '').toLowerCase()
+    .replace(/\+/g, ' plus ')
+    .replace(/([a-z])(\d)/g, '$1 $2').replace(/(\d)([a-z])/g, '$1 $2')
+  const found = new Set<string>()
+  for (const w of PHONE_VARIANT_WORDS) if (new RegExp(`\\b${w}\\b`).test(t)) found.add(w)
+  return found
+}
+export function passesBoxPhoneVariantGuard(normTitle: string, product: BoxProduct): boolean {
+  if (product.category !== 'phone') return true
+  const nameV = phoneVariantWords(product.name)
+  const titleV = phoneVariantWords(normTitle)
+  if (nameV.size !== titleV.size) return false
+  for (const w of nameV) if (!titleV.has(w)) return false
+  return true
+}
+
+// ── Box-LOCAL PHONE storage guard — phones don't carry specs.storage_gb (they use specs.storage
+// and the name/slug), so passesBoxStorageGuard no-ops for them. Derive the tracked storage from
+// the product NAME + SLUG; when the feed title states a storage, it must MATCH. Present+match →
+// pass; a DIFFERENT capacity stated → skip (contradiction); no storage stated in the feed →
+// allow (the shared matcher already carries the name's storage token). Category-scoped to phones
+// so laptop/monitor behaviour is untouched. RAM ("<n>GB RAM") is dropped before reading the
+// feed's storage so it is never mistaken for the capacity.
+export function phoneStorageToken(product: BoxProduct): string | null {
+  const src = `${product.name} ${product.slug}`.toLowerCase().replace(/(\d+)\s*(gb|tb)\b/g, '$1$2')
+  const m = src.match(/\b(\d+)(gb|tb)\b/)
+  return m ? `${m[1]}${m[2]}` : null
+}
+export function passesBoxPhoneStorageGuard(normTitle: string, product: BoxProduct): boolean {
+  if (product.category !== 'phone') return true
+  const tok = phoneStorageToken(product)
+  if (!tok) return true
+  if (normTitle.includes(tok)) return true                        // storage stated and matches
+  const t = normTitle.replace(/\b\d+gb\s+ram\b/g, ' ')            // drop RAM so it isn't read as storage
+  const feedStorages = [...t.matchAll(/\b(\d+)(gb|tb)\b/g)]
+  return feedStorages.length === 0                                // no storage in feed → allow; different → skip
 }
 
 // Condition map: feed 'new' → 'new'; 'refurbished' → 'refurbished'; anything else → null (skip).

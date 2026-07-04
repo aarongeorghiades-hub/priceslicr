@@ -12,6 +12,8 @@ import {
   passesBoxRamGuard,
   passesBoxCpuGuard,
   passesBoxMonitorGuard,
+  passesBoxPhoneVariantGuard,
+  passesBoxPhoneStorageGuard,
   mapBoxCondition,
   BOX_RETAILER_ID,
   type BoxProduct,
@@ -34,11 +36,11 @@ async function handle(request: NextRequest) {
 
   // Supported categories: laptop (Phase B) and monitor (this rollout). Anything else 400.
   const category = request.nextUrl.searchParams.get('category')
-  const FEED_CATEGORY: Record<string, string> = { laptop: 'Laptops', monitor: 'Monitors' }
+  const FEED_CATEGORY: Record<string, string> = { laptop: 'Laptops', monitor: 'Monitors', phone: 'Mobile Phones' }
   const feedCategoryName = category ? FEED_CATEGORY[category] : undefined
   if (!category || !feedCategoryName) {
     return NextResponse.json(
-      { error: "sync-box requires ?category=laptop or ?category=monitor" },
+      { error: "sync-box requires ?category=laptop, ?category=monitor or ?category=phone" },
       { status: 400 }
     )
   }
@@ -100,7 +102,9 @@ async function handle(request: NextRequest) {
         if (!passesBoxStorageGuard(x.nt, product)) continue           // Box-LOCAL storage GB/TB guard
         if (!passesBoxRamGuard(x.nt, product)) continue               // Box-LOCAL RAM guard (spec-authoritative)
         if (!passesBoxCpuGuard(x.nt, product)) continue               // Box-LOCAL CPU-identity guard (spec-authoritative)
-        if (!passesBoxMonitorGuard(x.nt, product)) continue           // Box-LOCAL monitor exactness (no-op for laptops)
+        if (!passesBoxMonitorGuard(x.nt, product)) continue           // Box-LOCAL monitor exactness (no-op for laptops/phones)
+        if (!passesBoxPhoneVariantGuard(x.nt, product)) continue      // Box-LOCAL phone variant set (no-op for laptops/monitors)
+        if (!passesBoxPhoneStorageGuard(x.nt, product)) continue      // Box-LOCAL phone storage (no-op for laptops/monitors)
         const c = x.cond as string
         if (!cands[c] || x.price < cands[c].price) {
           cands[c] = { price: x.price, url: x.raw.merchant_deep_link, affiliate: x.raw.aw_deep_link, feedTitle: x.raw.product_name }
