@@ -309,6 +309,9 @@ export async function GET(request: NextRequest) {
           price_gbp: listing.price,
           condition: listing.condition,
           url: listing.url,
+          // listing.url is the EPN campid-tracked link (itemAffiliateWebUrl); write it to
+          // affiliate_link too so the PriceTable Buy button (keyed on affiliate_link) renders.
+          affiliate_link: listing.url,
           in_stock: true,
           scraped_at: new Date().toISOString(),
         }))
