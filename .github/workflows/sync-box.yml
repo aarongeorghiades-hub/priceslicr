@@ -1,0 +1,35 @@
+name: Sync Box
+
+# Box.co.uk (Awin datafeed) live-price refresh — laptops + monitors. Additive listings
+# source only — never touches the shared resolver/matcher. Each request fetches the Awin
+# feed, matches one category's products, and finishes well under Cloudflare/Railway's ~100s
+# origin limit. Mirrors the sync-amazon soft-warn pattern: every step warns on failure and
+# the job stays green — if the feed/route is unavailable the route no-ops cleanly and
+# eBay/CEX/Amazon listings render exactly as before. Daily run keeps Box prices <=24h fresh.
+# Schedule offset from Amazon (04:00), eBay (00/06/12/18) and CEX (03:00).
+
+on:
+  schedule:
+    - cron: '30 4 * * *'
+  workflow_dispatch:
+
+env:
+  SYNC: "https://www.priceslicr.com/api/sync-box?secret=priceslicr-sync-2026"
+
+jobs:
+  sync-box:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Laptops (soft — warn only)
+        run: |
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&category=laptop")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Box laptops failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Monitors (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          sleep 2
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&category=monitor")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Box monitors failed (HTTP $HTTP) — non-critical"; fi
