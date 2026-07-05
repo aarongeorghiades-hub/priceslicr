@@ -33,3 +33,11 @@ jobs:
           HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&category=monitor")
           echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
           if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Box monitors failed (HTTP $HTTP) — non-critical"; fi
+
+      - name: Phones (soft — warn only)
+        if: ${{ always() }}
+        run: |
+          sleep 2
+          HTTP=$(curl -s -o /tmp/a.json -w "%{http_code}" --max-time 90 "$SYNC&category=phone")
+          echo "HTTP $HTTP"; cat /tmp/a.json 2>/dev/null; echo
+          if [ "$HTTP" != "200" ] || ! grep -q '"success":true' /tmp/a.json; then echo "::warning::Box phones failed (HTTP $HTTP) — non-critical"; fi
