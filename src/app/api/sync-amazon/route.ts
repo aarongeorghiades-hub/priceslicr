@@ -320,7 +320,7 @@ function passesAmazonModelIdentity(normTitle: string, product: ProductRow): bool
 // used. Genuine New (value New, not Renewed) → new (benchmark only — the shared
 // resolver excludes new from used/refurb anchors, so it is never crowned cheapest).
 function mapCondition(title: string, conditionValue: string): Condition {
-  if (/\(renewed\)/i.test(title)) return 'certified_refurbished'
+  if (/\brenewed\b/i.test(title)) return 'certified_refurbished'
   if (conditionValue.toLowerCase() === 'used') return 'used'
   return 'new'
 }
