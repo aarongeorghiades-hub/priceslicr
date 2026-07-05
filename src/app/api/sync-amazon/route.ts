@@ -113,6 +113,23 @@ function passesAmazonVariantGuard(title: string, name: string, category?: string
   return true
 }
 
+// Amazon-LOCAL CONNECTIVITY guard — a GPS-only product (name/slug says "gps", not
+// "cellular") must not bind a Cellular/LTE listing, and a Cellular product must not bind a
+// GPS-only listing. Reads the RAW title on PURPOSE: normTitle's stripOsTokens removes
+// lte/4g/5g, which we need here as cellular signals; and it runs independently of the
+// variant guard's "+Cellular" neutralisation, so "GPS + Cellular" titles are caught. No-op
+// when the product asserts neither token (every phone and non-GPS watch is untouched).
+const CELLULAR_SIGNAL_RE = /\bcellular\b|\blte\b|\b4g\b|\b5g\b/i
+function passesAmazonConnectivityGuard(title: string, product: ProductRow): boolean {
+  const hay = `${product.name ?? ''} ${product.slug ?? ''}`.toLowerCase()
+  const asserts = /\bcellular\b/.test(hay) ? 'cellular' : (/\bgps\b/.test(hay) ? 'gps' : null)
+  if (!asserts) return true                          // asserts neither → no-op (phones, non-GPS watches)
+  const t = title || ''
+  const hasCellular = CELLULAR_SIGNAL_RE.test(t)
+  if (asserts === 'gps') return !hasCellular         // GPS-only must not bind a cellular listing
+  return !(/\bgps\b/i.test(t) && !hasCellular)       // cellular must not bind a GPS-only title
+}
+
 // Amazon generation guard (ported): every standalone numeric token in the product name
 // (Watch 7→7, Series 10→10) must appear word-bounded in the title.
 function passesAmazonGenerationGuard(title: string, name: string): boolean {
@@ -436,6 +453,7 @@ async function handle(request: NextRequest) {
           passesAmazonStorageGuard(normTitle, product) &&
           passesAmazonBrandGate(normTitle, product.brand) &&   // (2) brand gate
           passesAmazonModelIdentity(normTitle, product) &&     // (3) model-identity gate
+          passesAmazonConnectivityGuard(item.title, product) &&    // GPS-only ↔ Cellular exactness (raw title)
           passesAmazonVariantGuard(item.title, product.name, product.category) &&
           passesAmazonGenerationGuard(item.title, product.name) && // (4) arabic generation
           passesAmazonModelExactness(item.title, product.name) &&
